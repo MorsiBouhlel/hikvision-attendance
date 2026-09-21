@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Jours fériés{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1>Jours fériés</h1>
+            <p class="page-header__meta">{{ holidays|length }} jour(s) férié(s) enregistré(s)</p>
+        </div>
+        {% if is_granted('ROLE_ADMIN') %}
+            <a class="btn btn--primary" href="{{ path('holiday_new') }}">+ Nouveau jour férié</a>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        {% if holidays is empty %}
+            <div class="table--empty">Aucun jour férié enregistré.</div>
+        {% else %}
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Libellé</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for holiday in holidays %}
+                            <tr>
+                                <td>{{ holiday.date|date('d/m/Y') }}</td>
+                                <td>{{ holiday.label }}</td>
+                                <td>
+                                    {% if is_granted('ROLE_ADMIN') %}
+                                        <form method="post" action="{{ path('holiday_delete', {id: holiday.id}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('holiday_delete_' ~ holiday.id) }}">
+                                            <button class="btn btn--sm btn--danger" type="submit">Supprimer</button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

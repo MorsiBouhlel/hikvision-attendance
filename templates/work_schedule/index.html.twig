@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Horaires{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1>Horaires de travail</h1>
+            <p class="page-header__meta">{{ schedules|length }} horaire(s)</p>
+        </div>
+        {% if is_granted('ROLE_ADMIN') %}
+            <a class="btn btn--primary" href="{{ path('work_schedule_new') }}">+ Nouvel horaire</a>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        {% if schedules is empty %}
+            <div class="table--empty">Aucun horaire défini.</div>
+        {% else %}
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Début</th>
+                            <th>Fin</th>
+                            <th>Tolérance</th>
+                            <th>Marge badgeage</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for schedule in schedules %}
+                            <tr>
+                                <td>{{ schedule.name }}</td>
+                                <td>{{ schedule.startTime|date('H:i') }}</td>
+                                <td>{{ schedule.endTime|date('H:i') }}{{ schedule.crossesMidnight ? ' (J+1)' }}</td>
+                                <td>{{ schedule.toleranceMinutes }} min</td>
+                                <td>{{ schedule.checkWindowMarginMinutes }} min</td>
+                                <td>
+                                    {% if is_granted('ROLE_ADMIN') %}
+                                        <div class="btn-group">
+                                            <a class="btn btn--sm" href="{{ path('work_schedule_edit', {id: schedule.id}) }}">Éditer</a>
+                                            <form method="post" action="{{ path('work_schedule_delete', {id: schedule.id}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('work_schedule_delete_' ~ schedule.id) }}">
+                                                <button class="btn btn--sm btn--danger" type="submit">Supprimer</button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

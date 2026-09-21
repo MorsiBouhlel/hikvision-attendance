@@ -1,0 +1,1 @@
+0 10 * * * php /var/www/html/bin/console app:hikvision:check-absences >> /var/www/html/var/log/cron.log 2>&1

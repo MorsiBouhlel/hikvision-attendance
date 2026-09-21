@@ -1,0 +1,47 @@
+{% import 'attendance/_status_badge.html.twig' as badges %}
+
+{% if summary is empty %}
+    <div class="table--empty">Aucun employé actif à afficher.</div>
+{% else %}
+    <div class="table-wrap">
+        <table class="table" data-table>
+            <thead>
+                <tr>
+                    <th data-sort="text">Employé</th>
+                    <th data-sort="text">Statut</th>
+                    <th data-sort="text">Entrée</th>
+                    <th data-sort="text">Sortie</th>
+                    <th data-sort="number">Heures</th>
+                    <th data-sort="number">Pointages</th>
+                    <th data-sort="text">Overtime</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in summary %}
+                    <tr>
+                        <td>{{ row.employee }}</td>
+                        <td>
+                            {{ badges.badge(row.status, row.late_minutes) }}
+                            {% if row.is_early_leave %}
+                                <span class="badge badge--warning">Départ anticipé</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ row.check_in ?? '—' }}</td>
+                        <td>{{ row.check_out ?? '—' }}</td>
+                        <td>{{ row.worked_hours is not null ? row.worked_hours ~ ' h' : '—' }}</td>
+                        <td>{{ row.events_count }}</td>
+                        <td>
+                            {% if row.overtime_in_minutes or row.overtime_out_minutes %}
+                                {% if row.overtime_in_minutes %}<span class="text-muted">+{{ row.overtime_in_minutes }} min (entrée)</span>{% endif %}
+                                {% if row.overtime_in_minutes and row.overtime_out_minutes %}<br>{% endif %}
+                                {% if row.overtime_out_minutes %}<span class="text-muted">+{{ row.overtime_out_minutes }} min (sortie)</span>{% endif %}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}

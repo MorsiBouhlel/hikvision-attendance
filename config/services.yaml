@@ -1,0 +1,21 @@
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    App\Service\WebhookRegistrar:
+        arguments:
+            $appBaseUrl: '%env(APP_BASE_URL)%'
+
+    App\Service\EmployeePhotoService:
+        arguments:
+            $publicDir: '%kernel.project_dir%/public'

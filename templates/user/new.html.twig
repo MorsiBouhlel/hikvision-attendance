@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvel utilisateur{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>Nouvel utilisateur</h1>
+    </div>
+
+    <div class="card">
+        <div class="card__body">
+            {{ form_start(form, {attr: {class: 'form'}}) }}
+                <div class="form-row">
+                    {{ form_label(form.email) }}
+                    {{ form_widget(form.email, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.email) }}
+                </div>
+                <div class="form-row">
+                    {{ form_label(form.plainPassword) }}
+                    {{ form_widget(form.plainPassword, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.plainPassword) }}
+                </div>
+                <div class="form-row">
+                    {{ form_label(form.role) }}
+                    {{ form_widget(form.role, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.role) }}
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn--primary" type="submit">Enregistrer</button>
+                    <a class="btn" href="{{ path('user_index') }}">Annuler</a>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

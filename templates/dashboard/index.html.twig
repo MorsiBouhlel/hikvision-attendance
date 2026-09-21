@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block head_extra %}
+    <meta http-equiv="refresh" content="60">
+{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1>Aujourd'hui</h1>
+            <p class="page-header__meta">{{ date|date('d/m/Y') }}</p>
+        </div>
+    </div>
+
+    <div class="stat-grid">
+        <div class="stat-tile stat-tile--success">
+            <div class="stat-tile__label">Présents</div>
+            <div class="stat-tile__value">{{ presentCount }}</div>
+        </div>
+        <div class="stat-tile stat-tile--danger">
+            <div class="stat-tile__label">Absents</div>
+            <div class="stat-tile__value">{{ absentCount }}</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-tile__label">Employés actifs</div>
+            <div class="stat-tile__value">{{ summary|length }}</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__body">
+            <form method="get" class="filter-bar">
+                <div class="form-row">
+                    <label class="form-label" for="department">Département</label>
+                    <select class="form-control" id="department" name="department">
+                        <option value="">Tous les départements</option>
+                        {% for dep in departments %}
+                            <option value="{{ dep.id }}" {{ dep.id == department ? 'selected' }}>{{ dep.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button class="btn btn--primary" type="submit">Filtrer</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__header">
+            <h2>Résumé du jour</h2>
+        </div>
+        {% include 'attendance/_summary_table.html.twig' %}
+    </div>
+{% endblock %}

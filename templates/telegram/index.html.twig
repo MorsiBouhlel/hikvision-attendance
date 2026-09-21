@@ -1,0 +1,108 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Telegram{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1>Alertes Telegram</h1>
+            <p class="page-header__meta">Destinataires des alertes retard/absence</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__header">
+            <h2>Statut</h2>
+        </div>
+        <div class="card__body">
+            <div class="btn-group" style="align-items: center;">
+                {% if enabled %}
+                    <span class="badge badge--present">Alertes activées</span>
+                {% else %}
+                    <span class="badge badge--inactive">Alertes désactivées</span>
+                {% endif %}
+                <form method="post" action="{{ path('telegram_toggle_alerts') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('telegram_toggle_alerts') }}">
+                    <button class="btn btn--sm" type="submit">{{ enabled ? 'Désactiver' : 'Activer' }}</button>
+                </form>
+                <form method="post" action="{{ path('telegram_test') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('telegram_test') }}">
+                    <button class="btn btn--sm btn--primary" type="submit">Envoyer un test</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__header">
+            <h2>Ajouter un destinataire</h2>
+        </div>
+        <div class="card__body">
+            {{ form_start(form, {action: path('telegram_new'), method: 'post', attr: {class: 'form'}}) }}
+                <div class="form-row">
+                    {{ form_label(form.label) }}
+                    {{ form_widget(form.label, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.label) }}
+                </div>
+                <div class="form-row">
+                    {{ form_label(form.chatId) }}
+                    {{ form_widget(form.chatId, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.chatId) }}
+                    <span class="form-help">Envoie un message au bot puis va sur https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates pour lire "chat":{"id": ...}.</span>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn--primary" type="submit">Ajouter</button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__header">
+            <h2>Destinataires</h2>
+        </div>
+        {% if recipients is empty %}
+            <div class="table--empty">Aucun destinataire enregistré.</div>
+        {% else %}
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Chat ID</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for recipient in recipients %}
+                            <tr>
+                                <td>{{ recipient.label }}</td>
+                                <td>{{ recipient.chatId }}</td>
+                                <td>
+                                    {% if recipient.active %}
+                                        <span class="badge badge--present">Actif</span>
+                                    {% else %}
+                                        <span class="badge badge--inactive">Inactif</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <form method="post" action="{{ path('telegram_toggle', {id: recipient.id}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('telegram_toggle_' ~ recipient.id) }}">
+                                            <button class="btn btn--sm" type="submit">{{ recipient.active ? 'Désactiver' : 'Activer' }}</button>
+                                        </form>
+                                        <form method="post" action="{{ path('telegram_delete', {id: recipient.id}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('telegram_delete_' ~ recipient.id) }}">
+                                            <button class="btn btn--sm btn--danger" type="submit">Supprimer</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvel horaire{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>Nouvel horaire</h1>
+    </div>
+
+    <div class="card">
+        <div class="card__body">
+            {% include 'work_schedule/_form.html.twig' %}
+        </div>
+    </div>
+{% endblock %}

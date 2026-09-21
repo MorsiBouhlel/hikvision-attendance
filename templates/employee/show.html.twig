@@ -1,0 +1,126 @@
+{% extends 'base.html.twig' %}
+{% import 'attendance/_status_badge.html.twig' as badges %}
+
+{% block title %}{{ employee.fullName }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div style="display: flex; align-items: center; gap: 16px;">
+            {% if employee.photoPath %}
+                <img class="avatar avatar--lg" src="/uploads/{{ employee.photoPath }}" alt="">
+            {% endif %}
+            <div>
+                <h1>{{ employee.fullName }}</h1>
+                <p class="page-header__meta">
+                    {{ employee.department.name ?? 'Aucun département' }} ·
+                    {% if employee.active %}
+                        <span class="badge badge--present">Actif</span>
+                    {% else %}
+                        <span class="badge badge--inactive">Inactif</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <div class="btn-group">
+            {% if is_granted('ROLE_ADMIN') %}
+                <a class="btn" href="{{ path('employee_edit', {id: employee.id}) }}">Éditer</a>
+            {% endif %}
+            <a class="btn" href="{{ path('employee_index') }}">Retour</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__header">
+            <h2>Pointeuses liées</h2>
+        </div>
+        {% if employee.deviceLinks is empty %}
+            <div class="table--empty">Cet employé n'est lié à aucune pointeuse.</div>
+        {% else %}
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Device</th>
+                            <th>employeeNo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for link in employee.deviceLinks %}
+                            <tr>
+                                <td>{{ link.device.name }}</td>
+                                <td>{{ link.employeeNo }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <div class="card__body">
+            <form method="get" class="filter-bar">
+                <div class="form-row">
+                    <label class="form-label" for="from">Du</label>
+                    <input class="form-control" type="date" id="from" name="from" value="{{ start|date('Y-m-d') }}">
+                </div>
+                <div class="form-row">
+                    <label class="form-label" for="to">Au</label>
+                    <input class="form-control" type="date" id="to" name="to" value="{{ end|date('Y-m-d') }}">
+                </div>
+                <button class="btn btn--primary" type="submit">Afficher</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__header">
+            <h2>Historique de pointages</h2>
+        </div>
+        {% if history is empty %}
+            <div class="table--empty">Aucune donnée sur cette période.</div>
+        {% else %}
+            <div class="table-wrap">
+                <table class="table" data-table>
+                    <thead>
+                        <tr>
+                            <th data-sort="text">Date</th>
+                            <th data-sort="text">Statut</th>
+                            <th data-sort="text">Entrée</th>
+                            <th data-sort="text">Sortie</th>
+                            <th data-sort="number">Heures</th>
+                            <th data-sort="number">Pointages</th>
+                            <th data-sort="text">Overtime</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in history %}
+                            <tr>
+                                <td>{{ row.date|date('d/m/Y') }}</td>
+                                <td>
+                                    {{ badges.badge(row.status, row.late_minutes) }}
+                                    {% if row.is_early_leave %}
+                                        <span class="badge badge--warning">Départ anticipé</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ row.check_in ?? '—' }}</td>
+                                <td>{{ row.check_out ?? '—' }}</td>
+                                <td>{{ row.worked_hours is not null ? row.worked_hours ~ ' h' : '—' }}</td>
+                                <td>{{ row.events_count }}</td>
+                                <td>
+                                    {% if row.overtime_in_minutes or row.overtime_out_minutes %}
+                                        {% if row.overtime_in_minutes %}<span class="text-muted">+{{ row.overtime_in_minutes }} min (entrée)</span>{% endif %}
+                                        {% if row.overtime_in_minutes and row.overtime_out_minutes %}<br>{% endif %}
+                                        {% if row.overtime_out_minutes %}<span class="text-muted">+{{ row.overtime_out_minutes }} min (sortie)</span>{% endif %}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

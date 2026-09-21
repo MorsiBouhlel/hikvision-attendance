@@ -1,0 +1,65 @@
+{{ form_start(form, {attr: {class: 'form'}}) }}
+    <div class="form-row">
+        {{ form_label(form.name) }}
+        {{ form_widget(form.name, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.name) }}
+    </div>
+    <div class="form-row">
+        {{ form_label(form.startTime) }}
+        {{ form_widget(form.startTime, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.startTime) }}
+    </div>
+    <div class="form-row">
+        {{ form_label(form.endTime) }}
+        {{ form_widget(form.endTime, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.endTime) }}
+        <span class="form-help">Si l'heure de fin est avant l'heure de début, l'équipe est considérée à cheval sur minuit.</span>
+    </div>
+    <div class="form-row">
+        {{ form_label(form.toleranceMinutes) }}
+        {{ form_widget(form.toleranceMinutes, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.toleranceMinutes) }}
+    </div>
+    <div class="form-row">
+        {{ form_label(form.checkWindowMarginMinutes) }}
+        {{ form_widget(form.checkWindowMarginMinutes, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.checkWindowMarginMinutes) }}
+        <span class="form-help">Utilisée pour classer un pointage en entrée ou sortie quand la pointeuse n'indique pas explicitement lequel des deux c'est.</span>
+    </div>
+    {% if departments is defined and departments is not empty %}
+        <div class="form-row">
+            <label class="form-label">Affecter par département</label>
+            <div class="checkbox-list" data-department-picker>
+                {% for dep in departments %}
+                    <label class="checkbox-row">
+                        <input type="checkbox" data-department-toggle="{{ dep.id }}">
+                        <span>{{ dep.name }} <span class="text-muted">({{ dep.employees|length }} employé(s))</span></span>
+                    </label>
+                {% endfor %}
+            </div>
+            <span class="form-help">Coche un département pour sélectionner tous ses employés ci-dessous — chaque case reste ensuite modifiable individuellement avant d'enregistrer.</span>
+        </div>
+    {% endif %}
+    <div class="form-row">
+        {{ form_label(form.employees) }}
+        <div class="checkbox-list checkbox-list--scroll" data-checkbox-search data-employee-list>
+            {% for child in form.employees %}
+                {% set emp = employeesById[child.vars.value] %}
+                <label class="checkbox-row">
+                    {{ form_widget(child, {attr: {'data-department-id': emp.department ? emp.department.id : ''}}) }}
+                    <span>
+                        {{ emp.fullName }}
+                        {% if emp.workSchedule and (schedule is not defined or emp.workSchedule != schedule) %}
+                            <span class="text-muted">(actuellement : {{ emp.workSchedule.name }})</span>
+                        {% endif %}
+                    </span>
+                </label>
+            {% endfor %}
+        </div>
+        {{ form_errors(form.employees) }}
+    </div>
+    <div class="btn-group">
+        <button class="btn btn--primary" type="submit">Enregistrer</button>
+        <a class="btn" href="{{ path('work_schedule_index') }}">Annuler</a>
+    </div>
+{{ form_end(form) }}

@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Employés{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1>Employés</h1>
+            <p class="page-header__meta">{{ employees|length }} employé(s)</p>
+        </div>
+        {% if is_granted('ROLE_ADMIN') %}
+            <a class="btn btn--primary" href="{{ path('employee_new') }}">+ Nouvel employé</a>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        {% if employees is empty %}
+            <div class="table--empty">Aucun employé enregistré.</div>
+        {% else %}
+            <div class="table-wrap">
+                <table class="table" data-table>
+                    <thead>
+                        <tr>
+                            <th data-sort="text">Nom</th>
+                            <th data-sort="text">Département</th>
+                            <th data-sort="text">Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in employees %}
+                            <tr>
+                                <td>
+                                    <a href="{{ path('employee_show', {id: employee.id}) }}">
+                                        {% if employee.photoPath %}
+                                            <img class="avatar avatar--sm" src="/uploads/{{ employee.photoPath }}" alt="">
+                                        {% endif %}
+                                        {{ employee.fullName }}
+                                    </a>
+                                </td>
+                                <td>{{ employee.department.name ?? '—' }}</td>
+                                <td>
+                                    {% if employee.active %}
+                                        <span class="badge badge--present">Actif</span>
+                                    {% else %}
+                                        <span class="badge badge--inactive">Inactif</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if is_granted('ROLE_ADMIN') %}
+                                        <div class="btn-group">
+                                            <a class="btn btn--sm" href="{{ path('employee_edit', {id: employee.id}) }}">Éditer</a>
+                                            {% if employee.active %}
+                                                <form method="post" action="{{ path('employee_deactivate', {id: employee.id}) }}">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('employee_deactivate_' ~ employee.id) }}">
+                                                    <button class="btn btn--sm btn--danger" type="submit">Désactiver</button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

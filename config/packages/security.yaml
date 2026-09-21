@@ -1,0 +1,53 @@
+security:
+    password_hashers:
+        App\Entity\User: 'auto'
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            lazy: true
+            provider: app_user_provider
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                default_target_path: dashboard
+            logout:
+                path: app_logout
+
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        - { path: ^/api/hikvision/webhook, roles: PUBLIC_ACCESS }
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: ROLE_VIEWER }
+        - { path: ^/users, roles: ROLE_ADMIN }
+        - { path: ^/devices, roles: ROLE_ADMIN }
+        - { path: ^/employees/new, roles: ROLE_ADMIN }
+        - { path: ^/employees/\d+/edit, roles: ROLE_ADMIN }
+        - { path: ^/employees/\d+/deactivate, roles: ROLE_ADMIN }
+        - { path: ^/departements/new, roles: ROLE_ADMIN }
+        - { path: ^/departements/\d+/edit, roles: ROLE_ADMIN }
+        - { path: ^/departements/\d+/delete, roles: ROLE_ADMIN }
+        - { path: ^/horaires/new, roles: ROLE_ADMIN }
+        - { path: ^/horaires/\d+/edit, roles: ROLE_ADMIN }
+        - { path: ^/horaires/\d+/delete, roles: ROLE_ADMIN }
+        - { path: ^/jours-feries/new, roles: ROLE_ADMIN }
+        - { path: ^/jours-feries/\d+/delete, roles: ROLE_ADMIN }
+        - { path: ^/conges/new, roles: ROLE_ADMIN }
+        - { path: ^/conges/\d+/delete, roles: ROLE_ADMIN }
+        - { path: ^/telegram, roles: ROLE_ADMIN }
+        - { path: ^/, roles: ROLE_VIEWER }
+
+when@test:
+    security:
+        password_hashers:
+            App\Entity\User:
+                algorithm: auto
+                cost: 4 # Lowest possible value for bcrypt
+                time_cost: 3 # Lowest possible value for argon
+                memory_cost: 10 # Lowest possible value for argon

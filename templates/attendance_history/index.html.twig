@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Historique{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1>Historique</h1>
+            <p class="page-header__meta">Résumé de présence pour une date donnée</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__body">
+            <form method="get" class="filter-bar">
+                <div class="form-row">
+                    <label class="form-label" for="date">Date</label>
+                    <input class="form-control" type="date" id="date" name="date" value="{{ date|date('Y-m-d') }}">
+                </div>
+                <div class="form-row">
+                    <label class="form-label" for="department">Département</label>
+                    <select class="form-control" id="department" name="department">
+                        <option value="">Tous les départements</option>
+                        {% for dep in departments %}
+                            <option value="{{ dep.id }}" {{ dep.id == department ? 'selected' }}>{{ dep.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button class="btn btn--primary" type="submit">Afficher</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__header">
+            <h2>Résumé du {{ date|date('d/m/Y') }}</h2>
+        </div>
+        {% include 'attendance/_summary_table.html.twig' %}
+    </div>
+{% endblock %}

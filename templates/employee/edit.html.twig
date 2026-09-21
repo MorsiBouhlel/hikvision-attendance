@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Éditer {{ employee.fullName }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>Éditer {{ employee.fullName }}</h1>
+    </div>
+
+    <div class="card">
+        <div class="card__body">
+            {% include 'employee/_form.html.twig' %}
+        </div>
+    </div>
+{% endblock %}

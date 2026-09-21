@@ -1,0 +1,29 @@
+{{ form_start(form, {attr: {class: 'form'}}) }}
+    <div class="form-row">
+        {{ form_label(form.name) }}
+        {{ form_widget(form.name, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.name) }}
+    </div>
+    <div class="form-row">
+        {{ form_label(form.employees) }}
+        <div class="checkbox-list checkbox-list--scroll" data-checkbox-search>
+            {% for child in form.employees %}
+                {% set emp = employeesById[child.vars.value] %}
+                <label class="checkbox-row">
+                    {{ form_widget(child) }}
+                    <span>
+                        {{ emp.fullName }}
+                        {% if emp.department and (department is not defined or emp.department != department) %}
+                            <span class="text-muted">(actuellement : {{ emp.department.name }})</span>
+                        {% endif %}
+                    </span>
+                </label>
+            {% endfor %}
+        </div>
+        {{ form_errors(form.employees) }}
+    </div>
+    <div class="btn-group">
+        <button class="btn btn--primary" type="submit">Enregistrer</button>
+        <a class="btn" href="{{ path('department_index') }}">Annuler</a>
+    </div>
+{{ form_end(form) }}

@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Devices{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1>Pointeuses</h1>
+            <p class="page-header__meta">{{ devices|length }} device(s) enregistré(s)</p>
+        </div>
+        {% if is_granted('ROLE_ADMIN') %}
+            <a class="btn btn--primary" href="{{ path('device_new') }}">+ Nouveau device</a>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        {% if devices is empty %}
+            <div class="table--empty">Aucun device enregistré.</div>
+        {% else %}
+            <div class="table-wrap">
+                <table class="table" data-table>
+                    <thead>
+                        <tr>
+                            <th data-sort="text">Nom</th>
+                            <th data-sort="text">Site</th>
+                            <th data-sort="text">Adresse</th>
+                            <th data-sort="text">Statut</th>
+                            <th data-sort="text">Dernière activité</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for device in devices %}
+                            <tr>
+                                <td>{{ device.name }}</td>
+                                <td>{{ device.site ?? '—' }}</td>
+                                <td>{{ device.ipAddress }}:{{ device.port }}</td>
+                                <td>
+                                    {% if device.active %}
+                                        <span class="badge badge--present">Actif</span>
+                                    {% else %}
+                                        <span class="badge badge--inactive">Inactif</span>
+                                    {% endif %}
+                                </td>
+                                <td data-sort-value="{{ device.lastSeenAt ? device.lastSeenAt|date('c') : '' }}">{{ device.lastSeenAt ? device.lastSeenAt|date('d/m/Y H:i') : 'Jamais' }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a class="btn btn--sm" href="{{ path('device_edit', {id: device.id}) }}">Éditer</a>
+                                        <form method="post" action="{{ path('device_register_webhook', {id: device.id}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('device_action_' ~ device.id) }}">
+                                            <button class="btn btn--sm" type="submit">Enregistrer webhook</button>
+                                        </form>
+                                        <a class="btn btn--sm" href="{{ path('device_sync_employees_preview', {id: device.id}) }}">Sync employés</a>
+                                    </div>
+                                    <form method="post" action="{{ path('device_sync_events', {id: device.id}) }}" class="btn-group" style="margin-top: 8px; align-items: center;">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('device_sync_events_' ~ device.id) }}">
+                                        <input class="form-control" type="date" name="from" style="padding: 5px 8px; font-size: 12.5px;" title="Depuis">
+                                        <input class="form-control" type="date" name="to" style="padding: 5px 8px; font-size: 12.5px;" title="Jusqu'à">
+                                        <button class="btn btn--sm btn--primary" type="submit">Sync historique</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

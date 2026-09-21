@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Rapport mensuel{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1>Rapport mensuel</h1>
+            <p class="page-header__meta">{{ month|date('F Y') }}</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__body">
+            <form method="get" class="filter-bar">
+                <div class="form-row">
+                    <label class="form-label" for="month">Mois</label>
+                    <input class="form-control" type="month" id="month" name="month" value="{{ month|date('Y-m') }}">
+                </div>
+                <div class="form-row">
+                    <label class="form-label" for="department">Département</label>
+                    <select class="form-control" id="department" name="department">
+                        <option value="">Tous les départements</option>
+                        {% for dep in departments %}
+                            <option value="{{ dep.id }}" {{ dep.id == department ? 'selected' }}>{{ dep.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button class="btn btn--primary" type="submit">Afficher</button>
+                <a class="btn" href="{{ path('attendance_report_monthly_export', {month: month|date('Y-m'), department: department}) }}">Exporter CSV</a>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__header">
+            <h2>Résumé de {{ month|date('F Y') }}</h2>
+        </div>
+        {% if rows is empty %}
+            <div class="table--empty">Aucun employé actif à afficher.</div>
+        {% else %}
+            <div class="table-wrap">
+                <table class="table" data-table>
+                    <thead>
+                        <tr>
+                            <th data-sort="text">Employé</th>
+                            <th data-sort="number">Heures travaillées</th>
+                            <th data-sort="number">Retards</th>
+                            <th data-sort="number">Minutes de retard</th>
+                            <th data-sort="number">Absences</th>
+                            <th data-sort="number">Départs anticipés</th>
+                            <th data-sort="number">Overtime entrée (min)</th>
+                            <th data-sort="number">Overtime sortie (min)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                            <tr>
+                                <td>{{ row.employee }}</td>
+                                <td>{{ row.worked_hours }} h</td>
+                                <td>{{ row.late_count }}</td>
+                                <td>{{ row.late_minutes }}</td>
+                                <td>{{ row.absences }}</td>
+                                <td>{{ row.early_leave_count }}</td>
+                                <td>{{ row.overtime_in_total }}</td>
+                                <td>{{ row.overtime_out_total }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

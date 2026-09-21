@@ -1,0 +1,30 @@
+{{ form_start(form, {attr: {class: 'form'}}) }}
+    <div class="form-row">
+        {{ form_label(form.firstName) }}
+        {{ form_widget(form.firstName, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.firstName) }}
+    </div>
+    <div class="form-row">
+        {{ form_label(form.lastName) }}
+        {{ form_widget(form.lastName, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.lastName) }}
+    </div>
+    <div class="form-row">
+        {{ form_label(form.department) }}
+        {{ form_widget(form.department, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.department) }}
+    </div>
+    <div class="form-row">
+        {{ form_label(form.workSchedule) }}
+        {{ form_widget(form.workSchedule, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.workSchedule) }}
+    </div>
+    <div class="form-row form-row--inline">
+        {{ form_widget(form.isActive) }}
+        {{ form_label(form.isActive) }}
+    </div>
+    <div class="btn-group">
+        <button class="btn btn--primary" type="submit">Enregistrer</button>
+        <a class="btn" href="{{ path('employee_index') }}">Annuler</a>
+    </div>
+{{ form_end(form) }}

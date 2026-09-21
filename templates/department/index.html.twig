@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Départements{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1>Départements</h1>
+            <p class="page-header__meta">{{ departments|length }} département(s)</p>
+        </div>
+        {% if is_granted('ROLE_ADMIN') %}
+            <a class="btn btn--primary" href="{{ path('department_new') }}">+ Nouveau département</a>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        {% if departments is empty %}
+            <div class="table--empty">Aucun département défini.</div>
+        {% else %}
+            <div class="table-wrap">
+                <table class="table" data-table>
+                    <thead>
+                        <tr>
+                            <th data-sort="text">Nom</th>
+                            <th data-sort="number">Employés</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for department in departments %}
+                            <tr>
+                                <td>{{ department.name }}</td>
+                                <td>{{ department.employees|length }}</td>
+                                <td>
+                                    {% if is_granted('ROLE_ADMIN') %}
+                                        <div class="btn-group">
+                                            <a class="btn btn--sm" href="{{ path('department_edit', {id: department.id}) }}">Éditer</a>
+                                            <form method="post" action="{{ path('department_delete', {id: department.id}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('department_delete_' ~ department.id) }}">
+                                                <button class="btn btn--sm btn--danger" type="submit">Supprimer</button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

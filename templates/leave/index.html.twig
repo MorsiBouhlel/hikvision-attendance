@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Congés{% endblock %}
+
+{% set typeLabels = {'conge': 'Congé', 'maladie': 'Maladie', 'autre': 'Autre'} %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1>Congés</h1>
+            <p class="page-header__meta">{{ leaves|length }} période(s) enregistrée(s)</p>
+        </div>
+        {% if is_granted('ROLE_ADMIN') %}
+            <a class="btn btn--primary" href="{{ path('leave_new') }}">+ Nouveau congé</a>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        {% if leaves is empty %}
+            <div class="table--empty">Aucun congé enregistré.</div>
+        {% else %}
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Employé</th>
+                            <th>Début</th>
+                            <th>Fin</th>
+                            <th>Type</th>
+                            <th>Motif</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for leave in leaves %}
+                            <tr>
+                                <td>{{ leave.employee.fullName }}</td>
+                                <td>{{ leave.startDate|date('d/m/Y') }}</td>
+                                <td>{{ leave.endDate|date('d/m/Y') }}</td>
+                                <td>{{ typeLabels[leave.type] ?? leave.type }}</td>
+                                <td>{{ leave.reason ?? '—' }}</td>
+                                <td>
+                                    {% if is_granted('ROLE_ADMIN') %}
+                                        <form method="post" action="{{ path('leave_delete', {id: leave.id}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('leave_delete_' ~ leave.id) }}">
+                                            <button class="btn btn--sm btn--danger" type="submit">Supprimer</button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

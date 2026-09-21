@@ -1,0 +1,10 @@
+.git
+.idea
+var/cache/*
+var/log/*
+!var/cache/.gitkeep
+!var/log/.gitkeep
+vendor
+.env.local
+.env.*.local
+docker-compose.override.yml

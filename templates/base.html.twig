@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Présence{% endblock %} — Hikvision Attendance</title>
+    {% block importmap %}{{ importmap('app') }}{% endblock %}
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="sidebar__brand">
+                Présence
+                <small>Hikvision Attendance</small>
+            </div>
+            <nav class="nav">
+                <a class="nav__link {{ app.request.attributes.get('_route') == 'dashboard' ? 'is-active' }}" href="{{ path('dashboard') }}">Dashboard</a>
+                <a class="nav__link {{ app.request.attributes.get('_route') == 'attendance_history_index' ? 'is-active' }}" href="{{ path('attendance_history_index') }}">Historique</a>
+                <a class="nav__link {{ app.request.attributes.get('_route') starts with 'attendance_report_' ? 'is-active' }}" href="{{ path('attendance_report_monthly') }}">Rapports</a>
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a class="nav__link {{ app.request.attributes.get('_route') starts with 'device_' ? 'is-active' }}" href="{{ path('device_index') }}">Devices</a>
+                {% endif %}
+                <a class="nav__link {{ app.request.attributes.get('_route') starts with 'employee_' ? 'is-active' }}" href="{{ path('employee_index') }}">Employés</a>
+
+                {% set inConfigGroup = app.request.attributes.get('_route') starts with 'department_'
+                    or app.request.attributes.get('_route') starts with 'work_schedule_'
+                    or app.request.attributes.get('_route') starts with 'holiday_'
+                    or app.request.attributes.get('_route') starts with 'leave_'
+                    or app.request.attributes.get('_route') starts with 'telegram_'
+                    or app.request.attributes.get('_route') starts with 'user_' %}
+                <button type="button" class="nav__group-toggle {{ inConfigGroup ? 'is-open' }}" data-nav-group-toggle aria-expanded="{{ inConfigGroup ? 'true' : 'false' }}">
+                    Configuration
+                    <svg class="nav__group-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="nav__group {{ inConfigGroup ? 'is-open' }}" data-nav-group>
+                    <a class="nav__link {{ app.request.attributes.get('_route') starts with 'department_' ? 'is-active' }}" href="{{ path('department_index') }}">Départements</a>
+                    <a class="nav__link {{ app.request.attributes.get('_route') starts with 'work_schedule_' ? 'is-active' }}" href="{{ path('work_schedule_index') }}">Horaires</a>
+                    <a class="nav__link {{ app.request.attributes.get('_route') starts with 'holiday_' ? 'is-active' }}" href="{{ path('holiday_index') }}">Jours fériés</a>
+                    <a class="nav__link {{ app.request.attributes.get('_route') starts with 'leave_' ? 'is-active' }}" href="{{ path('leave_index') }}">Congés</a>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <a class="nav__link {{ app.request.attributes.get('_route') starts with 'telegram_' ? 'is-active' }}" href="{{ path('telegram_index') }}">Telegram</a>
+                        <a class="nav__link {{ app.request.attributes.get('_route') starts with 'user_' ? 'is-active' }}" href="{{ path('user_index') }}">Utilisateurs</a>
+                    {% endif %}
+                </div>
+            </nav>
+            <div class="sidebar__user">
+                <span>{{ app.user.email }}</span>
+                <a href="{{ path('app_logout') }}">Déconnexion</a>
+            </div>
+        </aside>
+        <main class="main">
+            <div class="flash-stack">
+                {% for message in app.flashes('success') %}
+                    <div class="flash flash--success">{{ message }}</div>
+                {% endfor %}
+                {% for message in app.flashes('error') %}
+                    <div class="flash flash--error">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% block body %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>

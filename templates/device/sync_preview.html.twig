@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Synchroniser les employés{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1>Synchroniser {{ device.name }}</h1>
+            <p class="page-header__meta">Utilisateurs enregistrés sur le device non encore liés à un employé</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__body">
+            {% if unlinked is empty %}
+                <p class="text-muted">Aucun utilisateur non lié trouvé sur ce device.</p>
+                <div class="btn-group" style="margin-top: 16px;">
+                    <a class="btn" href="{{ path('device_index') }}">Retour</a>
+                </div>
+            {% else %}
+                <form method="post" action="{{ path('device_sync_employees_confirm', {id: device.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('device_sync_' ~ device.id) }}">
+                    <div class="checkbox-list">
+                        {% for entry in unlinked %}
+                            <label class="checkbox-row">
+                                <input type="checkbox" name="selected[{{ entry.employeeNo }}]" value="{{ entry.name }}" checked>
+                                {% if entry.faceURL %}
+                                    <input type="hidden" name="selected_face_url[{{ entry.employeeNo }}]" value="{{ entry.faceURL }}">
+                                {% endif %}
+                                <span>{{ entry.name }} <span class="text-muted">(employeeNo: {{ entry.employeeNo }})</span></span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    <div class="btn-group" style="margin-top: 20px;">
+                        <button class="btn btn--primary" type="submit">Lier les employés sélectionnés</button>
+                        <a class="btn" href="{{ path('device_index') }}">Annuler</a>
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{{ form_start(form, {attr: {class: 'form'}}) }}
+    <div class="form-row">
+        {{ form_label(form.name) }}
+        {{ form_widget(form.name, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.name) }}
+    </div>
+    <div class="form-row">
+        {{ form_label(form.site) }}
+        {{ form_widget(form.site, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.site) }}
+    </div>
+    <div class="form-row">
+        {{ form_label(form.ipAddress) }}
+        {{ form_widget(form.ipAddress, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.ipAddress) }}
+    </div>
+    <div class="form-row">
+        {{ form_label(form.port) }}
+        {{ form_widget(form.port, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.port) }}
+    </div>
+    <div class="form-row">
+        {{ form_label(form.adminUser) }}
+        {{ form_widget(form.adminUser, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.adminUser) }}
+    </div>
+    <div class="form-row">
+        {{ form_label(form.adminPassword) }}
+        {{ form_widget(form.adminPassword, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.adminPassword) }}
+    </div>
+    <div class="form-row">
+        {{ form_label(form.serialNumber) }}
+        {{ form_widget(form.serialNumber, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.serialNumber) }}
+    </div>
+    <div class="form-row form-row--inline">
+        {{ form_widget(form.isActive) }}
+        {{ form_label(form.isActive) }}
+    </div>
+    <div class="btn-group">
+        <button class="btn btn--primary" type="submit">Enregistrer</button>
+        <a class="btn" href="{{ path('device_index') }}">Annuler</a>
+    </div>
+{{ form_end(form) }}
