@@ -8,6 +8,7 @@ services:
             APP_ENV: ${APP_ENV:-dev}
             APP_SECRET: ${APP_SECRET:-change_me_in_env_local}
             APP_BASE_URL: ${APP_BASE_URL}
+            PHP_MEMORY_LIMIT: 512M
             DATABASE_URL: mysql://app:app@database:3306/hikvision_attendance?serverVersion=8.0&charset=utf8mb4
         volumes:
             - ./:/var/www/html:cached
