@@ -161,10 +161,18 @@ p { margin: 0; }
     display: none;
     flex-direction: column;
     gap: 2px;
+    margin-left: 12px;
+    padding-left: 10px;
+    border-left: 2px solid var(--color-border);
 }
 
 .nav__group.is-open {
     display: flex;
+}
+
+.nav__group .nav__link {
+    padding: 7px 12px;
+    font-size: 13px;
 }
 
 .sidebar__user {
