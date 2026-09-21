@@ -6,7 +6,7 @@
     <div class="page-header">
         <div>
             <h1>Rapport mensuel</h1>
-            <p class="page-header__meta">{{ month|date('F Y') }}</p>
+            <p class="page-header__meta">Du {{ from|date('d/m/Y') }} au {{ to|date('d/m/Y') }}</p>
         </div>
     </div>
 
@@ -14,8 +14,12 @@
         <div class="card__body">
             <form method="get" class="filter-bar">
                 <div class="form-row">
-                    <label class="form-label" for="month">Mois</label>
-                    <input class="form-control" type="month" id="month" name="month" value="{{ month|date('Y-m') }}">
+                    <label class="form-label" for="from">Du</label>
+                    <input class="form-control" type="date" id="from" name="from" value="{{ from|date('Y-m-d') }}">
+                </div>
+                <div class="form-row">
+                    <label class="form-label" for="to">Au</label>
+                    <input class="form-control" type="date" id="to" name="to" value="{{ to|date('Y-m-d') }}">
                 </div>
                 <div class="form-row">
                     <label class="form-label" for="department">Département</label>
@@ -27,14 +31,14 @@
                     </select>
                 </div>
                 <button class="btn btn--primary" type="submit">Afficher</button>
-                <a class="btn" href="{{ path('attendance_report_monthly_export', {month: month|date('Y-m'), department: department}) }}">Exporter CSV</a>
+                <a class="btn" href="{{ path('attendance_report_monthly_export', {from: from|date('Y-m-d'), to: to|date('Y-m-d'), department: department}) }}">Exporter CSV</a>
             </form>
         </div>
     </div>
 
     <div class="card">
         <div class="card__header">
-            <h2>Résumé de {{ month|date('F Y') }}</h2>
+            <h2>Résumé du {{ from|date('d/m/Y') }} au {{ to|date('d/m/Y') }}</h2>
         </div>
         {% if rows is empty %}
             <div class="table--empty">Aucun employé actif à afficher.</div>

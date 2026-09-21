@@ -20,12 +20,13 @@ class AttendanceReportController extends AbstractController
     #[Route('/mensuel', name: 'monthly', methods: ['GET'])]
     public function monthly(Request $request, DepartmentRepository $departments): Response
     {
-        $month = $this->resolveMonth($request);
+        [$from, $to] = $this->resolveRange($request);
         $department = $request->query->getInt('department') ?: null;
-        $rows = $this->attendanceService->monthlySummary($month, $department);
+        $rows = $this->attendanceService->rangeSummary($from, $to, $department);
 
         return $this->render('attendance_report/monthly.html.twig', [
-            'month' => $month,
+            'from' => $from,
+            'to' => $to,
             'rows' => $rows,
             'departments' => $departments->findBy([], ['name' => 'ASC']),
             'department' => $department,
@@ -35,9 +36,9 @@ class AttendanceReportController extends AbstractController
     #[Route('/mensuel/export', name: 'monthly_export', methods: ['GET'])]
     public function monthlyExport(Request $request): Response
     {
-        $month = $this->resolveMonth($request);
+        [$from, $to] = $this->resolveRange($request);
         $department = $request->query->getInt('department') ?: null;
-        $rows = $this->attendanceService->monthlySummary($month, $department);
+        $rows = $this->attendanceService->rangeSummary($from, $to, $department);
 
         $response = new StreamedResponse(function () use ($rows) {
             $handle = fopen('php://output', 'w');
@@ -58,16 +59,28 @@ class AttendanceReportController extends AbstractController
         });
 
         $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
-        $response->headers->set('Content-Disposition', 'attachment; filename="rapport-' . $month->format('Y-m') . '.csv"');
+        $response->headers->set('Content-Disposition', 'attachment; filename="rapport-' . $from->format('Y-m-d') . '_' . $to->format('Y-m-d') . '.csv"');
 
         return $response;
     }
 
-    private function resolveMonth(Request $request): \DateTimeImmutable
+    /** @return array{0: \DateTimeImmutable, 1: \DateTimeImmutable} */
+    private function resolveRange(Request $request): array
     {
-        $monthParam = $request->query->get('month', (new \DateTimeImmutable('first day of this month'))->format('Y-m'));
+        $today = new \DateTimeImmutable('today');
+        $defaultFrom = $today->modify('first day of this month')->format('Y-m-d');
+        $defaultTo = $today->modify('last day of this month')->format('Y-m-d');
 
-        return \DateTimeImmutable::createFromFormat('Y-m-d', $monthParam . '-01')
-            ?: new \DateTimeImmutable('first day of this month');
+        $fromParam = $request->query->get('from', $defaultFrom);
+        $toParam = $request->query->get('to', $defaultTo);
+
+        $from = \DateTimeImmutable::createFromFormat('Y-m-d', $fromParam) ?: new \DateTimeImmutable($defaultFrom);
+        $to = \DateTimeImmutable::createFromFormat('Y-m-d', $toParam) ?: new \DateTimeImmutable($defaultTo);
+
+        if ($from > $to) {
+            [$from, $to] = [$to, $from];
+        }
+
+        return [$from->setTime(0, 0, 0), $to->setTime(0, 0, 0)];
     }
 }

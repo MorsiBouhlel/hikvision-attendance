@@ -6,7 +6,7 @@
     <div class="page-header">
         <div>
             <h1>Historique</h1>
-            <p class="page-header__meta">Résumé de présence pour une date donnée</p>
+            <p class="page-header__meta">Résumé de présence sur une période</p>
         </div>
     </div>
 
@@ -14,8 +14,12 @@
         <div class="card__body">
             <form method="get" class="filter-bar">
                 <div class="form-row">
-                    <label class="form-label" for="date">Date</label>
-                    <input class="form-control" type="date" id="date" name="date" value="{{ date|date('Y-m-d') }}">
+                    <label class="form-label" for="from">Du</label>
+                    <input class="form-control" type="date" id="from" name="from" value="{{ from|date('Y-m-d') }}">
+                </div>
+                <div class="form-row">
+                    <label class="form-label" for="to">Au</label>
+                    <input class="form-control" type="date" id="to" name="to" value="{{ to|date('Y-m-d') }}">
                 </div>
                 <div class="form-row">
                     <label class="form-label" for="department">Département</label>
@@ -31,10 +35,18 @@
         </div>
     </div>
 
-    <div class="card">
-        <div class="card__header">
-            <h2>Résumé du {{ date|date('d/m/Y') }}</h2>
+    {% for day in days %}
+        <div class="card">
+            <div class="card__header">
+                <h2>Résumé du {{ day.date|date('d/m/Y') }}</h2>
+            </div>
+            {% include 'attendance/_summary_table.html.twig' with { summary: day.rows } %}
         </div>
-        {% include 'attendance/_summary_table.html.twig' %}
-    </div>
+    {% else %}
+        <div class="card">
+            <div class="card__body">
+                <p>Aucune donnée pour cette période.</p>
+            </div>
+        </div>
+    {% endfor %}
 {% endblock %}

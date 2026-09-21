@@ -78,16 +78,17 @@ class AttendanceService
     }
 
     /**
-     * Résumé mensuel par employé actif: heures travaillées totales, nombre de
-     * retards, minutes de retard cumulées, absences. Toutes les données sont
-     * préchargées en 3 requêtes bulk (jamais de requête par employé/jour).
+     * Résumé agrégé par employé actif sur une plage de dates arbitraire:
+     * heures travaillées totales, nombre de retards, minutes de retard
+     * cumulées, absences. Toutes les données sont préchargées en 3 requêtes
+     * bulk (jamais de requête par employé/jour).
      *
      * @return array<int, array>
      */
-    public function monthlySummary(\DateTimeImmutable $monthStart, ?int $departmentId = null): array
+    public function rangeSummary(\DateTimeImmutable $start, \DateTimeImmutable $end, ?int $departmentId = null): array
     {
-        $start = $monthStart->modify('first day of this month')->setTime(0, 0, 0);
-        $end = $monthStart->modify('last day of this month')->setTime(23, 59, 59);
+        $start = $start->setTime(0, 0, 0);
+        $end = $end->setTime(23, 59, 59);
 
         $eventsByEmployeeAndDay = [];
         foreach ($this->events->findForAllEmployeesBetween($start, $end) as $event) {
@@ -163,6 +164,69 @@ class AttendanceService
         return $rows;
     }
 
+    /**
+     * Résumé jour par jour pour tous les employés actifs sur une plage de
+     * dates — même principe de préchargement bulk que rangeSummary()
+     * (3 requêtes au total, jamais une requête par employé/jour), mais
+     * retourne chaque jour individuellement au lieu d'agréger.
+     *
+     * @return array<int, array{date: \DateTimeImmutable, rows: array}>
+     */
+    public function rangeSummaryForAll(\DateTimeImmutable $start, \DateTimeImmutable $end, ?int $departmentId = null): array
+    {
+        $start = $start->setTime(0, 0, 0);
+        $end = $end->setTime(23, 59, 59);
+
+        $eventsByEmployeeAndDay = [];
+        foreach ($this->events->findForAllEmployeesBetween($start, $end) as $event) {
+            $employeeId = $event->getEmployee()->getId();
+            $day = $event->getOccurredAt()->format('Y-m-d');
+            $eventsByEmployeeAndDay[$employeeId][$day][] = $event;
+        }
+
+        $onLeaveByEmployeeAndDay = [];
+        foreach ($this->leaves->findOverlapping($start, $end) as $leave) {
+            $employeeId = $leave->getEmployee()->getId();
+            $cursor = max($leave->getStartDate(), $start);
+            $until = min($leave->getEndDate(), $end);
+            while ($cursor <= $until) {
+                $onLeaveByEmployeeAndDay[$employeeId][$cursor->format('Y-m-d')] = true;
+                $cursor = $cursor->modify('+1 day');
+            }
+        }
+
+        $holidayDays = array_flip(array_map(
+            fn (\DateTimeImmutable $d) => $d->format('Y-m-d'),
+            $this->holidays->findDatesBetween($start, $end)
+        ));
+
+        $employees = $this->activeEmployees($departmentId);
+
+        $days = [];
+        $cursor = $start;
+        while ($cursor <= $end) {
+            $day = $cursor->format('Y-m-d');
+            $isHoliday = isset($holidayDays[$day]);
+
+            $rows = array_map(
+                fn (Employee $e) => $this->classifyDay(
+                    $e,
+                    $eventsByEmployeeAndDay[$e->getId()][$day] ?? [],
+                    $cursor,
+                    $isHoliday,
+                    $onLeaveByEmployeeAndDay[$e->getId()][$day] ?? false,
+                ),
+                $employees
+            );
+
+            $days[] = ['date' => $cursor, 'rows' => $rows];
+
+            $cursor = $cursor->modify('+1 day');
+        }
+
+        return $days;
+    }
+
     /** @return Employee[] employés actifs, filtrés par departmentId si fourni */
     private function activeEmployees(?int $departmentId): array
     {
@@ -232,7 +296,7 @@ class AttendanceService
 
     /**
      * Classifie une journée pour un employé à partir des événements déjà
-     * chargés — logique pure, partagée par dailySummary() et monthlySummary()
+     * chargés — logique pure, partagée par dailySummary() et rangeSummary()
      * pour ne jamais dupliquer les règles de retard/absence.
      *
      * @param AttendanceEvent[] $dayEvents
