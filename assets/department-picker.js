@@ -18,6 +18,7 @@ function initDepartmentPicker(picker) {
             const checkboxes = employeeList.querySelectorAll(`input[data-department-id="${departmentId}"]`);
             checkboxes.forEach((checkbox) => {
                 checkbox.checked = toggle.checked;
+                checkbox.dispatchEvent(new Event('change'));
             });
         });
     });

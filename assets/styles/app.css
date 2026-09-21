@@ -536,6 +536,11 @@ p { margin: 0; }
     max-width: 280px;
 }
 
+.checkbox-row--select-all {
+    background: var(--color-bg);
+    font-weight: 600;
+}
+
 .checkbox-row {
     display: flex;
     align-items: center;

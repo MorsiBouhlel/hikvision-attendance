@@ -69,7 +69,7 @@
     {% endif %}
     <div class="form-row">
         {{ form_label(form.employees) }}
-        <div class="checkbox-list checkbox-list--scroll" data-checkbox-search data-employee-list>
+        <div class="checkbox-list checkbox-list--scroll" data-checkbox-search data-checkbox-select-all data-employee-list>
             {% for child in form.employees %}
                 {% set emp = employeesById[child.vars.value] %}
                 <label class="checkbox-row">

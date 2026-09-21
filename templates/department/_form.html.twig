@@ -6,7 +6,7 @@
     </div>
     <div class="form-row">
         {{ form_label(form.employees) }}
-        <div class="checkbox-list checkbox-list--scroll" data-checkbox-search>
+        <div class="checkbox-list checkbox-list--scroll" data-checkbox-search data-checkbox-select-all>
             {% for child in form.employees %}
                 {% set emp = employeesById[child.vars.value] %}
                 <label class="checkbox-row">
