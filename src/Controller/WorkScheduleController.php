@@ -33,7 +33,29 @@ class WorkScheduleController extends AbstractController
     public function new(Request $request, EntityManagerInterface $em, EmployeeRepository $employees, DepartmentRepository $departments): Response
     {
         $schedule = new WorkSchedule();
-        $form = $this->createForm(WorkScheduleType::class, $schedule);
+
+        // Pré-remplissage depuis un import ISAPI (voir importFromDevice()) —
+        // déposé en session par cette même route en redirect, lu une seule fois.
+        $session = $request->getSession();
+        $import = $session->get('work_schedule_import');
+        $session->remove('work_schedule_import');
+        if ($import) {
+            $schedule->setName($import['name']);
+
+            // startTime/endTime "plats" du WorkSchedule (requis, NotBlank) — repris
+            // du 1er jour importé non-repos comme valeur par défaut raisonnable ;
+            // resolvedWindowFor() les utilisera de toute façon en fallback pour tout
+            // jour sans WorkScheduleDay explicite, donc autant les initialiser.
+            $firstWorkingDay = array_values(array_filter($import['days'], fn ($d) => ! $d['isRestDay']))[0] ?? null;
+            if ($firstWorkingDay) {
+                $schedule->setStartTime($firstWorkingDay['startTime']);
+                $schedule->setEndTime($firstWorkingDay['endTime']);
+            }
+        }
+
+        $form = $this->createForm(WorkScheduleType::class, $schedule, [
+            'day_data' => $import['days'] ?? [],
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -171,23 +193,46 @@ class WorkScheduleController extends AbstractController
             return $this->redirectToRoute('work_schedule_index');
         }
 
-        // Le plan ISAPI à écraser (UserRightWeekPlanCfg/{planNo}) n'est pas déductible
-        // depuis notre modèle: c'est le device qui sait, par employé, quel planTemplateNo
-        // (UserInfo.RightPlan) est réellement appliqué — souvent différent de 1. Demandé
-        // explicitement plutôt que deviné, pour ne jamais écraser le mauvais plan par erreur.
-        $planNo = (int) $request->request->get('plan_no', 0);
-        if ($planNo < 1) {
-            $this->addFlash('error', 'Numéro de plan ISAPI invalide.');
-            return $this->redirectToRoute('work_schedule_index');
-        }
-
         try {
-            $sync->sync($device, $schedule, $planNo);
-            $this->addFlash('success', "Planning {$schedule->getName()} synchronisé sur {$device->getName()} (plan #{$planNo}).");
+            // planNo résolu automatiquement depuis UserInfo.RightPlan côté device
+            // (voir WeekPlanSyncService::resolvePlanNo()) — pas de saisie manuelle,
+            // pour ne jamais risquer d'écraser le mauvais plan par erreur de frappe.
+            $planNo = $sync->sync($device, $schedule);
+            $this->addFlash('success', "Planning {$schedule->getName()} synchronisé sur {$device->getName()} (plan #{$planNo} détecté automatiquement).");
         } catch (\Throwable $e) {
             $this->addFlash('error', "Échec de synchro sur {$device->getName()} : {$e->getMessage()}");
         }
 
         return $this->redirectToRoute('work_schedule_index');
+    }
+
+    #[Route('/import-from-device/{deviceId}', name: 'import_from_device', methods: ['POST'])]
+    public function importFromDevice(int $deviceId, Request $request, DeviceRepository $devices, WeekPlanSyncService $sync): Response
+    {
+        if (! $this->isCsrfTokenValid('work_schedule_import_' . $deviceId, (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide.');
+            return $this->redirectToRoute('work_schedule_index');
+        }
+
+        $device = $devices->find($deviceId);
+        if (! $device) {
+            $this->addFlash('error', 'Device introuvable.');
+            return $this->redirectToRoute('work_schedule_index');
+        }
+
+        try {
+            $imported = $sync->importFromDevice($device);
+        } catch (\Throwable $e) {
+            $this->addFlash('error', "Échec de l'import depuis {$device->getName()} : {$e->getMessage()}");
+            return $this->redirectToRoute('work_schedule_index');
+        }
+
+        $request->getSession()->set('work_schedule_import', [
+            'name' => "Importé de {$device->getName()} — " . (new \DateTimeImmutable())->format('d/m/Y'),
+            'days' => $imported['days'],
+        ]);
+
+        $this->addFlash('success', "Planning importé depuis {$device->getName()} (plan #{$imported['planNo']}) — vérifiez et enregistrez ci-dessous.");
+        return $this->redirectToRoute('work_schedule_new');
     }
 }

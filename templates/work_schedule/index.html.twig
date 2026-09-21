@@ -9,7 +9,15 @@
             <p class="page-header__meta">{{ schedules|length }} horaire(s)</p>
         </div>
         {% if is_granted('ROLE_ADMIN') %}
-            <a class="btn btn--primary" href="{{ path('work_schedule_new') }}">+ Nouvel horaire</a>
+            <div class="btn-group">
+                {% for device in devices %}
+                    <form method="post" action="{{ path('work_schedule_import_from_device', {deviceId: device.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('work_schedule_import_' ~ device.id) }}">
+                        <button class="btn btn--sm" type="submit" title="Lire le planning ISAPI déjà en place sur ce device et pré-remplir un nouvel horaire">Importer depuis {{ device.name }}</button>
+                    </form>
+                {% endfor %}
+                <a class="btn btn--primary" href="{{ path('work_schedule_new') }}">+ Nouvel horaire</a>
+            </div>
         {% endif %}
     </div>
 
@@ -60,13 +68,14 @@
                                             </form>
                                         </div>
                                         {% if devices is defined and devices is not empty %}
-                                            {% for device in devices %}
-                                                <form method="post" action="{{ path('work_schedule_sync_device', {id: schedule.id, deviceId: device.id}) }}" style="margin-top: 4px; display: flex; gap: 4px; align-items: center;">
-                                                    <input type="hidden" name="_token" value="{{ csrf_token('work_schedule_sync_' ~ schedule.id) }}">
-                                                    <input type="number" name="plan_no" min="1" class="form-control" style="width: 60px;" placeholder="Plan #" title="Numéro du plan ISAPI (UserRightWeekPlanCfg) réellement assigné aux employés sur ce device — voir UserInfo.RightPlan[].planTemplateNo, pas forcément 1">
-                                                    <button class="btn btn--sm" type="submit" title="Synchroniser le planning vers ce device">Sync → {{ device.name }}</button>
-                                                </form>
-                                            {% endfor %}
+                                            <div class="btn-group" style="margin-top: 4px;">
+                                                {% for device in devices %}
+                                                    <form method="post" action="{{ path('work_schedule_sync_device', {id: schedule.id, deviceId: device.id}) }}">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('work_schedule_sync_' ~ schedule.id) }}">
+                                                        <button class="btn btn--sm" type="submit" title="Synchroniser le planning vers ce device (plan ISAPI détecté automatiquement)">Sync → {{ device.name }}</button>
+                                                    </form>
+                                                {% endfor %}
+                                            </div>
                                         {% endif %}
                                     {% endif %}
                                 </td>

@@ -18,6 +18,16 @@ class WeekPlanSyncService
         7 => 'Sunday',
     ];
 
+    private const ISAPI_WEEKDAY_TO_DAYOFWEEK = [
+        'Monday' => 1,
+        'Tuesday' => 2,
+        'Wednesday' => 3,
+        'Thursday' => 4,
+        'Friday' => 5,
+        'Saturday' => 6,
+        'Sunday' => 7,
+    ];
+
     public function __construct(
         private readonly HikvisionClientFactory $clientFactory,
         private readonly LoggerInterface $logger,
@@ -25,15 +35,53 @@ class WeekPlanSyncService
     }
 
     /**
-     * $planNo identifie le plan hebdomadaire ISAPI (UserRightWeekPlanCfg/{planNo}) —
-     * ce n'est PAS forcément 1: sur ce device, les employés sont rattachés via
-     * UserInfo.RightPlan[].planTemplateNo à un plan précis (vu: 4), pousser sur
-     * le mauvais planNo n'a aucun effet réel puisque personne n'y est assigné.
-     * Vérifier UserInfo.RightPlan côté device (ou UserRightPlanTemplate/{n}) avant
-     * de synchroniser pour cibler le bon plan.
+     * Détermine le plan ISAPI (UserRightWeekPlanCfg/{planNo}) réellement assigné
+     * aux employés d'un device, en lisant UserInfo.RightPlan[].planTemplateNo —
+     * ce n'est PAS déductible autrement (pas forcément 1, vu 4 en production).
+     * Prend le planTemplateNo le plus fréquent parmi les premiers utilisateurs
+     * du device (normalement tous identiques) ; log un warning s'ils divergent.
+     * Retourne null si aucun utilisateur/RightPlan exploitable n'est trouvé.
      */
-    public function sync(Device $device, WorkSchedule $schedule, int $planNo): void
+    public function resolvePlanNo(Device $device): ?int
     {
+        $users = $this->clientFactory->forDevice($device)->listUsers(20);
+
+        $counts = [];
+        foreach ($users as $user) {
+            $planTemplateNo = $user['RightPlan'][0]['planTemplateNo'] ?? null;
+            if ($planTemplateNo !== null) {
+                $counts[(int) $planTemplateNo] = ($counts[(int) $planTemplateNo] ?? 0) + 1;
+            }
+        }
+
+        if (empty($counts)) {
+            return null;
+        }
+
+        if (count($counts) > 1) {
+            $this->logger->warning('Plusieurs planTemplateNo distincts détectés sur le device, plan le plus fréquent retenu', [
+                'device_id' => $device->getId(),
+                'counts' => $counts,
+            ]);
+        }
+
+        arsort($counts);
+        return array_key_first($counts);
+    }
+
+    /**
+     * $planNo: override explicite (debug/tests) — laissé null pour résoudre
+     * automatiquement via resolvePlanNo() dans le cas normal.
+     *
+     * @return int le planNo réellement utilisé pour la synchro
+     */
+    public function sync(Device $device, WorkSchedule $schedule, ?int $planNo = null): int
+    {
+        $planNo ??= $this->resolvePlanNo($device);
+        if ($planNo === null) {
+            throw new \RuntimeException("Impossible de déterminer le plan ISAPI réel pour {$device->getName()} — aucun employé avec RightPlan trouvé sur ce device.");
+        }
+
         $this->clientFactory->forDevice($device)->setWeekPlan($planNo, $this->buildPayload($schedule));
 
         $this->logger->info('Planning hebdomadaire synchronisé sur le device', [
@@ -41,6 +89,63 @@ class WeekPlanSyncService
             'schedule_id' => $schedule->getId(),
             'plan_no' => $planNo,
         ]);
+
+        return $planNo;
+    }
+
+    /**
+     * Lit le planning ISAPI réellement en place sur un device (résout le planNo
+     * comme sync()) et retourne des données prêtes à peupler un nouveau
+     * WorkSchedule/WorkScheduleDay — ne persiste rien, l'appelant construit les
+     * entités. Ne garde que le créneau id=1 par jour (seul utilisé par
+     * buildPayload(), les 7 autres sont toujours désactivés par construction).
+     *
+     * @return array{planNo: int, days: array<int, array{isRestDay: bool, startTime: ?\DateTimeImmutable, endTime: ?\DateTimeImmutable}>}
+     */
+    public function importFromDevice(Device $device, ?int $planNo = null): array
+    {
+        $planNo ??= $this->resolvePlanNo($device);
+        if ($planNo === null) {
+            throw new \RuntimeException("Impossible de déterminer le plan ISAPI réel pour {$device->getName()} — aucun employé avec RightPlan trouvé sur ce device.");
+        }
+
+        $response = $this->clientFactory->forDevice($device)->getWeekPlan($planNo);
+        $weekPlanCfg = $response['UserRightWeekPlanCfg']['WeekPlanCfg'] ?? [];
+
+        $days = [];
+        foreach ($weekPlanCfg as $entry) {
+            if ((int) ($entry['id'] ?? 0) !== 1) {
+                continue;
+            }
+
+            $dayOfWeek = self::ISAPI_WEEKDAY_TO_DAYOFWEEK[$entry['week']] ?? null;
+            if ($dayOfWeek === null) {
+                continue;
+            }
+
+            $enabled = (bool) ($entry['enable'] ?? false);
+            $days[$dayOfWeek] = [
+                'isRestDay' => ! $enabled,
+                'startTime' => $enabled ? $this->parseIsapiTime($entry['TimeSegment']['beginTime'] ?? '00:00:00') : null,
+                'endTime' => $enabled ? $this->parseIsapiTime($entry['TimeSegment']['endTime'] ?? '00:00:00') : null,
+            ];
+        }
+
+        return ['planNo' => $planNo, 'days' => $days];
+    }
+
+    /**
+     * Ce firmware renvoie "24:00:00" comme borne de fin de journée (vu sur les
+     * plans ISAPI de ce device), que \DateTimeImmutable ne parse pas — normalisé
+     * en 23:59:59, différence négligeable pour ce cas d'usage (édition/affichage).
+     */
+    private function parseIsapiTime(string $time): \DateTimeImmutable
+    {
+        if ($time === '24:00:00') {
+            $time = '23:59:59';
+        }
+
+        return new \DateTimeImmutable($time);
     }
 
     /**

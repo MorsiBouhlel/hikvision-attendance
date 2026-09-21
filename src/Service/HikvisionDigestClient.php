@@ -183,6 +183,12 @@ class HikvisionDigestClient
         return $this->put("/AccessControl/UserRightWeekPlanCfg/{$planNo}", $weekPlanCfg);
     }
 
+    /** Lit le planning hebdomadaire actuellement en place sur le device pour le plan $planNo. */
+    public function getWeekPlan(int $planNo): array
+    {
+        return $this->get("/AccessControl/UserRightWeekPlanCfg/{$planNo}");
+    }
+
     /**
      * Pagine sur /AccessControl/AcsEvent pour rapatrier l'historique de pointages
      * déjà stocké sur le device (avant l'enregistrement du webhook, ou en cas de
