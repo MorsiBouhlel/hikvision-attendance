@@ -24,6 +24,7 @@
                             <th>Nom</th>
                             <th>Début</th>
                             <th>Fin</th>
+                            <th>Planning hebdomadaire</th>
                             <th>Tolérance</th>
                             <th>Marge badgeage</th>
                             <th>Actions</th>
@@ -35,6 +36,18 @@
                                 <td>{{ schedule.name }}</td>
                                 <td>{{ schedule.startTime|date('H:i') }}</td>
                                 <td>{{ schedule.endTime|date('H:i') }}{{ schedule.crossesMidnight ? ' (J+1)' }}</td>
+                                <td>
+                                    {% if schedule.days is empty %}
+                                        <span class="text-muted">Identique tous les jours</span>
+                                    {% else %}
+                                        {% for day in schedule.days %}
+                                            <span class="badge badge--inactive">
+                                                {{ ['', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'][day.dayOfWeek] }}
+                                                {% if day.isRestDay %}repos{% else %}{{ day.startTime|date('H:i') }}-{{ day.endTime|date('H:i') }}{% endif %}
+                                            </span>
+                                        {% endfor %}
+                                    {% endif %}
+                                </td>
                                 <td>{{ schedule.toleranceMinutes }} min</td>
                                 <td>{{ schedule.checkWindowMarginMinutes }} min</td>
                                 <td>
@@ -46,6 +59,15 @@
                                                 <button class="btn btn--sm btn--danger" type="submit">Supprimer</button>
                                             </form>
                                         </div>
+                                        {% if devices is defined and devices is not empty %}
+                                            {% for device in devices %}
+                                                <form method="post" action="{{ path('work_schedule_sync_device', {id: schedule.id, deviceId: device.id}) }}" style="margin-top: 4px; display: flex; gap: 4px; align-items: center;">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('work_schedule_sync_' ~ schedule.id) }}">
+                                                    <input type="number" name="plan_no" min="1" class="form-control" style="width: 60px;" placeholder="Plan #" title="Numéro du plan ISAPI (UserRightWeekPlanCfg) réellement assigné aux employés sur ce device — voir UserInfo.RightPlan[].planTemplateNo, pas forcément 1">
+                                                    <button class="btn btn--sm" type="submit" title="Synchroniser le planning vers ce device">Sync → {{ device.name }}</button>
+                                                </form>
+                                            {% endfor %}
+                                        {% endif %}
                                     {% endif %}
                                 </td>
                             </tr>

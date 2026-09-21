@@ -5,6 +5,8 @@
         <span class="badge badge--inactive">En congé</span>
     {% elseif status == 'holiday' %}
         <span class="badge badge--inactive">Jour férié</span>
+    {% elseif status == 'rest_day' %}
+        <span class="badge badge--inactive">Repos</span>
     {% elseif status == 'present' %}
         <span class="badge badge--present">Présent</span>
     {% else %}

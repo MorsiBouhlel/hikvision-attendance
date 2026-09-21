@@ -26,6 +26,33 @@
         {{ form_errors(form.checkWindowMarginMinutes) }}
         <span class="form-help">Utilisée pour classer un pointage en entrée ou sortie quand la pointeuse n'indique pas explicitement lequel des deux c'est.</span>
     </div>
+    <div class="form-row">
+        <label class="form-label">Planning hebdomadaire</label>
+        <span class="form-help">Laisse un jour décoché pour reprendre l'horaire par défaut ci-dessus, coche "Repos" pour un jour sans travail attendu (ex. dimanche) — sans impact négatif sur le statut de présence ce jour-là.</span>
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Jour</th>
+                        <th>Repos</th>
+                        <th>Début</th>
+                        <th>Fin</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dayOfWeek in 1..7 %}
+                        {% set dayForm = attribute(form, 'day' ~ dayOfWeek) %}
+                        <tr data-week-plan-row>
+                            <td>{{ dayForm.vars.label }}</td>
+                            <td>{{ form_widget(dayForm.isRestDay, {attr: {'data-week-plan-rest': ''}}) }}</td>
+                            <td>{{ form_widget(dayForm.startTime, {attr: {class: 'form-control', 'data-week-plan-time': ''}}) }}</td>
+                            <td>{{ form_widget(dayForm.endTime, {attr: {class: 'form-control', 'data-week-plan-time': ''}}) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
     {% if departments is defined and departments is not empty %}
         <div class="form-row">
             <label class="form-label">Affecter par département</label>

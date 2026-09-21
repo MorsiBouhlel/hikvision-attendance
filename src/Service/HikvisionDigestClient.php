@@ -170,6 +170,20 @@ class HikvisionDigestClient
     }
 
     /**
+     * Pousse un planning hebdomadaire (Access Schedule Template / Week Plan)
+     * vers le terminal — format ISAPI standard AccessControl
+     * UserRightWeekPlanCfg, $planNo identifie le plan sur le device (1 par
+     * défaut, un seul plan utilisé par ce projet). $weekPlanCfg est construit
+     * par WeekPlanSyncService::buildPayload(). Noms de clés JSON à valider
+     * contre un device réel — divergent parfois selon le firmware, comme le
+     * reste du mapping ISAPI de ce projet (voir AttendanceEventMapper).
+     */
+    public function setWeekPlan(int $planNo, array $weekPlanCfg): array
+    {
+        return $this->put("/AccessControl/UserRightWeekPlanCfg/{$planNo}", $weekPlanCfg);
+    }
+
+    /**
      * Pagine sur /AccessControl/AcsEvent pour rapatrier l'historique de pointages
      * déjà stocké sur le device (avant l'enregistrement du webhook, ou en cas de
      * coupure réseau). $from/$to au format ISO 8601, ex. '2026-08-01T00:00:00+01:00'.

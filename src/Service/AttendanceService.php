@@ -311,7 +311,8 @@ class AttendanceService
         $schedule = $employee->getWorkSchedule();
 
         if (empty($dayEvents)) {
-            $status = $isHoliday ? 'holiday' : ($onLeave ? 'on_leave' : 'absent');
+            $isRestDay = $schedule && $this->expectedWindow($schedule, $date) === null;
+            $status = $isHoliday ? 'holiday' : ($onLeave ? 'on_leave' : ($isRestDay ? 'rest_day' : 'absent'));
 
             return [
                 'employee' => $employee->getFullName(),
@@ -349,7 +350,7 @@ class AttendanceService
 
         $status = ($lateMinutes ?? 0) > 0 ? 'late' : 'present';
 
-        $expectedHours = $workedHours !== null ? $this->expectedDailyHours($schedule) : null;
+        $expectedHours = $workedHours !== null ? $this->expectedDailyHours($schedule, $date) : null;
         $isEarlyLeave = $workedHours !== null ? $workedHours < $expectedHours : null;
 
         return [
@@ -387,14 +388,16 @@ class AttendanceService
      */
     private function classifyPunches(array $dayEvents, ?WorkSchedule $schedule, \DateTimeImmutable $date): array
     {
-        if (! $schedule) {
+        $window = $schedule ? $this->expectedWindow($schedule, $date) : null;
+
+        if (! $schedule || $window === null) {
             $first = $dayEvents[0]->getOccurredAt();
             $last = count($dayEvents) > 1 ? end($dayEvents)->getOccurredAt() : null;
 
             return [$first, $last];
         }
 
-        [$expectedStart, $expectedEnd] = $this->expectedWindow($schedule, $date);
+        [$expectedStart, $expectedEnd] = $window;
 
         $margin = $schedule->getCheckWindowMarginMinutes() * 60;
         $midpoint = (int) (($expectedStart->getTimestamp() + $expectedEnd->getTimestamp()) / 2);
@@ -446,7 +449,12 @@ class AttendanceService
         ?\DateTimeImmutable $checkOut,
         \DateTimeImmutable $date,
     ): array {
-        [$expectedStart, $expectedEnd] = $this->expectedWindow($schedule, $date);
+        $window = $this->expectedWindow($schedule, $date);
+        if ($window === null) {
+            return [0, null, 0, null];
+        }
+
+        [$expectedStart, $expectedEnd] = $window;
 
         $lateMinutes = max(0, (int) round(
             ($checkIn->getTimestamp() - $expectedStart->getTimestamp() - $schedule->getToleranceMinutes() * 60) / 60
@@ -472,35 +480,50 @@ class AttendanceService
 
     /**
      * Fenêtre horaire attendue pour un WorkSchedule à une date donnée —
-     * gère le travail de nuit à cheval sur minuit (crossesMidnight()).
+     * résolue par jour de semaine via WorkSchedule::resolvedWindowFor()
+     * (planning hebdomadaire : chaque jour peut avoir son propre horaire ou
+     * être marqué repos). Gère le travail de nuit à cheval sur minuit,
+     * calculé par jour (crossesMidnight() n'est plus fiable globalement
+     * puisque l'horaire peut varier selon le jour).
      *
-     * @return array{0: \DateTimeImmutable, 1: \DateTimeImmutable} [expectedStart, expectedEnd]
+     * @return array{0: \DateTimeImmutable, 1: \DateTimeImmutable}|null null si le jour est marqué repos ou n'a pas d'horaire défini
      */
-    private function expectedWindow(WorkSchedule $schedule, \DateTimeImmutable $date): array
+    private function expectedWindow(WorkSchedule $schedule, \DateTimeImmutable $date): ?array
     {
+        $config = $schedule->resolvedWindowFor((int) $date->format('N'));
+
+        if ($config['isRestDay'] || $config['startTime'] === null || $config['endTime'] === null) {
+            return null;
+        }
+
         $expectedStart = $date->setTime(
-            (int) $schedule->getStartTime()->format('H'),
-            (int) $schedule->getStartTime()->format('i'),
+            (int) $config['startTime']->format('H'),
+            (int) $config['startTime']->format('i'),
         );
         $expectedEnd = $date->setTime(
-            (int) $schedule->getEndTime()->format('H'),
-            (int) $schedule->getEndTime()->format('i'),
+            (int) $config['endTime']->format('H'),
+            (int) $config['endTime']->format('i'),
         );
-        if ($schedule->crossesMidnight()) {
+        if ($expectedEnd < $expectedStart) {
             $expectedEnd = $expectedEnd->modify('+1 day');
         }
 
         return [$expectedStart, $expectedEnd];
     }
 
-    /** Nombre d'heures attendues par jour: durée du WorkSchedule, ou 8h par défaut sans schedule assigné. */
-    private function expectedDailyHours(?WorkSchedule $schedule): float
+    /** Nombre d'heures attendues pour $date: durée de la fenêtre du jour, 0h si jour de repos, ou 8h par défaut sans schedule assigné. */
+    private function expectedDailyHours(?WorkSchedule $schedule, \DateTimeImmutable $date): float
     {
         if (! $schedule) {
             return 8.0;
         }
 
-        [$expectedStart, $expectedEnd] = $this->expectedWindow($schedule, new \DateTimeImmutable('today'));
+        $window = $this->expectedWindow($schedule, $date);
+        if ($window === null) {
+            return 0.0;
+        }
+
+        [$expectedStart, $expectedEnd] = $window;
 
         return ($expectedEnd->getTimestamp() - $expectedStart->getTimestamp()) / 3600;
     }

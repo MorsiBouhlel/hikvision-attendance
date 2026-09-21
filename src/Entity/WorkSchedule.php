@@ -35,9 +35,14 @@ class WorkSchedule
     #[ORM\OneToMany(mappedBy: 'workSchedule', targetEntity: Employee::class)]
     private Collection $employees;
 
+    /** @var Collection<int, WorkScheduleDay> */
+    #[ORM\OneToMany(mappedBy: 'workSchedule', targetEntity: WorkScheduleDay::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $days;
+
     public function __construct()
     {
         $this->employees = new ArrayCollection();
+        $this->days = new ArrayCollection();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -64,4 +69,47 @@ class WorkSchedule
 
     /** @return Collection<int, Employee> */
     public function getEmployees(): Collection { return $this->employees; }
+
+    /** @return Collection<int, WorkScheduleDay> */
+    public function getDays(): Collection { return $this->days; }
+
+    /** Configuration explicite d'un jour (1=lundi...7=dimanche), ou null si non définie — voir resolvedWindowFor(). */
+    public function getDayConfig(int $dayOfWeek): ?WorkScheduleDay
+    {
+        foreach ($this->days as $day) {
+            if ($day->getDayOfWeek() === $dayOfWeek) {
+                return $day;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Résout la fenêtre horaire attendue pour un jour de la semaine donné:
+     * un WorkScheduleDay explicite s'il existe, sinon le startTime/endTime
+     * "plat" du WorkSchedule lui-même (rétrocompatibilité — un schedule créé
+     * avant l'introduction du planning hebdomadaire reste valable tous les
+     * jours, comme avant).
+     *
+     * @return array{startTime: ?\DateTimeImmutable, endTime: ?\DateTimeImmutable, isRestDay: bool}
+     */
+    public function resolvedWindowFor(int $dayOfWeek): array
+    {
+        $config = $this->getDayConfig($dayOfWeek);
+
+        if ($config) {
+            return [
+                'startTime' => $config->getStartTime(),
+                'endTime' => $config->getEndTime(),
+                'isRestDay' => $config->isRestDay(),
+            ];
+        }
+
+        return [
+            'startTime' => $this->startTime,
+            'endTime' => $this->endTime,
+            'isRestDay' => false,
+        ];
+    }
 }
