@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Employee;
 use App\Form\EmployeeType;
+use App\Repository\AttendanceEventRepository;
 use App\Repository\EmployeeRepository;
 use App\Service\AttendanceService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -63,6 +64,16 @@ class EmployeeController extends AbstractController
             'history' => array_reverse($history),
             'start' => $start,
             'end' => $end,
+        ]);
+    }
+
+    #[Route('/{id}/punches/{date}', name: 'punches', methods: ['GET'], requirements: ['date' => '\d{4}-\d{2}-\d{2}'])]
+    public function punches(Employee $employee, string $date, AttendanceEventRepository $events): Response
+    {
+        $punches = $events->findForEmployeeOnDate($employee, new \DateTimeImmutable($date));
+
+        return $this->render('attendance/_punches_table.html.twig', [
+            'punches' => $punches,
         ]);
     }
 

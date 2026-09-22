@@ -84,6 +84,7 @@
                 <table class="table" data-table>
                     <thead>
                         <tr>
+                            <th></th>
                             <th data-sort="text">Date</th>
                             <th data-sort="text">Statut</th>
                             <th data-sort="text">Entrée</th>
@@ -95,7 +96,16 @@
                     </thead>
                     <tbody>
                         {% for row in history %}
-                            <tr>
+                            {% if row.punches is not empty %}
+                                <tr class="row--clickable" data-day-toggle>
+                            {% else %}
+                                <tr>
+                            {% endif %}
+                                <td>
+                                    {% if row.punches is not empty %}
+                                        <span class="js-day-chevron" aria-hidden="true">▸</span>
+                                    {% endif %}
+                                </td>
                                 <td>{{ row.date|date('d/m/Y') }}</td>
                                 <td>
                                     {{ badges.badge(row.status, row.late_minutes) }}
@@ -117,6 +127,14 @@
                                     {% endif %}
                                 </td>
                             </tr>
+                            {% if row.punches is not empty %}
+                                <tr data-table-detail hidden>
+                                    <td></td>
+                                    <td colspan="7">
+                                        {% include 'attendance/_punches_table.html.twig' with { punches: row.punches } %}
+                                    </td>
+                                </tr>
+                            {% endif %}
                         {% endfor %}
                     </tbody>
                 </table>

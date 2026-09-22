@@ -380,6 +380,30 @@ p { margin: 0; }
     color: var(--color-text-muted);
 }
 
+.row--clickable {
+    cursor: pointer;
+}
+
+.js-day-chevron {
+    display: inline-block;
+    color: var(--color-text-muted);
+    font-size: 11px;
+}
+
+tr[data-table-detail] td {
+    background: var(--color-bg);
+    padding: 8px 22px 16px 48px;
+}
+
+.table--nested {
+    font-size: 12.5px;
+}
+
+.table--nested th,
+.table--nested td {
+    padding: 6px 12px;
+}
+
 .badge {
     display: inline-flex;
     align-items: center;

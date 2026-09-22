@@ -10,7 +10,12 @@ function initDataTable(table) {
     const tbody = table.querySelector('tbody');
     if (!tbody) return;
 
-    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const rows = Array.from(tbody.querySelectorAll('tr')).filter((row) => !row.hasAttribute('data-table-detail'));
+
+    // Une ligne de détail (ex. pointages bruts d'une journée) reste rattachée
+    // à la ligne qui la précède — jamais triée/recherchée indépendamment.
+    const detailFor = (row) => (row.nextElementSibling?.hasAttribute('data-table-detail') ? row.nextElementSibling : null);
+
     const headers = Array.from(table.querySelectorAll('th[data-sort]'));
 
     if (rows.length > 0) {
@@ -26,6 +31,10 @@ function initDataTable(table) {
             rows.forEach((row) => {
                 const match = !term || row.textContent.toLowerCase().includes(term);
                 row.style.display = match ? '' : 'none';
+                const detail = detailFor(row);
+                if (detail && (!match || detail.hidden)) {
+                    detail.style.display = 'none';
+                }
                 if (match) visibleCount++;
             });
             table.dispatchEvent(new CustomEvent('datatable:filtered', { detail: { visibleCount } }));
@@ -65,7 +74,11 @@ function initDataTable(table) {
                 return cellA.localeCompare(cellB, 'fr', { sensitivity: 'base' }) * factor;
             });
 
-            sorted.forEach((row) => tbody.appendChild(row));
+            sorted.forEach((row) => {
+                tbody.appendChild(row);
+                const detail = detailFor(row);
+                if (detail) tbody.appendChild(detail);
+            });
         };
 
         th.addEventListener('click', applySort);

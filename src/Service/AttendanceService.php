@@ -279,14 +279,20 @@ class AttendanceService
         $cursor = $start;
         while ($cursor <= $end) {
             $day = $cursor->format('Y-m-d');
+            $dayEvents = $eventsByDay[$day] ?? [];
 
-            $rows[] = $this->classifyDay(
+            $row = $this->classifyDay(
                 $employee,
-                $eventsByDay[$day] ?? [],
+                $dayEvents,
                 $cursor,
                 isset($holidayDays[$day]),
                 $onLeaveDays[$day] ?? false,
             );
+
+            usort($dayEvents, fn (AttendanceEvent $a, AttendanceEvent $b) => $a->getOccurredAt() <=> $b->getOccurredAt());
+            $row['punches'] = $dayEvents;
+
+            $rows[] = $row;
 
             $cursor = $cursor->modify('+1 day');
         }
@@ -316,6 +322,7 @@ class AttendanceService
 
             return [
                 'employee' => $employee->getFullName(),
+                'employee_id' => $employee->getId(),
                 'date' => $date->format('Y-m-d'),
                 'check_in' => null,
                 'check_out' => null,
@@ -350,11 +357,26 @@ class AttendanceService
 
         $status = ($lateMinutes ?? 0) > 0 ? 'late' : 'present';
 
+        // Une sortie (classifyPunches(), via la marge de badgeage) avant
+        // l'heure de fin planifiée est un départ anticipé — décision
+        // utilisateur du 2026-09-23, sans tolérance ici (contrairement au
+        // retard): tout écart compte, même 1 minute avant endTime.
+        if ($schedule && $last !== null) {
+            $window = $this->expectedWindow($schedule, $date);
+            if ($window !== null) {
+                [, $expectedEnd] = $window;
+                if ($last < $expectedEnd) {
+                    $status = 'early_leave_pending';
+                }
+            }
+        }
+
         $expectedHours = $workedHours !== null ? $this->expectedDailyHours($schedule, $date) : null;
         $isEarlyLeave = $workedHours !== null ? $workedHours < $expectedHours : null;
 
         return [
             'employee' => $employee->getFullName(),
+            'employee_id' => $employee->getId(),
             'date' => $date->format('Y-m-d'),
             'check_in' => $first->format('H:i:s'),
             'check_out' => $last?->format('H:i:s'),
@@ -372,68 +394,51 @@ class AttendanceService
     }
 
     /**
-     * Détermine l'entrée et la sortie réelles parmi les pointages du jour.
-     * Sans WorkSchedule: comportement historique inchangé (1er pointage =
-     * entrée, dernier = sortie) — pas de régression pour les employés non
-     * configurés.
-     * Avec WorkSchedule: priorité au champ attendanceStatus envoyé par la
-     * pointeuse (checkIn/checkOut) quand présent — fiable, explicite. Pour
-     * les pointages sans ce champ (majorité des événements de contrôle
-     * d'accès bruts), classement par fenêtre horaire dérivée de
-     * startTime/endTime ± checkWindowMarginMinutes, coupée au milieu de la
-     * plage horaire attendue.
+     * Détermine l'entrée et la sortie réelles parmi les pointages du jour,
+     * indépendamment du champ attendanceStatus envoyé par la pointeuse (ce
+     * champ n'est plus utilisé ici — décision utilisateur du 2026-09-23: la
+     * pointeuse a parfois marqué plusieurs pointages consécutifs "checkIn"
+     * à quelques minutes d'écart, rendant ce champ inexploitable pour
+     * détecter un vrai changement d'état).
+     * Règle: le 1er pointage du jour = entrée. Chaque pointage suivant met à
+     * jour la sortie dès qu'il est séparé du pointage précédent par au moins
+     * checkWindowMarginMinutes (le "délai minimum entre deux pointages pour
+     * compter comme un changement d'état") — pas d'alternance entrée/sortie,
+     * une fois en état "sortie" tout nouveau pointage (même rapproché)
+     * continue de repousser la sortie à sa propre heure. Sans WorkSchedule:
+     * comportement historique inchangé (1er pointage = entrée, dernier =
+     * sortie, sans notion de marge).
      *
      * @param AttendanceEvent[] $dayEvents triés chronologiquement
      * @return array{0: \DateTimeImmutable, 1: ?\DateTimeImmutable} [checkIn, checkOut]
      */
     private function classifyPunches(array $dayEvents, ?WorkSchedule $schedule, \DateTimeImmutable $date): array
     {
-        $window = $schedule ? $this->expectedWindow($schedule, $date) : null;
+        $first = $dayEvents[0]->getOccurredAt();
 
-        if (! $schedule || $window === null) {
-            $first = $dayEvents[0]->getOccurredAt();
+        if (! $schedule) {
             $last = count($dayEvents) > 1 ? end($dayEvents)->getOccurredAt() : null;
 
             return [$first, $last];
         }
 
-        [$expectedStart, $expectedEnd] = $window;
-
         $margin = $schedule->getCheckWindowMarginMinutes() * 60;
-        $midpoint = (int) (($expectedStart->getTimestamp() + $expectedEnd->getTimestamp()) / 2);
 
-        $checkIn = null;
+        $checkIn = $first;
         $checkOut = null;
+        $reference = $first;
+        $inCheckOutState = false;
 
-        foreach ($dayEvents as $event) {
-            $status = $event->getAttendanceStatus();
+        foreach (array_slice($dayEvents, 1) as $event) {
+            $occurredAt = $event->getOccurredAt();
 
-            $isCheckIn = $status === 'checkIn';
-            $isCheckOut = $status === 'checkOut';
-
-            if (! $isCheckIn && ! $isCheckOut) {
-                $timestamp = $event->getOccurredAt()->getTimestamp();
-                $withinWindow = $timestamp >= $expectedStart->getTimestamp() - $margin
-                    && $timestamp <= $expectedEnd->getTimestamp() + $margin;
-
-                if ($withinWindow) {
-                    $isCheckIn = $timestamp <= $midpoint;
-                    $isCheckOut = ! $isCheckIn;
-                }
+            if ($inCheckOutState || $occurredAt->getTimestamp() - $reference->getTimestamp() >= $margin) {
+                $checkOut = $occurredAt;
+                $inCheckOutState = true;
             }
 
-            if ($isCheckIn && $checkIn === null) {
-                $checkIn = $event->getOccurredAt();
-            }
-            if ($isCheckOut) {
-                $checkOut = $event->getOccurredAt();
-            }
+            $reference = $occurredAt;
         }
-
-        // Aucun pointage classé entrée (ex. tous hors fenêtre) : retombe sur
-        // le tout premier pointage du jour pour ne jamais renvoyer un
-        // check_in null alors qu'il y a bien eu un événement.
-        $checkIn ??= $dayEvents[0]->getOccurredAt();
 
         return [$checkIn, $checkOut];
     }

@@ -1,6 +1,8 @@
 {% macro badge(status, lateMinutes) %}
     {% if status == 'late' %}
         <span class="badge badge--warning">En retard{{ lateMinutes ? ' (' ~ lateMinutes ~ ' min)' : '' }}</span>
+    {% elseif status == 'early_leave_pending' %}
+        <span class="badge badge--warning">Départ anticipé ?</span>
     {% elseif status == 'on_leave' %}
         <span class="badge badge--inactive">En congé</span>
     {% elseif status == 'holiday' %}

@@ -7,6 +7,7 @@
         <table class="table" data-table>
             <thead>
                 <tr>
+                    <th></th>
                     <th data-sort="text">Employé</th>
                     <th data-sort="text">Statut</th>
                     <th data-sort="text">Entrée</th>
@@ -18,7 +19,16 @@
             </thead>
             <tbody>
                 {% for row in summary %}
-                    <tr>
+                    {% if row.events_count > 0 %}
+                        <tr class="row--clickable" data-day-toggle data-punches-url="{{ path('employee_punches', {id: row.employee_id, date: row.date}) }}">
+                    {% else %}
+                        <tr>
+                    {% endif %}
+                        <td>
+                            {% if row.events_count > 0 %}
+                                <span class="js-day-chevron" aria-hidden="true">▸</span>
+                            {% endif %}
+                        </td>
                         <td>{{ row.employee }}</td>
                         <td>
                             {{ badges.badge(row.status, row.late_minutes) }}
@@ -40,6 +50,14 @@
                             {% endif %}
                         </td>
                     </tr>
+                    {% if row.events_count > 0 %}
+                        <tr data-table-detail hidden>
+                            <td></td>
+                            <td colspan="7" class="js-punches-slot">
+                                <p class="text-muted">Chargement…</p>
+                            </td>
+                        </tr>
+                    {% endif %}
                 {% endfor %}
             </tbody>
         </table>

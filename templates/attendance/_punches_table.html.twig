@@ -1,0 +1,30 @@
+{% if punches is empty %}
+    <p class="text-muted">Aucun pointage ce jour-là.</p>
+{% else %}
+    <table class="table table--nested">
+        <thead>
+            <tr>
+                <th>Heure</th>
+                <th>Type</th>
+                <th>Pointeuse</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for punch in punches %}
+                <tr>
+                    <td>{{ punch.occurredAt|date('H:i:s') }}</td>
+                    <td>
+                        {% if punch.attendanceStatus == 'checkIn' %}
+                            <span class="badge badge--present">Entrée</span>
+                        {% elseif punch.attendanceStatus == 'checkOut' %}
+                            <span class="badge badge--inactive">Sortie</span>
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ punch.device.name }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
