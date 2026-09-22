@@ -1,0 +1,277 @@
+nav:
+    brand: Attendance
+    brand_subtitle: Hikvision Attendance
+    dashboard: Dashboard
+    history: History
+    reports: Reports
+    devices: Devices
+    employees: Employees
+    configuration: Configuration
+    departments: Departments
+    schedules: Schedules
+    holidays: Holidays
+    leaves: Leaves
+    telegram: Telegram
+    users: Users
+    logout: Logout
+
+form:
+    name: Name
+    site: Site
+    ip_address: IP address
+    port: Port
+    admin_user: Admin username
+    admin_password: Admin password
+    admin_password_edit: Admin password (leave blank to keep unchanged)
+    serial_number: Serial number
+    active: Active
+    first_name: First name
+    department: Department
+    no_department: No department
+    work_schedule: Work schedule
+    no_schedule: None (simple logic)
+    date: Date
+    label: Label
+    employee: Employee
+    start_date: Start date
+    end_date: End date
+    type: Type
+    reason: Reason
+    email: Email
+    password: Password
+    role: Role
+    chat_id: Chat ID
+    start_time: Start time
+    end_time: End time
+    tolerance_minutes: Tolerance (minutes)
+    check_window_margin_minutes: Badge margin (minutes)
+    employees: Employees
+    rest_day: Rest day
+    start_short: Start
+    end_short: End
+
+day:
+    monday: Monday
+    tuesday: Tuesday
+    wednesday: Wednesday
+    thursday: Thursday
+    friday: Friday
+    saturday: Saturday
+    sunday: Sunday
+    mon_short: Mon
+    tue_short: Tue
+    wed_short: Wed
+    thu_short: Thu
+    fri_short: Fri
+    sat_short: Sat
+    sun_short: Sun
+
+leave_type:
+    conge: Leave
+    maladie: Sick leave
+    autre: Other
+
+role:
+    admin: Administrator
+    viewer: Read-only
+
+flash:
+    invalid_csrf: Invalid security token.
+    employee_created: 'Employee %name% created.'
+    employee_updated: 'Employee %name% updated.'
+    employee_deactivated: 'Employee %name% deactivated.'
+    department_created: 'Department %name% created.'
+    department_updated: 'Department %name% updated.'
+    department_deleted: 'Department %name% deleted.'
+    device_created: 'Device %name% created.'
+    device_updated: 'Device %name% updated.'
+    webhook_registered: 'Webhook registered on %name% → %url%'
+    webhook_failed: 'Failed to register webhook for %name%: %error%'
+    device_unreachable: 'Could not reach %name%: %error%'
+    employees_synced: '{0}No employee created and linked to %name%.|{1}%count% employee created and linked to %name%.|]1,Inf[%count% employees created and linked to %name%.'
+    events_synced: '{0}No event synced from %name%.|{1}%count% event synced from %name%.|]1,Inf[%count% events synced from %name%.'
+    sync_failed: 'Sync failed for %name%: %error%'
+    recipient_added: 'Recipient %name% added.'
+    invalid_recipient_form: Invalid form — check the name and chat ID.
+    recipient_activated: '%name% activated.'
+    recipient_deactivated: '%name% deactivated.'
+    recipient_deleted: 'Recipient %name% deleted.'
+    alerts_enabled: Alerts enabled.
+    alerts_disabled: Alerts disabled.
+    no_active_recipient: No active recipient — add one before testing.
+    test_sent: '%success% message(s) sent, %failed% failure(s).'
+    leave_end_before_start: End date must be on or after the start date.
+    leave_created: 'Leave created for %name%.'
+    leave_deleted: Leave deleted.
+    holiday_created: 'Holiday %name% created.'
+    holiday_deleted: 'Holiday %name% deleted.'
+    schedule_created: 'Schedule %name% created.'
+    schedule_updated: 'Schedule %name% updated.'
+    schedule_deleted: 'Schedule %name% deleted.'
+    device_not_found: Device not found.
+    schedule_synced: 'Schedule %schedule% synced to %device% (plan #%plan% auto-detected).'
+    schedule_sync_failed: 'Sync failed on %name%: %error%'
+    schedule_import_failed: 'Import failed from %name%: %error%'
+    schedule_imported: 'Schedule imported from %name% (plan #%plan%) — review and save below.'
+    user_created: 'Account %email% created.'
+    cannot_deactivate_self: Cannot deactivate your own account.
+    user_activated: '%email% activated.'
+    user_deactivated: '%email% deactivated.'
+    cannot_delete_self: Cannot delete your own account.
+    user_deleted: 'Account %email% deleted.'
+
+status:
+    late: Late
+    early_leave_pending: Early leave?
+    on_leave: On leave
+    holiday: Holiday
+    rest_day: Rest day
+    present: Present
+    absent: Absent
+
+punches:
+    none_that_day: No punch that day.
+    time: Time
+    type: Type
+    device: Device
+    check_in: Check in
+    check_out: Check out
+
+summary:
+    no_active_employees: No active employees to display.
+    employee: Employee
+    status: Status
+    check_in: Check in
+    check_out: Check out
+    hours: Hours
+    punches: Punches
+    overtime: Overtime
+    early_leave: Early leave
+    min_check_in: min (check in)
+    min_check_out: min (check out)
+    date: Date
+
+common:
+    loading: Loading…
+    active: Active
+    inactive: Inactive
+    edit: Edit
+    back: Back
+    device: Device
+    from: From
+    to: To
+    show: Show
+    no_data_for_period: No data for this period.
+    save: Save
+    cancel: Cancel
+    actions: Actions
+    all_departments: All departments
+    filter: Filter
+    delete: Delete
+    new: New
+    yes: Yes
+    no: 'No'
+    close: Close
+
+employee:
+    linked_devices: Linked devices
+    no_linked_device: This employee is not linked to any device.
+    punch_history: Punch history
+    count: '{0}No employees|{1}%count% employee|]1,Inf[%count% employees'
+    new: New employee
+    none_registered: No employees registered.
+    deactivate: Deactivate
+
+dashboard:
+    today: Today
+    present: Present
+    active_employees: Active employees
+    day_summary: Day summary
+
+history:
+    subtitle: Attendance summary over a period
+    day_summary: 'Summary for %date%'
+    no_data_for_period: No data for this period.
+
+device:
+    count: '{0}No devices registered|{1}%count% device registered|]1,Inf[%count% devices registered'
+    new: New device
+    none_registered: No devices registered.
+    address: Address
+    last_seen: Last seen
+    never: Never
+    register_webhook: Register webhook
+    sync_employees: Sync employees
+    sync_history: Sync history
+    sync_title: 'Sync %name%'
+    sync_subtitle: Users registered on the device not yet linked to an employee
+    no_unlinked_user: No unlinked user found on this device.
+    link_selected: Link selected employees
+
+telegram:
+    title: Telegram alerts
+    subtitle: Recipients for late/absence alerts
+    status: Status
+    disable: Disable
+    enable: Enable
+    send_test: Send a test
+    add_recipient: Add a recipient
+    chat_id_help: 'Send a message to the bot, then visit https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates to read "chat":{"id": ...}.'
+    add: Add
+    recipients: Recipients
+    none_registered: No recipients registered.
+
+schedule:
+    title: Work schedules
+    count: '{0}No schedules|{1}%count% schedule|]1,Inf[%count% schedules'
+    import_help: Read the ISAPI plan already set on this device and pre-fill a new schedule
+    import_from: 'Import from %name%'
+    new: New schedule
+    none_defined: No schedules defined.
+    weekly_plan: Weekly plan
+    tolerance: Tolerance
+    badge_margin: Badge margin
+    same_every_day: Same every day
+    sync_help: Sync the schedule to this device (ISAPI plan auto-detected)
+    sync_to: 'Sync → %name%'
+    midnight_help: If the end time is before the start time, the shift is considered to cross midnight.
+    margin_help: Used to classify a punch as check-in or check-out when the terminal does not explicitly say which one it is.
+    weekly_plan_help: 'Leave a day unchecked to fall back to the default schedule above, check "Rest day" for a day with no expected work (e.g. Sunday) — with no negative impact on that day''s attendance status.'
+    day: Day
+    assign_by_department: Assign by department
+    department_picker_help: Check a department to select all its employees below — each checkbox stays individually editable before saving.
+    currently: currently
+
+holiday:
+    count: '{0}No holidays registered|{1}%count% holiday registered|]1,Inf[%count% holidays registered'
+    new: New holiday
+    none_registered: No holidays registered.
+
+leave:
+    count: '{0}No periods registered|{1}%count% period registered|]1,Inf[%count% periods registered'
+    new: New leave
+    none_registered: No leave registered.
+
+department:
+    count: '{0}No departments|{1}%count% department|]1,Inf[%count% departments'
+    new: New department
+    none_defined: No departments defined.
+
+user:
+    count: '{0}No accounts|{1}%count% account|]1,Inf[%count% accounts'
+    new: New user
+    none_registered: No users registered.
+    you: You
+
+report:
+    title: Monthly report
+    range: 'From %from% to %to%'
+    export_csv: Export CSV
+    summary: 'Summary from %from% to %to%'
+    worked_hours: Worked hours
+    lateness_count: Late count
+    late_minutes: Late minutes
+    absences: Absences
+    early_leaves: Early leaves
+    overtime_in: Overtime in (min)
+    overtime_out: Overtime out (min)

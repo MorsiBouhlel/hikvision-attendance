@@ -38,7 +38,7 @@ class DeviceController extends AbstractController
             $em->persist($device);
             $em->flush();
 
-            $this->addFlash('success', "Device {$device->getName()} créé.");
+            $this->addFlash('success', ['key' => 'flash.device_created', 'params' => ['%name%' => $device->getName()]]);
             return $this->redirectToRoute('device_index');
         }
 
@@ -61,7 +61,7 @@ class DeviceController extends AbstractController
 
             $em->flush();
 
-            $this->addFlash('success', "Device {$device->getName()} mis à jour.");
+            $this->addFlash('success', ['key' => 'flash.device_updated', 'params' => ['%name%' => $device->getName()]]);
             return $this->redirectToRoute('device_index');
         }
 
@@ -75,15 +75,15 @@ class DeviceController extends AbstractController
     public function registerWebhook(Device $device, Request $request, WebhookRegistrar $registrar): Response
     {
         if (! $this->isCsrfTokenValid('device_action_' . $device->getId(), (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Jeton de sécurité invalide.');
+            $this->addFlash('error', ['key' => 'flash.invalid_csrf']);
             return $this->redirectToRoute('device_index');
         }
 
         try {
             $webhookUrl = $registrar->register($device);
-            $this->addFlash('success', "Webhook enregistré sur {$device->getName()} → {$webhookUrl}");
+            $this->addFlash('success', ['key' => 'flash.webhook_registered', 'params' => ['%name%' => $device->getName(), '%url%' => $webhookUrl]]);
         } catch (\Throwable $e) {
-            $this->addFlash('error', "Échec de l'enregistrement du webhook pour {$device->getName()} : {$e->getMessage()}");
+            $this->addFlash('error', ['key' => 'flash.webhook_failed', 'params' => ['%name%' => $device->getName(), '%error%' => $e->getMessage()]]);
         }
 
         return $this->redirectToRoute('device_index');
@@ -95,7 +95,7 @@ class DeviceController extends AbstractController
         try {
             $unlinked = $employeeSync->previewUnlinked($device);
         } catch (\Throwable $e) {
-            $this->addFlash('error', "Impossible de contacter {$device->getName()} : {$e->getMessage()}");
+            $this->addFlash('error', ['key' => 'flash.device_unreachable', 'params' => ['%name%' => $device->getName(), '%error%' => $e->getMessage()]]);
             return $this->redirectToRoute('device_index');
         }
 
@@ -109,7 +109,7 @@ class DeviceController extends AbstractController
     public function syncEmployeesConfirm(Device $device, Request $request, EmployeeSyncService $employeeSync): Response
     {
         if (! $this->isCsrfTokenValid('device_sync_' . $device->getId(), (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Jeton de sécurité invalide.');
+            $this->addFlash('error', ['key' => 'flash.invalid_csrf']);
             return $this->redirectToRoute('device_index');
         }
 
@@ -126,7 +126,7 @@ class DeviceController extends AbstractController
 
         $created = $employeeSync->linkSelected($device, $selected);
 
-        $this->addFlash('success', count($created) . ' employé(s) créé(s) et lié(s) à ' . $device->getName() . '.');
+        $this->addFlash('success', ['key' => 'flash.employees_synced', 'params' => ['%count%' => count($created), '%name%' => $device->getName()]]);
 
         return $this->redirectToRoute('device_index');
     }
@@ -135,7 +135,7 @@ class DeviceController extends AbstractController
     public function syncEvents(Device $device, Request $request, AttendanceEventSyncService $eventSync): Response
     {
         if (! $this->isCsrfTokenValid('device_sync_events_' . $device->getId(), (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Jeton de sécurité invalide.');
+            $this->addFlash('error', ['key' => 'flash.invalid_csrf']);
             return $this->redirectToRoute('device_index');
         }
 
@@ -147,9 +147,9 @@ class DeviceController extends AbstractController
 
         try {
             $count = $eventSync->sync($device, $from, $to);
-            $this->addFlash('success', "{$count} événement(s) synchronisé(s) depuis {$device->getName()}.");
+            $this->addFlash('success', ['key' => 'flash.events_synced', 'params' => ['%count%' => $count, '%name%' => $device->getName()]]);
         } catch (\Throwable $e) {
-            $this->addFlash('error', "Échec de la synchronisation pour {$device->getName()} : {$e->getMessage()}");
+            $this->addFlash('error', ['key' => 'flash.sync_failed', 'params' => ['%name%' => $device->getName(), '%error%' => $e->getMessage()]]);
         }
 
         return $this->redirectToRoute('device_index');

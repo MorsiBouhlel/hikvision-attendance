@@ -1,30 +1,30 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Employés{% endblock %}
+{% block title %}{{ 'nav.employees'|trans }}{% endblock %}
 
 {% block body %}
     <div class="page-header">
         <div>
-            <h1>Employés</h1>
-            <p class="page-header__meta">{{ employees|length }} employé(s)</p>
+            <h1>{{ 'nav.employees'|trans }}</h1>
+            <p class="page-header__meta">{{ 'employee.count'|trans({'%count%': employees|length}) }}</p>
         </div>
         {% if is_granted('ROLE_ADMIN') %}
-            <a class="btn btn--primary" href="{{ path('employee_new') }}">+ Nouvel employé</a>
+            <a class="btn btn--primary" href="{{ path('employee_new') }}">+ {{ 'employee.new'|trans }}</a>
         {% endif %}
     </div>
 
     <div class="card">
         {% if employees is empty %}
-            <div class="table--empty">Aucun employé enregistré.</div>
+            <div class="table--empty">{{ 'employee.none_registered'|trans }}</div>
         {% else %}
             <div class="table-wrap">
                 <table class="table" data-table>
                     <thead>
                         <tr>
-                            <th data-sort="text">Nom</th>
-                            <th data-sort="text">Département</th>
-                            <th data-sort="text">Statut</th>
-                            <th>Actions</th>
+                            <th data-sort="text">{{ 'form.name'|trans }}</th>
+                            <th data-sort="text">{{ 'form.department'|trans }}</th>
+                            <th data-sort="text">{{ 'summary.status'|trans }}</th>
+                            <th>{{ 'common.actions'|trans }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,19 +41,19 @@
                                 <td>{{ employee.department.name ?? '—' }}</td>
                                 <td>
                                     {% if employee.active %}
-                                        <span class="badge badge--present">Actif</span>
+                                        <span class="badge badge--present">{{ 'common.active'|trans }}</span>
                                     {% else %}
-                                        <span class="badge badge--inactive">Inactif</span>
+                                        <span class="badge badge--inactive">{{ 'common.inactive'|trans }}</span>
                                     {% endif %}
                                 </td>
                                 <td>
                                     {% if is_granted('ROLE_ADMIN') %}
                                         <div class="btn-group">
-                                            <a class="btn btn--sm" href="{{ path('employee_edit', {id: employee.id}) }}">Éditer</a>
+                                            <a class="btn btn--sm" href="{{ path('employee_edit', {id: employee.id}) }}">{{ 'common.edit'|trans }}</a>
                                             {% if employee.active %}
                                                 <form method="post" action="{{ path('employee_deactivate', {id: employee.id}) }}">
                                                     <input type="hidden" name="_token" value="{{ csrf_token('employee_deactivate_' ~ employee.id) }}">
-                                                    <button class="btn btn--sm btn--danger" type="submit">Désactiver</button>
+                                                    <button class="btn btn--sm btn--danger" type="submit">{{ 'employee.deactivate'|trans }}</button>
                                                 </form>
                                             {% endif %}
                                         </div>

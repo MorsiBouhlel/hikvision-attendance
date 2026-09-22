@@ -1,29 +1,29 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Départements{% endblock %}
+{% block title %}{{ 'nav.departments'|trans }}{% endblock %}
 
 {% block body %}
     <div class="page-header">
         <div>
-            <h1>Départements</h1>
-            <p class="page-header__meta">{{ departments|length }} département(s)</p>
+            <h1>{{ 'nav.departments'|trans }}</h1>
+            <p class="page-header__meta">{{ 'department.count'|trans({'%count%': departments|length}) }}</p>
         </div>
         {% if is_granted('ROLE_ADMIN') %}
-            <a class="btn btn--primary" href="{{ path('department_new') }}">+ Nouveau département</a>
+            <a class="btn btn--primary" href="{{ path('department_new') }}">+ {{ 'department.new'|trans }}</a>
         {% endif %}
     </div>
 
     <div class="card">
         {% if departments is empty %}
-            <div class="table--empty">Aucun département défini.</div>
+            <div class="table--empty">{{ 'department.none_defined'|trans }}</div>
         {% else %}
             <div class="table-wrap">
                 <table class="table" data-table>
                     <thead>
                         <tr>
-                            <th data-sort="text">Nom</th>
-                            <th data-sort="number">Employés</th>
-                            <th>Actions</th>
+                            <th data-sort="text">{{ 'form.name'|trans }}</th>
+                            <th data-sort="number">{{ 'form.employees'|trans }}</th>
+                            <th>{{ 'common.actions'|trans }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -34,10 +34,10 @@
                                 <td>
                                     {% if is_granted('ROLE_ADMIN') %}
                                         <div class="btn-group">
-                                            <a class="btn btn--sm" href="{{ path('department_edit', {id: department.id}) }}">Éditer</a>
+                                            <a class="btn btn--sm" href="{{ path('department_edit', {id: department.id}) }}">{{ 'common.edit'|trans }}</a>
                                             <form method="post" action="{{ path('department_delete', {id: department.id}) }}">
                                                 <input type="hidden" name="_token" value="{{ csrf_token('department_delete_' ~ department.id) }}">
-                                                <button class="btn btn--sm btn--danger" type="submit">Supprimer</button>
+                                                <button class="btn btn--sm btn--danger" type="submit">{{ 'common.delete'|trans }}</button>
                                             </form>
                                         </div>
                                     {% endif %}

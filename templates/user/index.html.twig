@@ -1,54 +1,54 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Utilisateurs{% endblock %}
+{% block title %}{{ 'nav.users'|trans }}{% endblock %}
 
 {% block body %}
     <div class="page-header">
         <div>
-            <h1>Utilisateurs</h1>
-            <p class="page-header__meta">{{ users|length }} compte(s)</p>
+            <h1>{{ 'nav.users'|trans }}</h1>
+            <p class="page-header__meta">{{ 'user.count'|trans({'%count%': users|length}) }}</p>
         </div>
-        <a class="btn btn--primary" href="{{ path('user_new') }}">+ Nouvel utilisateur</a>
+        <a class="btn btn--primary" href="{{ path('user_new') }}">+ {{ 'user.new'|trans }}</a>
     </div>
 
     <div class="card">
         {% if users is empty %}
-            <div class="table--empty">Aucun utilisateur enregistré.</div>
+            <div class="table--empty">{{ 'user.none_registered'|trans }}</div>
         {% else %}
             <div class="table-wrap">
                 <table class="table" data-table>
                     <thead>
                         <tr>
                             <th data-sort="text">Email</th>
-                            <th data-sort="text">Rôle</th>
-                            <th data-sort="text">Statut</th>
-                            <th>Actions</th>
+                            <th data-sort="text">{{ 'form.role'|trans }}</th>
+                            <th data-sort="text">{{ 'summary.status'|trans }}</th>
+                            <th>{{ 'common.actions'|trans }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for user in users %}
                             <tr>
                                 <td>{{ user.email }}</td>
-                                <td>{{ 'ROLE_ADMIN' in user.roles ? 'Administrateur' : 'Lecture seule' }}</td>
+                                <td>{{ 'ROLE_ADMIN' in user.roles ? 'role.admin'|trans : 'role.viewer'|trans }}</td>
                                 <td>
                                     {% if user.active %}
-                                        <span class="badge badge--present">Actif</span>
+                                        <span class="badge badge--present">{{ 'common.active'|trans }}</span>
                                     {% else %}
-                                        <span class="badge badge--inactive">Inactif</span>
+                                        <span class="badge badge--inactive">{{ 'common.inactive'|trans }}</span>
                                     {% endif %}
                                 </td>
                                 <td>
                                     <div class="btn-group">
                                         {% if user is same as(app.user) %}
-                                            <span class="badge badge--inactive">Vous</span>
+                                            <span class="badge badge--inactive">{{ 'user.you'|trans }}</span>
                                         {% else %}
                                             <form method="post" action="{{ path('user_toggle', {id: user.id}) }}">
                                                 <input type="hidden" name="_token" value="{{ csrf_token('user_toggle_' ~ user.id) }}">
-                                                <button class="btn btn--sm" type="submit">{{ user.active ? 'Désactiver' : 'Activer' }}</button>
+                                                <button class="btn btn--sm" type="submit">{{ user.active ? 'telegram.disable'|trans : 'telegram.enable'|trans }}</button>
                                             </form>
                                             <form method="post" action="{{ path('user_delete', {id: user.id}) }}">
                                                 <input type="hidden" name="_token" value="{{ csrf_token('user_delete_' ~ user.id) }}">
-                                                <button class="btn btn--sm btn--danger" type="submit">Supprimer</button>
+                                                <button class="btn btn--sm btn--danger" type="submit">{{ 'common.delete'|trans }}</button>
                                             </form>
                                         {% endif %}
                                     </div>

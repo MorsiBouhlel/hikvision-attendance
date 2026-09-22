@@ -37,7 +37,7 @@ class UserController extends AbstractController
             $em->persist($user);
             $em->flush();
 
-            $this->addFlash('success', "Compte {$user->getEmail()} créé.");
+            $this->addFlash('success', ['key' => 'flash.user_created', 'params' => ['%email%' => $user->getEmail()]]);
             return $this->redirectToRoute('user_index');
         }
 
@@ -50,19 +50,22 @@ class UserController extends AbstractController
     public function toggle(User $user, Request $request, EntityManagerInterface $em): Response
     {
         if (! $this->isCsrfTokenValid('user_toggle_' . $user->getId(), (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Jeton de sécurité invalide.');
+            $this->addFlash('error', ['key' => 'flash.invalid_csrf']);
             return $this->redirectToRoute('user_index');
         }
 
         if ($user === $this->getUser()) {
-            $this->addFlash('error', 'Impossible de désactiver son propre compte.');
+            $this->addFlash('error', ['key' => 'flash.cannot_deactivate_self']);
             return $this->redirectToRoute('user_index');
         }
 
         $user->setIsActive(! $user->isActive());
         $em->flush();
 
-        $this->addFlash('success', "{$user->getEmail()} " . ($user->isActive() ? 'activé' : 'désactivé') . '.');
+        $this->addFlash('success', [
+            'key' => $user->isActive() ? 'flash.user_activated' : 'flash.user_deactivated',
+            'params' => ['%email%' => $user->getEmail()],
+        ]);
         return $this->redirectToRoute('user_index');
     }
 
@@ -70,19 +73,19 @@ class UserController extends AbstractController
     public function delete(User $user, Request $request, EntityManagerInterface $em): Response
     {
         if (! $this->isCsrfTokenValid('user_delete_' . $user->getId(), (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Jeton de sécurité invalide.');
+            $this->addFlash('error', ['key' => 'flash.invalid_csrf']);
             return $this->redirectToRoute('user_index');
         }
 
         if ($user === $this->getUser()) {
-            $this->addFlash('error', 'Impossible de supprimer son propre compte.');
+            $this->addFlash('error', ['key' => 'flash.cannot_delete_self']);
             return $this->redirectToRoute('user_index');
         }
 
         $em->remove($user);
         $em->flush();
 
-        $this->addFlash('success', "Compte {$user->getEmail()} supprimé.");
+        $this->addFlash('success', ['key' => 'flash.user_deleted', 'params' => ['%email%' => $user->getEmail()]]);
         return $this->redirectToRoute('user_index');
     }
 }

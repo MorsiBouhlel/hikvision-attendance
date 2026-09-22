@@ -33,7 +33,7 @@ class HolidayController extends AbstractController
             $em->persist($holiday);
             $em->flush();
 
-            $this->addFlash('success', "Jour férié {$holiday->getLabel()} créé.");
+            $this->addFlash('success', ['key' => 'flash.holiday_created', 'params' => ['%name%' => $holiday->getLabel()]]);
             return $this->redirectToRoute('holiday_index');
         }
 
@@ -46,14 +46,14 @@ class HolidayController extends AbstractController
     public function delete(Holiday $holiday, Request $request, EntityManagerInterface $em): Response
     {
         if (! $this->isCsrfTokenValid('holiday_delete_' . $holiday->getId(), (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Jeton de sécurité invalide.');
+            $this->addFlash('error', ['key' => 'flash.invalid_csrf']);
             return $this->redirectToRoute('holiday_index');
         }
 
         $em->remove($holiday);
         $em->flush();
 
-        $this->addFlash('success', "Jour férié {$holiday->getLabel()} supprimé.");
+        $this->addFlash('success', ['key' => 'flash.holiday_deleted', 'params' => ['%name%' => $holiday->getLabel()]]);
         return $this->redirectToRoute('holiday_index');
     }
 }

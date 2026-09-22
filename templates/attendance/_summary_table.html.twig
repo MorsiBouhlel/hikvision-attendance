@@ -1,20 +1,20 @@
 {% import 'attendance/_status_badge.html.twig' as badges %}
 
 {% if summary is empty %}
-    <div class="table--empty">Aucun employé actif à afficher.</div>
+    <div class="table--empty">{{ 'summary.no_active_employees'|trans }}</div>
 {% else %}
     <div class="table-wrap">
-        <table class="table" data-table>
+        <table class="table" data-table {{ searchExternal is defined and searchExternal ? 'data-table-search="external"' }}>
             <thead>
                 <tr>
                     <th></th>
-                    <th data-sort="text">Employé</th>
-                    <th data-sort="text">Statut</th>
-                    <th data-sort="text">Entrée</th>
-                    <th data-sort="text">Sortie</th>
-                    <th data-sort="number">Heures</th>
-                    <th data-sort="number">Pointages</th>
-                    <th data-sort="text">Overtime</th>
+                    <th data-sort="text">{{ 'summary.employee'|trans }}</th>
+                    <th data-sort="text">{{ 'summary.status'|trans }}</th>
+                    <th data-sort="text">{{ 'summary.check_in'|trans }}</th>
+                    <th data-sort="text">{{ 'summary.check_out'|trans }}</th>
+                    <th data-sort="number">{{ 'summary.hours'|trans }}</th>
+                    <th data-sort="number">{{ 'summary.punches'|trans }}</th>
+                    <th data-sort="text">{{ 'summary.overtime'|trans }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -33,7 +33,7 @@
                         <td>
                             {{ badges.badge(row.status, row.late_minutes) }}
                             {% if row.is_early_leave %}
-                                <span class="badge badge--warning">Départ anticipé</span>
+                                <span class="badge badge--warning">{{ 'summary.early_leave'|trans }}</span>
                             {% endif %}
                         </td>
                         <td>{{ row.check_in ?? '—' }}</td>
@@ -42,9 +42,9 @@
                         <td>{{ row.events_count }}</td>
                         <td>
                             {% if row.overtime_in_minutes or row.overtime_out_minutes %}
-                                {% if row.overtime_in_minutes %}<span class="text-muted">+{{ row.overtime_in_minutes }} min (entrée)</span>{% endif %}
+                                {% if row.overtime_in_minutes %}<span class="text-muted">+{{ row.overtime_in_minutes }} {{ 'summary.min_check_in'|trans }}</span>{% endif %}
                                 {% if row.overtime_in_minutes and row.overtime_out_minutes %}<br>{% endif %}
-                                {% if row.overtime_out_minutes %}<span class="text-muted">+{{ row.overtime_out_minutes }} min (sortie)</span>{% endif %}
+                                {% if row.overtime_out_minutes %}<span class="text-muted">+{{ row.overtime_out_minutes }} {{ 'summary.min_check_out'|trans }}</span>{% endif %}
                             {% else %}
                                 —
                             {% endif %}
@@ -54,7 +54,7 @@
                         <tr data-table-detail hidden>
                             <td></td>
                             <td colspan="7" class="js-punches-slot">
-                                <p class="text-muted">Chargement…</p>
+                                <p class="text-muted">{{ 'common.loading'|trans }}</p>
                             </td>
                         </tr>
                     {% endif %}

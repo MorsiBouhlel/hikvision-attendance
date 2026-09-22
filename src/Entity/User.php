@@ -29,6 +29,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private bool $isActive = true;
 
+    #[ORM\Column(length: 5)]
+    private string $locale = 'fr';
+
     public function getId(): ?int { return $this->id; }
 
     public function getEmail(): string { return $this->email; }
@@ -48,6 +51,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function isActive(): bool { return $this->isActive; }
     public function setIsActive(bool $a): static { $this->isActive = $a; return $this; }
+
+    public function getLocale(): string { return $this->locale; }
+    public function setLocale(string $l): static { $this->locale = $l; return $this; }
 
     public function eraseCredentials(): void
     {

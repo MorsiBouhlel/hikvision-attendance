@@ -39,9 +39,9 @@ class TelegramController extends AbstractController
             $em->persist($recipient);
             $em->flush();
 
-            $this->addFlash('success', "Destinataire {$recipient->getLabel()} ajouté.");
+            $this->addFlash('success', ['key' => 'flash.recipient_added', 'params' => ['%name%' => $recipient->getLabel()]]);
         } else {
-            $this->addFlash('error', 'Formulaire invalide — vérifie le nom et le chat ID.');
+            $this->addFlash('error', ['key' => 'flash.invalid_recipient_form']);
         }
 
         return $this->redirectToRoute('telegram_index');
@@ -51,14 +51,17 @@ class TelegramController extends AbstractController
     public function toggle(TelegramRecipient $recipient, Request $request, EntityManagerInterface $em): Response
     {
         if (! $this->isCsrfTokenValid('telegram_toggle_' . $recipient->getId(), (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Jeton de sécurité invalide.');
+            $this->addFlash('error', ['key' => 'flash.invalid_csrf']);
             return $this->redirectToRoute('telegram_index');
         }
 
         $recipient->setIsActive(! $recipient->isActive());
         $em->flush();
 
-        $this->addFlash('success', "{$recipient->getLabel()} " . ($recipient->isActive() ? 'activé' : 'désactivé') . '.');
+        $this->addFlash('success', [
+            'key' => $recipient->isActive() ? 'flash.recipient_activated' : 'flash.recipient_deactivated',
+            'params' => ['%name%' => $recipient->getLabel()],
+        ]);
         return $this->redirectToRoute('telegram_index');
     }
 
@@ -66,14 +69,14 @@ class TelegramController extends AbstractController
     public function delete(TelegramRecipient $recipient, Request $request, EntityManagerInterface $em): Response
     {
         if (! $this->isCsrfTokenValid('telegram_delete_' . $recipient->getId(), (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Jeton de sécurité invalide.');
+            $this->addFlash('error', ['key' => 'flash.invalid_csrf']);
             return $this->redirectToRoute('telegram_index');
         }
 
         $em->remove($recipient);
         $em->flush();
 
-        $this->addFlash('success', "Destinataire {$recipient->getLabel()} supprimé.");
+        $this->addFlash('success', ['key' => 'flash.recipient_deleted', 'params' => ['%name%' => $recipient->getLabel()]]);
         return $this->redirectToRoute('telegram_index');
     }
 
@@ -81,7 +84,7 @@ class TelegramController extends AbstractController
     public function toggleAlerts(Request $request, AlertSettingsRepository $settingsRepo, EntityManagerInterface $em): Response
     {
         if (! $this->isCsrfTokenValid('telegram_toggle_alerts', (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Jeton de sécurité invalide.');
+            $this->addFlash('error', ['key' => 'flash.invalid_csrf']);
             return $this->redirectToRoute('telegram_index');
         }
 
@@ -89,7 +92,7 @@ class TelegramController extends AbstractController
         $settings->setEnabled(! $settings->isEnabled());
         $em->flush();
 
-        $this->addFlash('success', 'Alertes ' . ($settings->isEnabled() ? 'activées' : 'désactivées') . '.');
+        $this->addFlash('success', ['key' => $settings->isEnabled() ? 'flash.alerts_enabled' : 'flash.alerts_disabled']);
         return $this->redirectToRoute('telegram_index');
     }
 
@@ -97,16 +100,16 @@ class TelegramController extends AbstractController
     public function test(Request $request, AttendanceAlertService $alerts): Response
     {
         if (! $this->isCsrfTokenValid('telegram_test', (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Jeton de sécurité invalide.');
+            $this->addFlash('error', ['key' => 'flash.invalid_csrf']);
             return $this->redirectToRoute('telegram_index');
         }
 
         $result = $alerts->sendTest();
 
         if ($result['success'] === 0 && $result['failed'] === 0) {
-            $this->addFlash('error', 'Aucun destinataire actif — ajoute-en un avant de tester.');
+            $this->addFlash('error', ['key' => 'flash.no_active_recipient']);
         } else {
-            $this->addFlash('success', "{$result['success']} message(s) envoyé(s), {$result['failed']} échec(s).");
+            $this->addFlash('success', ['key' => 'flash.test_sent', 'params' => ['%success%' => $result['success'], '%failed%' => $result['failed']]]);
         }
 
         return $this->redirectToRoute('telegram_index');

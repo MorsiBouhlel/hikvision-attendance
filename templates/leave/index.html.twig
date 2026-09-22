@@ -1,34 +1,32 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Congés{% endblock %}
-
-{% set typeLabels = {'conge': 'Congé', 'maladie': 'Maladie', 'autre': 'Autre'} %}
+{% block title %}{{ 'nav.leaves'|trans }}{% endblock %}
 
 {% block body %}
     <div class="page-header">
         <div>
-            <h1>Congés</h1>
-            <p class="page-header__meta">{{ leaves|length }} période(s) enregistrée(s)</p>
+            <h1>{{ 'nav.leaves'|trans }}</h1>
+            <p class="page-header__meta">{{ 'leave.count'|trans({'%count%': leaves|length}) }}</p>
         </div>
         {% if is_granted('ROLE_ADMIN') %}
-            <a class="btn btn--primary" href="{{ path('leave_new') }}">+ Nouveau congé</a>
+            <a class="btn btn--primary" href="{{ path('leave_new') }}">+ {{ 'leave.new'|trans }}</a>
         {% endif %}
     </div>
 
     <div class="card">
         {% if leaves is empty %}
-            <div class="table--empty">Aucun congé enregistré.</div>
+            <div class="table--empty">{{ 'leave.none_registered'|trans }}</div>
         {% else %}
             <div class="table-wrap">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Employé</th>
-                            <th>Début</th>
-                            <th>Fin</th>
-                            <th>Type</th>
-                            <th>Motif</th>
-                            <th>Actions</th>
+                            <th>{{ 'form.employee'|trans }}</th>
+                            <th>{{ 'form.start_short'|trans }}</th>
+                            <th>{{ 'form.end_short'|trans }}</th>
+                            <th>{{ 'form.type'|trans }}</th>
+                            <th>{{ 'form.reason'|trans }}</th>
+                            <th>{{ 'common.actions'|trans }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -37,13 +35,13 @@
                                 <td>{{ leave.employee.fullName }}</td>
                                 <td>{{ leave.startDate|date('d/m/Y') }}</td>
                                 <td>{{ leave.endDate|date('d/m/Y') }}</td>
-                                <td>{{ typeLabels[leave.type] ?? leave.type }}</td>
+                                <td>{{ ('leave_type.' ~ leave.type)|trans }}</td>
                                 <td>{{ leave.reason ?? '—' }}</td>
                                 <td>
                                     {% if is_granted('ROLE_ADMIN') %}
                                         <form method="post" action="{{ path('leave_delete', {id: leave.id}) }}">
                                             <input type="hidden" name="_token" value="{{ csrf_token('leave_delete_' ~ leave.id) }}">
-                                            <button class="btn btn--sm btn--danger" type="submit">Supprimer</button>
+                                            <button class="btn btn--sm btn--danger" type="submit">{{ 'common.delete'|trans }}</button>
                                         </form>
                                     {% endif %}
                                 </td>

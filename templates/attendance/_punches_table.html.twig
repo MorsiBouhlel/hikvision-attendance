@@ -1,12 +1,12 @@
 {% if punches is empty %}
-    <p class="text-muted">Aucun pointage ce jour-là.</p>
+    <p class="text-muted">{{ 'punches.none_that_day'|trans }}</p>
 {% else %}
     <table class="table table--nested">
         <thead>
             <tr>
-                <th>Heure</th>
-                <th>Type</th>
-                <th>Pointeuse</th>
+                <th>{{ 'punches.time'|trans }}</th>
+                <th>{{ 'punches.type'|trans }}</th>
+                <th>{{ 'punches.device'|trans }}</th>
             </tr>
         </thead>
         <tbody>
@@ -15,9 +15,9 @@
                     <td>{{ punch.occurredAt|date('H:i:s') }}</td>
                     <td>
                         {% if punch.attendanceStatus == 'checkIn' %}
-                            <span class="badge badge--present">Entrée</span>
+                            <span class="badge badge--present">{{ 'punches.check_in'|trans }}</span>
                         {% elseif punch.attendanceStatus == 'checkOut' %}
-                            <span class="badge badge--inactive">Sortie</span>
+                            <span class="badge badge--inactive">{{ 'punches.check_out'|trans }}</span>
                         {% else %}
                             <span class="text-muted">—</span>
                         {% endif %}

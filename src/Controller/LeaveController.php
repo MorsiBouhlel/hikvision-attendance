@@ -31,14 +31,14 @@ class LeaveController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             if ($leave->getEndDate() < $leave->getStartDate()) {
-                $this->addFlash('error', 'La date de fin doit être postérieure ou égale à la date de début.');
+                $this->addFlash('error', ['key' => 'flash.leave_end_before_start']);
                 return $this->render('leave/new.html.twig', ['form' => $form]);
             }
 
             $em->persist($leave);
             $em->flush();
 
-            $this->addFlash('success', "Congé créé pour {$leave->getEmployee()->getFullName()}.");
+            $this->addFlash('success', ['key' => 'flash.leave_created', 'params' => ['%name%' => $leave->getEmployee()->getFullName()]]);
             return $this->redirectToRoute('leave_index');
         }
 
@@ -51,14 +51,14 @@ class LeaveController extends AbstractController
     public function delete(Leave $leave, Request $request, EntityManagerInterface $em): Response
     {
         if (! $this->isCsrfTokenValid('leave_delete_' . $leave->getId(), (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Jeton de sécurité invalide.');
+            $this->addFlash('error', ['key' => 'flash.invalid_csrf']);
             return $this->redirectToRoute('leave_index');
         }
 
         $em->remove($leave);
         $em->flush();
 
-        $this->addFlash('success', 'Congé supprimé.');
+        $this->addFlash('success', ['key' => 'flash.leave_deleted']);
         return $this->redirectToRoute('leave_index');
     }
 }

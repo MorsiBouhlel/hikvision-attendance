@@ -17,20 +17,20 @@ class UserType extends AbstractType
     {
         $builder
             ->add('email', EmailType::class, [
-                'label' => 'Email',
+                'label' => 'form.email',
                 'constraints' => [new Assert\NotBlank(), new Assert\Email()],
             ])
             ->add('plainPassword', PasswordType::class, [
-                'label' => 'Mot de passe',
+                'label' => 'form.password',
                 'mapped' => false,
                 'constraints' => [new Assert\NotBlank(), new Assert\Length(min: 8)],
             ])
             ->add('role', ChoiceType::class, [
-                'label' => 'Rôle',
+                'label' => 'form.role',
                 'mapped' => false,
                 'choices' => [
-                    'Administrateur' => 'ROLE_ADMIN',
-                    'Lecture seule' => 'ROLE_VIEWER',
+                    'role.admin' => 'ROLE_ADMIN',
+                    'role.viewer' => 'ROLE_VIEWER',
                 ],
             ]);
     }

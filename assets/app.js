@@ -6,3 +6,4 @@ import './department-picker.js';
 import './week-plan-row.js';
 import './nav-group.js';
 import './day-detail-toggle.js';
+import './history-search.js';

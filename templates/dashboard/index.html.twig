@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}{{ 'nav.dashboard'|trans }}{% endblock %}
 
 {% block head_extra %}
     <meta http-equiv="refresh" content="60">
@@ -9,22 +9,22 @@
 {% block body %}
     <div class="page-header">
         <div>
-            <h1>Aujourd'hui</h1>
+            <h1>{{ 'dashboard.today'|trans }}</h1>
             <p class="page-header__meta">{{ date|date('d/m/Y') }}</p>
         </div>
     </div>
 
     <div class="stat-grid">
         <div class="stat-tile stat-tile--success">
-            <div class="stat-tile__label">Présents</div>
+            <div class="stat-tile__label">{{ 'dashboard.present'|trans }}</div>
             <div class="stat-tile__value">{{ presentCount }}</div>
         </div>
         <div class="stat-tile stat-tile--danger">
-            <div class="stat-tile__label">Absents</div>
+            <div class="stat-tile__label">{{ 'status.absent'|trans }}</div>
             <div class="stat-tile__value">{{ absentCount }}</div>
         </div>
         <div class="stat-tile">
-            <div class="stat-tile__label">Employés actifs</div>
+            <div class="stat-tile__label">{{ 'dashboard.active_employees'|trans }}</div>
             <div class="stat-tile__value">{{ summary|length }}</div>
         </div>
     </div>
@@ -33,22 +33,22 @@
         <div class="card__body">
             <form method="get" class="filter-bar">
                 <div class="form-row">
-                    <label class="form-label" for="department">Département</label>
+                    <label class="form-label" for="department">{{ 'form.department'|trans }}</label>
                     <select class="form-control" id="department" name="department">
-                        <option value="">Tous les départements</option>
+                        <option value="">{{ 'common.all_departments'|trans }}</option>
                         {% for dep in departments %}
                             <option value="{{ dep.id }}" {{ dep.id == department ? 'selected' }}>{{ dep.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                <button class="btn btn--primary" type="submit">Filtrer</button>
+                <button class="btn btn--primary" type="submit">{{ 'common.filter'|trans }}</button>
             </form>
         </div>
     </div>
 
     <div class="card">
         <div class="card__header">
-            <h2>Résumé du jour</h2>
+            <h2>{{ 'dashboard.day_summary'|trans }}</h2>
         </div>
         {% include 'attendance/_summary_table.html.twig' %}
     </div>

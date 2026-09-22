@@ -1,0 +1,277 @@
+nav:
+    brand: Présence
+    brand_subtitle: Hikvision Attendance
+    dashboard: Dashboard
+    history: Historique
+    reports: Rapports
+    devices: Devices
+    employees: Employés
+    configuration: Configuration
+    departments: Départements
+    schedules: Horaires
+    holidays: Jours fériés
+    leaves: Congés
+    telegram: Telegram
+    users: Utilisateurs
+    logout: Déconnexion
+
+form:
+    name: Nom
+    site: Site
+    ip_address: Adresse IP
+    port: Port
+    admin_user: Utilisateur admin
+    admin_password: Mot de passe admin
+    admin_password_edit: Mot de passe admin (laisser vide pour ne pas changer)
+    serial_number: Numéro de série
+    active: Actif
+    first_name: Prénom
+    department: Département
+    no_department: Aucun département
+    work_schedule: Horaire de travail
+    no_schedule: Aucun (logique simple)
+    date: Date
+    label: Libellé
+    employee: Employé
+    start_date: Date de début
+    end_date: Date de fin
+    type: Type
+    reason: Motif
+    email: Email
+    password: Mot de passe
+    role: Rôle
+    chat_id: Chat ID
+    start_time: Heure de début
+    end_time: Heure de fin
+    tolerance_minutes: Tolérance (minutes)
+    check_window_margin_minutes: Marge de badgeage (minutes)
+    employees: Employés
+    rest_day: Repos
+    start_short: Début
+    end_short: Fin
+
+day:
+    monday: Lundi
+    tuesday: Mardi
+    wednesday: Mercredi
+    thursday: Jeudi
+    friday: Vendredi
+    saturday: Samedi
+    sunday: Dimanche
+    mon_short: Lun
+    tue_short: Mar
+    wed_short: Mer
+    thu_short: Jeu
+    fri_short: Ven
+    sat_short: Sam
+    sun_short: Dim
+
+leave_type:
+    conge: Congé
+    maladie: Maladie
+    autre: Autre
+
+role:
+    admin: Administrateur
+    viewer: Lecture seule
+
+flash:
+    invalid_csrf: Jeton de sécurité invalide.
+    employee_created: 'Employé %name% créé.'
+    employee_updated: 'Employé %name% mis à jour.'
+    employee_deactivated: 'Employé %name% désactivé.'
+    department_created: 'Département %name% créé.'
+    department_updated: 'Département %name% mis à jour.'
+    department_deleted: 'Département %name% supprimé.'
+    device_created: 'Device %name% créé.'
+    device_updated: 'Device %name% mis à jour.'
+    webhook_registered: 'Webhook enregistré sur %name% → %url%'
+    webhook_failed: "Échec de l'enregistrement du webhook pour %name% : %error%"
+    device_unreachable: 'Impossible de contacter %name% : %error%'
+    employees_synced: '{0}Aucun employé créé et lié à %name%.|{1}%count% employé créé et lié à %name%.|]1,Inf[%count% employés créés et liés à %name%.'
+    events_synced: '{0}Aucun événement synchronisé depuis %name%.|{1}%count% événement synchronisé depuis %name%.|]1,Inf[%count% événements synchronisés depuis %name%.'
+    sync_failed: 'Échec de la synchronisation pour %name% : %error%'
+    recipient_added: 'Destinataire %name% ajouté.'
+    invalid_recipient_form: Formulaire invalide — vérifie le nom et le chat ID.
+    recipient_activated: '%name% activé.'
+    recipient_deactivated: '%name% désactivé.'
+    recipient_deleted: 'Destinataire %name% supprimé.'
+    alerts_enabled: Alertes activées.
+    alerts_disabled: Alertes désactivées.
+    no_active_recipient: Aucun destinataire actif — ajoute-en un avant de tester.
+    test_sent: '%success% message(s) envoyé(s), %failed% échec(s).'
+    leave_end_before_start: La date de fin doit être postérieure ou égale à la date de début.
+    leave_created: 'Congé créé pour %name%.'
+    leave_deleted: Congé supprimé.
+    holiday_created: 'Jour férié %name% créé.'
+    holiday_deleted: 'Jour férié %name% supprimé.'
+    schedule_created: 'Horaire %name% créé.'
+    schedule_updated: 'Horaire %name% mis à jour.'
+    schedule_deleted: 'Horaire %name% supprimé.'
+    device_not_found: Device introuvable.
+    schedule_synced: 'Planning %schedule% synchronisé sur %device% (plan #%plan% détecté automatiquement).'
+    schedule_sync_failed: 'Échec de synchro sur %name% : %error%'
+    schedule_import_failed: "Échec de l'import depuis %name% : %error%"
+    schedule_imported: 'Planning importé depuis %name% (plan #%plan%) — vérifiez et enregistrez ci-dessous.'
+    user_created: 'Compte %email% créé.'
+    cannot_deactivate_self: Impossible de désactiver son propre compte.
+    user_activated: '%email% activé.'
+    user_deactivated: '%email% désactivé.'
+    cannot_delete_self: Impossible de supprimer son propre compte.
+    user_deleted: 'Compte %email% supprimé.'
+
+status:
+    late: En retard
+    early_leave_pending: Départ anticipé ?
+    on_leave: En congé
+    holiday: Jour férié
+    rest_day: Repos
+    present: Présent
+    absent: Absent
+
+punches:
+    none_that_day: Aucun pointage ce jour-là.
+    time: Heure
+    type: Type
+    device: Pointeuse
+    check_in: Entrée
+    check_out: Sortie
+
+summary:
+    no_active_employees: Aucun employé actif à afficher.
+    employee: Employé
+    status: Statut
+    check_in: Entrée
+    check_out: Sortie
+    hours: Heures
+    punches: Pointages
+    overtime: Overtime
+    early_leave: Départ anticipé
+    min_check_in: min (entrée)
+    min_check_out: min (sortie)
+    date: Date
+
+common:
+    loading: Chargement…
+    active: Actif
+    inactive: Inactif
+    edit: Éditer
+    back: Retour
+    device: Device
+    from: Du
+    to: Au
+    show: Afficher
+    no_data_for_period: Aucune donnée sur cette période.
+    save: Enregistrer
+    cancel: Annuler
+    actions: Actions
+    all_departments: Tous les départements
+    filter: Filtrer
+    delete: Supprimer
+    new: Nouveau
+    yes: Oui
+    no: Non
+    close: Fermer
+
+employee:
+    linked_devices: Pointeuses liées
+    no_linked_device: Cet employé n'est lié à aucune pointeuse.
+    punch_history: Historique de pointages
+    count: '{0}Aucun employé|{1}%count% employé|]1,Inf[%count% employés'
+    new: Nouvel employé
+    none_registered: Aucun employé enregistré.
+    deactivate: Désactiver
+
+dashboard:
+    today: "Aujourd'hui"
+    present: Présents
+    active_employees: Employés actifs
+    day_summary: Résumé du jour
+
+history:
+    subtitle: Résumé de présence sur une période
+    day_summary: 'Résumé du %date%'
+    no_data_for_period: Aucune donnée pour cette période.
+
+device:
+    count: '{0}Aucun device enregistré|{1}%count% device enregistré|]1,Inf[%count% devices enregistrés'
+    new: Nouveau device
+    none_registered: Aucun device enregistré.
+    address: Adresse
+    last_seen: Dernière activité
+    never: Jamais
+    register_webhook: Enregistrer webhook
+    sync_employees: Sync employés
+    sync_history: Sync historique
+    sync_title: 'Synchroniser %name%'
+    sync_subtitle: Utilisateurs enregistrés sur le device non encore liés à un employé
+    no_unlinked_user: Aucun utilisateur non lié trouvé sur ce device.
+    link_selected: Lier les employés sélectionnés
+
+telegram:
+    title: Alertes Telegram
+    subtitle: Destinataires des alertes retard/absence
+    status: Statut
+    disable: Désactiver
+    enable: Activer
+    send_test: Envoyer un test
+    add_recipient: Ajouter un destinataire
+    chat_id_help: 'Envoie un message au bot puis va sur https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates pour lire "chat":{"id": ...}.'
+    add: Ajouter
+    recipients: Destinataires
+    none_registered: Aucun destinataire enregistré.
+
+schedule:
+    title: Horaires de travail
+    count: '{0}Aucun horaire|{1}%count% horaire|]1,Inf[%count% horaires'
+    import_help: Lire le planning ISAPI déjà en place sur ce device et pré-remplir un nouvel horaire
+    import_from: 'Importer depuis %name%'
+    new: Nouvel horaire
+    none_defined: Aucun horaire défini.
+    weekly_plan: Planning hebdomadaire
+    tolerance: Tolérance
+    badge_margin: Marge badgeage
+    same_every_day: Identique tous les jours
+    sync_help: Synchroniser le planning vers ce device (plan ISAPI détecté automatiquement)
+    sync_to: 'Sync → %name%'
+    midnight_help: Si l'heure de fin est avant l'heure de début, l'équipe est considérée à cheval sur minuit.
+    margin_help: Utilisée pour classer un pointage en entrée ou sortie quand la pointeuse n'indique pas explicitement lequel des deux c'est.
+    weekly_plan_help: 'Laisse un jour décoché pour reprendre l''horaire par défaut ci-dessus, coche "Repos" pour un jour sans travail attendu (ex. dimanche) — sans impact négatif sur le statut de présence ce jour-là.'
+    day: Jour
+    assign_by_department: Affecter par département
+    department_picker_help: Coche un département pour sélectionner tous ses employés ci-dessous — chaque case reste ensuite modifiable individuellement avant d'enregistrer.
+    currently: actuellement
+
+holiday:
+    count: '{0}Aucun jour férié enregistré|{1}%count% jour férié enregistré|]1,Inf[%count% jours fériés enregistrés'
+    new: Nouveau jour férié
+    none_registered: Aucun jour férié enregistré.
+
+leave:
+    count: '{0}Aucune période enregistrée|{1}%count% période enregistrée|]1,Inf[%count% périodes enregistrées'
+    new: Nouveau congé
+    none_registered: Aucun congé enregistré.
+
+department:
+    count: '{0}Aucun département|{1}%count% département|]1,Inf[%count% départements'
+    new: Nouveau département
+    none_defined: Aucun département défini.
+
+user:
+    count: '{0}Aucun compte|{1}%count% compte|]1,Inf[%count% comptes'
+    new: Nouvel utilisateur
+    none_registered: Aucun utilisateur enregistré.
+    you: Vous
+
+report:
+    title: Rapport mensuel
+    range: 'Du %from% au %to%'
+    export_csv: Exporter CSV
+    summary: 'Résumé du %from% au %to%'
+    worked_hours: Heures travaillées
+    lateness_count: Retards
+    late_minutes: Minutes de retard
+    absences: Absences
+    early_leaves: Départs anticipés
+    overtime_in: Overtime entrée (min)
+    overtime_out: Overtime sortie (min)

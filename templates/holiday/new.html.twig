@@ -1,10 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Nouveau jour férié{% endblock %}
+{% block title %}{{ 'holiday.new'|trans }}{% endblock %}
 
 {% block body %}
     <div class="page-header">
-        <h1>Nouveau jour férié</h1>
+        <h1>{{ 'holiday.new'|trans }}</h1>
     </div>
 
     <div class="card">
@@ -21,8 +21,8 @@
                     {{ form_errors(form.label) }}
                 </div>
                 <div class="btn-group">
-                    <button class="btn btn--primary" type="submit">Enregistrer</button>
-                    <a class="btn" href="{{ path('holiday_index') }}">Annuler</a>
+                    <button class="btn btn--primary" type="submit">{{ 'common.save'|trans }}</button>
+                    <a class="btn" href="{{ path('holiday_index') }}">{{ 'common.cancel'|trans }}</a>
                 </div>
             {{ form_end(form) }}
         </div>

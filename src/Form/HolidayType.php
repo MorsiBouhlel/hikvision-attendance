@@ -16,13 +16,13 @@ class HolidayType extends AbstractType
     {
         $builder
             ->add('date', DateType::class, [
-                'label' => 'Date',
+                'label' => 'form.date',
                 'widget' => 'single_text',
                 'input' => 'datetime_immutable',
                 'constraints' => [new Assert\NotBlank()],
             ])
             ->add('label', TextType::class, [
-                'label' => 'Libellé',
+                'label' => 'form.label',
                 'constraints' => [new Assert\NotBlank(), new Assert\Length(max: 150)],
             ]);
     }

@@ -15,11 +15,11 @@ class TelegramRecipientType extends AbstractType
     {
         $builder
             ->add('label', TextType::class, [
-                'label' => 'Nom',
+                'label' => 'form.name',
                 'constraints' => [new Assert\NotBlank(), new Assert\Length(max: 100)],
             ])
             ->add('chatId', TextType::class, [
-                'label' => 'Chat ID',
+                'label' => 'form.chat_id',
                 'constraints' => [new Assert\NotBlank(), new Assert\Length(max: 50)],
             ]);
     }

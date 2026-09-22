@@ -39,7 +39,7 @@
         {{ form_label(form.isActive) }}
     </div>
     <div class="btn-group">
-        <button class="btn btn--primary" type="submit">Enregistrer</button>
-        <a class="btn" href="{{ path('device_index') }}">Annuler</a>
+        <button class="btn btn--primary" type="submit">{{ 'common.save'|trans }}</button>
+        <a class="btn" href="{{ path('device_index') }}">{{ 'common.cancel'|trans }}</a>
     </div>
 {{ form_end(form) }}

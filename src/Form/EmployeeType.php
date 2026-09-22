@@ -19,30 +19,30 @@ class EmployeeType extends AbstractType
     {
         $builder
             ->add('firstName', TextType::class, [
-                'label' => 'Prénom',
+                'label' => 'form.first_name',
                 'constraints' => [new Assert\NotBlank(), new Assert\Length(max: 100)],
             ])
             ->add('lastName', TextType::class, [
-                'label' => 'Nom',
+                'label' => 'form.name',
                 'constraints' => [new Assert\NotBlank(), new Assert\Length(max: 100)],
             ])
             ->add('department', EntityType::class, [
                 'class' => Department::class,
                 'choice_label' => 'name',
-                'label' => 'Département',
+                'label' => 'form.department',
                 'required' => false,
-                'placeholder' => 'Aucun département',
+                'placeholder' => 'form.no_department',
             ])
             ->add('isActive', CheckboxType::class, [
-                'label' => 'Actif',
+                'label' => 'form.active',
                 'required' => false,
             ])
             ->add('workSchedule', EntityType::class, [
                 'class' => WorkSchedule::class,
                 'choice_label' => 'name',
-                'label' => 'Horaire de travail',
+                'label' => 'form.work_schedule',
                 'required' => false,
-                'placeholder' => 'Aucun (logique simple)',
+                'placeholder' => 'form.no_schedule',
             ]);
     }
 

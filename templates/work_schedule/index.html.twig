@@ -1,41 +1,41 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Horaires{% endblock %}
+{% block title %}{{ 'nav.schedules'|trans }}{% endblock %}
 
 {% block body %}
     <div class="page-header">
         <div>
-            <h1>Horaires de travail</h1>
-            <p class="page-header__meta">{{ schedules|length }} horaire(s)</p>
+            <h1>{{ 'schedule.title'|trans }}</h1>
+            <p class="page-header__meta">{{ 'schedule.count'|trans({'%count%': schedules|length}) }}</p>
         </div>
         {% if is_granted('ROLE_ADMIN') %}
             <div class="btn-group">
                 {% for device in devices %}
                     <form method="post" action="{{ path('work_schedule_import_from_device', {deviceId: device.id}) }}">
                         <input type="hidden" name="_token" value="{{ csrf_token('work_schedule_import_' ~ device.id) }}">
-                        <button class="btn btn--sm" type="submit" title="Lire le planning ISAPI déjà en place sur ce device et pré-remplir un nouvel horaire">Importer depuis {{ device.name }}</button>
+                        <button class="btn btn--sm" type="submit" title="{{ 'schedule.import_help'|trans }}">{{ 'schedule.import_from'|trans({'%name%': device.name}) }}</button>
                     </form>
                 {% endfor %}
-                <a class="btn btn--primary" href="{{ path('work_schedule_new') }}">+ Nouvel horaire</a>
+                <a class="btn btn--primary" href="{{ path('work_schedule_new') }}">+ {{ 'schedule.new'|trans }}</a>
             </div>
         {% endif %}
     </div>
 
     <div class="card">
         {% if schedules is empty %}
-            <div class="table--empty">Aucun horaire défini.</div>
+            <div class="table--empty">{{ 'schedule.none_defined'|trans }}</div>
         {% else %}
             <div class="table-wrap">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Nom</th>
-                            <th>Début</th>
-                            <th>Fin</th>
-                            <th>Planning hebdomadaire</th>
-                            <th>Tolérance</th>
-                            <th>Marge badgeage</th>
-                            <th>Actions</th>
+                            <th>{{ 'form.name'|trans }}</th>
+                            <th>{{ 'form.start_short'|trans }}</th>
+                            <th>{{ 'form.end_short'|trans }}</th>
+                            <th>{{ 'schedule.weekly_plan'|trans }}</th>
+                            <th>{{ 'schedule.tolerance'|trans }}</th>
+                            <th>{{ 'schedule.badge_margin'|trans }}</th>
+                            <th>{{ 'common.actions'|trans }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -46,12 +46,12 @@
                                 <td>{{ schedule.endTime|date('H:i') }}{{ schedule.crossesMidnight ? ' (J+1)' }}</td>
                                 <td>
                                     {% if schedule.days is empty %}
-                                        <span class="text-muted">Identique tous les jours</span>
+                                        <span class="text-muted">{{ 'schedule.same_every_day'|trans }}</span>
                                     {% else %}
                                         {% for day in schedule.days %}
                                             <span class="badge badge--inactive">
-                                                {{ ['', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'][day.dayOfWeek] }}
-                                                {% if day.isRestDay %}repos{% else %}{{ day.startTime|date('H:i') }}-{{ day.endTime|date('H:i') }}{% endif %}
+                                                {{ ['', 'day.mon_short', 'day.tue_short', 'day.wed_short', 'day.thu_short', 'day.fri_short', 'day.sat_short', 'day.sun_short'][day.dayOfWeek]|trans }}
+                                                {% if day.isRestDay %}{{ 'form.rest_day'|trans }}{% else %}{{ day.startTime|date('H:i') }}-{{ day.endTime|date('H:i') }}{% endif %}
                                             </span>
                                         {% endfor %}
                                     {% endif %}
@@ -61,10 +61,10 @@
                                 <td>
                                     {% if is_granted('ROLE_ADMIN') %}
                                         <div class="btn-group">
-                                            <a class="btn btn--sm" href="{{ path('work_schedule_edit', {id: schedule.id}) }}">Éditer</a>
+                                            <a class="btn btn--sm" href="{{ path('work_schedule_edit', {id: schedule.id}) }}">{{ 'common.edit'|trans }}</a>
                                             <form method="post" action="{{ path('work_schedule_delete', {id: schedule.id}) }}">
                                                 <input type="hidden" name="_token" value="{{ csrf_token('work_schedule_delete_' ~ schedule.id) }}">
-                                                <button class="btn btn--sm btn--danger" type="submit">Supprimer</button>
+                                                <button class="btn btn--sm btn--danger" type="submit">{{ 'common.delete'|trans }}</button>
                                             </form>
                                         </div>
                                         {% if devices is defined and devices is not empty %}
@@ -72,7 +72,7 @@
                                                 {% for device in devices %}
                                                     <form method="post" action="{{ path('work_schedule_sync_device', {id: schedule.id, deviceId: device.id}) }}">
                                                         <input type="hidden" name="_token" value="{{ csrf_token('work_schedule_sync_' ~ schedule.id) }}">
-                                                        <button class="btn btn--sm" type="submit" title="Synchroniser le planning vers ce device (plan ISAPI détecté automatiquement)">Sync → {{ device.name }}</button>
+                                                        <button class="btn btn--sm" type="submit" title="{{ 'schedule.sync_help'|trans }}">{{ 'schedule.sync_to'|trans({'%name%': device.name}) }}</button>
                                                     </form>
                                                 {% endfor %}
                                             </div>

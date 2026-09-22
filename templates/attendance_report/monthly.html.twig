@@ -1,12 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Rapport mensuel{% endblock %}
+{% block title %}{{ 'nav.reports'|trans }}{% endblock %}
 
 {% block body %}
     <div class="page-header">
         <div>
-            <h1>Rapport mensuel</h1>
-            <p class="page-header__meta">Du {{ from|date('d/m/Y') }} au {{ to|date('d/m/Y') }}</p>
+            <h1>{{ 'report.title'|trans }}</h1>
+            <p class="page-header__meta">{{ 'report.range'|trans({'%from%': from|date('d/m/Y'), '%to%': to|date('d/m/Y')}) }}</p>
         </div>
     </div>
 
@@ -14,47 +14,47 @@
         <div class="card__body">
             <form method="get" class="filter-bar">
                 <div class="form-row">
-                    <label class="form-label" for="from">Du</label>
+                    <label class="form-label" for="from">{{ 'common.from'|trans }}</label>
                     <input class="form-control" type="date" id="from" name="from" value="{{ from|date('Y-m-d') }}">
                 </div>
                 <div class="form-row">
-                    <label class="form-label" for="to">Au</label>
+                    <label class="form-label" for="to">{{ 'common.to'|trans }}</label>
                     <input class="form-control" type="date" id="to" name="to" value="{{ to|date('Y-m-d') }}">
                 </div>
                 <div class="form-row">
-                    <label class="form-label" for="department">Département</label>
+                    <label class="form-label" for="department">{{ 'form.department'|trans }}</label>
                     <select class="form-control" id="department" name="department">
-                        <option value="">Tous les départements</option>
+                        <option value="">{{ 'common.all_departments'|trans }}</option>
                         {% for dep in departments %}
                             <option value="{{ dep.id }}" {{ dep.id == department ? 'selected' }}>{{ dep.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                <button class="btn btn--primary" type="submit">Afficher</button>
-                <a class="btn" href="{{ path('attendance_report_monthly_export', {from: from|date('Y-m-d'), to: to|date('Y-m-d'), department: department}) }}">Exporter CSV</a>
+                <button class="btn btn--primary" type="submit">{{ 'common.show'|trans }}</button>
+                <a class="btn" href="{{ path('attendance_report_monthly_export', {from: from|date('Y-m-d'), to: to|date('Y-m-d'), department: department}) }}">{{ 'report.export_csv'|trans }}</a>
             </form>
         </div>
     </div>
 
     <div class="card">
         <div class="card__header">
-            <h2>Résumé du {{ from|date('d/m/Y') }} au {{ to|date('d/m/Y') }}</h2>
+            <h2>{{ 'report.summary'|trans({'%from%': from|date('d/m/Y'), '%to%': to|date('d/m/Y')}) }}</h2>
         </div>
         {% if rows is empty %}
-            <div class="table--empty">Aucun employé actif à afficher.</div>
+            <div class="table--empty">{{ 'summary.no_active_employees'|trans }}</div>
         {% else %}
             <div class="table-wrap">
                 <table class="table" data-table>
                     <thead>
                         <tr>
-                            <th data-sort="text">Employé</th>
-                            <th data-sort="number">Heures travaillées</th>
-                            <th data-sort="number">Retards</th>
-                            <th data-sort="number">Minutes de retard</th>
-                            <th data-sort="number">Absences</th>
-                            <th data-sort="number">Départs anticipés</th>
-                            <th data-sort="number">Overtime entrée (min)</th>
-                            <th data-sort="number">Overtime sortie (min)</th>
+                            <th data-sort="text">{{ 'summary.employee'|trans }}</th>
+                            <th data-sort="number">{{ 'report.worked_hours'|trans }}</th>
+                            <th data-sort="number">{{ 'report.lateness_count'|trans }}</th>
+                            <th data-sort="number">{{ 'report.late_minutes'|trans }}</th>
+                            <th data-sort="number">{{ 'report.absences'|trans }}</th>
+                            <th data-sort="number">{{ 'report.early_leaves'|trans }}</th>
+                            <th data-sort="number">{{ 'report.overtime_in'|trans }}</th>
+                            <th data-sort="number">{{ 'report.overtime_out'|trans }}</th>
                         </tr>
                     </thead>
                     <tbody>

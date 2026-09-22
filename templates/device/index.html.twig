@@ -1,32 +1,32 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Devices{% endblock %}
+{% block title %}{{ 'nav.devices'|trans }}{% endblock %}
 
 {% block body %}
     <div class="page-header">
         <div>
-            <h1>Pointeuses</h1>
-            <p class="page-header__meta">{{ devices|length }} device(s) enregistré(s)</p>
+            <h1>{{ 'nav.devices'|trans }}</h1>
+            <p class="page-header__meta">{{ 'device.count'|trans({'%count%': devices|length}) }}</p>
         </div>
         {% if is_granted('ROLE_ADMIN') %}
-            <a class="btn btn--primary" href="{{ path('device_new') }}">+ Nouveau device</a>
+            <a class="btn btn--primary" href="{{ path('device_new') }}">+ {{ 'device.new'|trans }}</a>
         {% endif %}
     </div>
 
     <div class="card">
         {% if devices is empty %}
-            <div class="table--empty">Aucun device enregistré.</div>
+            <div class="table--empty">{{ 'device.none_registered'|trans }}</div>
         {% else %}
             <div class="table-wrap">
                 <table class="table" data-table>
                     <thead>
                         <tr>
-                            <th data-sort="text">Nom</th>
-                            <th data-sort="text">Site</th>
-                            <th data-sort="text">Adresse</th>
-                            <th data-sort="text">Statut</th>
-                            <th data-sort="text">Dernière activité</th>
-                            <th>Actions</th>
+                            <th data-sort="text">{{ 'form.name'|trans }}</th>
+                            <th data-sort="text">{{ 'form.site'|trans }}</th>
+                            <th data-sort="text">{{ 'device.address'|trans }}</th>
+                            <th data-sort="text">{{ 'summary.status'|trans }}</th>
+                            <th data-sort="text">{{ 'device.last_seen'|trans }}</th>
+                            <th>{{ 'common.actions'|trans }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -37,26 +37,26 @@
                                 <td>{{ device.ipAddress }}:{{ device.port }}</td>
                                 <td>
                                     {% if device.active %}
-                                        <span class="badge badge--present">Actif</span>
+                                        <span class="badge badge--present">{{ 'common.active'|trans }}</span>
                                     {% else %}
-                                        <span class="badge badge--inactive">Inactif</span>
+                                        <span class="badge badge--inactive">{{ 'common.inactive'|trans }}</span>
                                     {% endif %}
                                 </td>
-                                <td data-sort-value="{{ device.lastSeenAt ? device.lastSeenAt|date('c') : '' }}">{{ device.lastSeenAt ? device.lastSeenAt|date('d/m/Y H:i') : 'Jamais' }}</td>
+                                <td data-sort-value="{{ device.lastSeenAt ? device.lastSeenAt|date('c') : '' }}">{{ device.lastSeenAt ? device.lastSeenAt|date('d/m/Y H:i') : 'device.never'|trans }}</td>
                                 <td>
                                     <div class="btn-group">
-                                        <a class="btn btn--sm" href="{{ path('device_edit', {id: device.id}) }}">Éditer</a>
+                                        <a class="btn btn--sm" href="{{ path('device_edit', {id: device.id}) }}">{{ 'common.edit'|trans }}</a>
                                         <form method="post" action="{{ path('device_register_webhook', {id: device.id}) }}">
                                             <input type="hidden" name="_token" value="{{ csrf_token('device_action_' ~ device.id) }}">
-                                            <button class="btn btn--sm" type="submit">Enregistrer webhook</button>
+                                            <button class="btn btn--sm" type="submit">{{ 'device.register_webhook'|trans }}</button>
                                         </form>
-                                        <a class="btn btn--sm" href="{{ path('device_sync_employees_preview', {id: device.id}) }}">Sync employés</a>
+                                        <a class="btn btn--sm" href="{{ path('device_sync_employees_preview', {id: device.id}) }}">{{ 'device.sync_employees'|trans }}</a>
                                     </div>
                                     <form method="post" action="{{ path('device_sync_events', {id: device.id}) }}" class="btn-group" style="margin-top: 8px; align-items: center;">
                                         <input type="hidden" name="_token" value="{{ csrf_token('device_sync_events_' ~ device.id) }}">
-                                        <input class="form-control" type="date" name="from" style="padding: 5px 8px; font-size: 12.5px;" title="Depuis">
-                                        <input class="form-control" type="date" name="to" style="padding: 5px 8px; font-size: 12.5px;" title="Jusqu'à">
-                                        <button class="btn btn--sm btn--primary" type="submit">Sync historique</button>
+                                        <input class="form-control" type="date" name="from" style="padding: 5px 8px; font-size: 12.5px;" title="{{ 'common.from'|trans }}">
+                                        <input class="form-control" type="date" name="to" style="padding: 5px 8px; font-size: 12.5px;" title="{{ 'common.to'|trans }}">
+                                        <button class="btn btn--sm btn--primary" type="submit">{{ 'device.sync_history'|trans }}</button>
                                     </form>
                                 </td>
                             </tr>

@@ -5,29 +5,29 @@
 {% block body %}
     <div class="page-header">
         <div>
-            <h1>Alertes Telegram</h1>
-            <p class="page-header__meta">Destinataires des alertes retard/absence</p>
+            <h1>{{ 'telegram.title'|trans }}</h1>
+            <p class="page-header__meta">{{ 'telegram.subtitle'|trans }}</p>
         </div>
     </div>
 
     <div class="card">
         <div class="card__header">
-            <h2>Statut</h2>
+            <h2>{{ 'telegram.status'|trans }}</h2>
         </div>
         <div class="card__body">
             <div class="btn-group" style="align-items: center;">
                 {% if enabled %}
-                    <span class="badge badge--present">Alertes activées</span>
+                    <span class="badge badge--present">{{ 'flash.alerts_enabled'|trans }}</span>
                 {% else %}
-                    <span class="badge badge--inactive">Alertes désactivées</span>
+                    <span class="badge badge--inactive">{{ 'flash.alerts_disabled'|trans }}</span>
                 {% endif %}
                 <form method="post" action="{{ path('telegram_toggle_alerts') }}">
                     <input type="hidden" name="_token" value="{{ csrf_token('telegram_toggle_alerts') }}">
-                    <button class="btn btn--sm" type="submit">{{ enabled ? 'Désactiver' : 'Activer' }}</button>
+                    <button class="btn btn--sm" type="submit">{{ enabled ? 'telegram.disable'|trans : 'telegram.enable'|trans }}</button>
                 </form>
                 <form method="post" action="{{ path('telegram_test') }}">
                     <input type="hidden" name="_token" value="{{ csrf_token('telegram_test') }}">
-                    <button class="btn btn--sm btn--primary" type="submit">Envoyer un test</button>
+                    <button class="btn btn--sm btn--primary" type="submit">{{ 'telegram.send_test'|trans }}</button>
                 </form>
             </div>
         </div>
@@ -35,7 +35,7 @@
 
     <div class="card">
         <div class="card__header">
-            <h2>Ajouter un destinataire</h2>
+            <h2>{{ 'telegram.add_recipient'|trans }}</h2>
         </div>
         <div class="card__body">
             {{ form_start(form, {action: path('telegram_new'), method: 'post', attr: {class: 'form'}}) }}
@@ -48,10 +48,10 @@
                     {{ form_label(form.chatId) }}
                     {{ form_widget(form.chatId, {attr: {class: 'form-control'}}) }}
                     {{ form_errors(form.chatId) }}
-                    <span class="form-help">Envoie un message au bot puis va sur https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates pour lire "chat":{"id": ...}.</span>
+                    <span class="form-help">{{ 'telegram.chat_id_help'|trans|raw }}</span>
                 </div>
                 <div class="btn-group">
-                    <button class="btn btn--primary" type="submit">Ajouter</button>
+                    <button class="btn btn--primary" type="submit">{{ 'telegram.add'|trans }}</button>
                 </div>
             {{ form_end(form) }}
         </div>
@@ -59,19 +59,19 @@
 
     <div class="card">
         <div class="card__header">
-            <h2>Destinataires</h2>
+            <h2>{{ 'telegram.recipients'|trans }}</h2>
         </div>
         {% if recipients is empty %}
-            <div class="table--empty">Aucun destinataire enregistré.</div>
+            <div class="table--empty">{{ 'telegram.none_registered'|trans }}</div>
         {% else %}
             <div class="table-wrap">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Nom</th>
+                            <th>{{ 'form.name'|trans }}</th>
                             <th>Chat ID</th>
-                            <th>Statut</th>
-                            <th>Actions</th>
+                            <th>{{ 'summary.status'|trans }}</th>
+                            <th>{{ 'common.actions'|trans }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -81,20 +81,20 @@
                                 <td>{{ recipient.chatId }}</td>
                                 <td>
                                     {% if recipient.active %}
-                                        <span class="badge badge--present">Actif</span>
+                                        <span class="badge badge--present">{{ 'common.active'|trans }}</span>
                                     {% else %}
-                                        <span class="badge badge--inactive">Inactif</span>
+                                        <span class="badge badge--inactive">{{ 'common.inactive'|trans }}</span>
                                     {% endif %}
                                 </td>
                                 <td>
                                     <div class="btn-group">
                                         <form method="post" action="{{ path('telegram_toggle', {id: recipient.id}) }}">
                                             <input type="hidden" name="_token" value="{{ csrf_token('telegram_toggle_' ~ recipient.id) }}">
-                                            <button class="btn btn--sm" type="submit">{{ recipient.active ? 'Désactiver' : 'Activer' }}</button>
+                                            <button class="btn btn--sm" type="submit">{{ recipient.active ? 'telegram.disable'|trans : 'telegram.enable'|trans }}</button>
                                         </form>
                                         <form method="post" action="{{ path('telegram_delete', {id: recipient.id}) }}">
                                             <input type="hidden" name="_token" value="{{ csrf_token('telegram_delete_' ~ recipient.id) }}">
-                                            <button class="btn btn--sm btn--danger" type="submit">Supprimer</button>
+                                            <button class="btn btn--sm btn--danger" type="submit">{{ 'common.delete'|trans }}</button>
                                         </form>
                                     </div>
                                 </td>

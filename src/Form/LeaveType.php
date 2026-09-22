@@ -23,34 +23,34 @@ class LeaveType extends AbstractType
             ->add('employee', EntityType::class, [
                 'class' => Employee::class,
                 'choice_label' => 'fullName',
-                'label' => 'Employé',
+                'label' => 'form.employee',
                 'query_builder' => fn (EmployeeRepository $repo): QueryBuilder => $repo->createQueryBuilder('e')
                     ->andWhere('e.isActive = true')
                     ->orderBy('e.lastName', 'ASC'),
                 'constraints' => [new Assert\NotBlank()],
             ])
             ->add('startDate', DateType::class, [
-                'label' => 'Date de début',
+                'label' => 'form.start_date',
                 'widget' => 'single_text',
                 'input' => 'datetime_immutable',
                 'constraints' => [new Assert\NotBlank()],
             ])
             ->add('endDate', DateType::class, [
-                'label' => 'Date de fin',
+                'label' => 'form.end_date',
                 'widget' => 'single_text',
                 'input' => 'datetime_immutable',
                 'constraints' => [new Assert\NotBlank()],
             ])
             ->add('type', ChoiceType::class, [
-                'label' => 'Type',
+                'label' => 'form.type',
                 'choices' => [
-                    'Congé' => 'conge',
-                    'Maladie' => 'maladie',
-                    'Autre' => 'autre',
+                    'leave_type.conge' => 'conge',
+                    'leave_type.maladie' => 'maladie',
+                    'leave_type.autre' => 'autre',
                 ],
             ])
             ->add('reason', TextType::class, [
-                'label' => 'Motif',
+                'label' => 'form.reason',
                 'required' => false,
                 'constraints' => [new Assert\Length(max: 255)],
             ]);

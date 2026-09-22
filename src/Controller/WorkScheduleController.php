@@ -69,7 +69,7 @@ class WorkScheduleController extends AbstractController
 
             $em->flush();
 
-            $this->addFlash('success', "Horaire {$schedule->getName()} créé.");
+            $this->addFlash('success', ['key' => 'flash.schedule_created', 'params' => ['%name%' => $schedule->getName()]]);
             return $this->redirectToRoute('work_schedule_index');
         }
 
@@ -106,7 +106,7 @@ class WorkScheduleController extends AbstractController
 
             $em->flush();
 
-            $this->addFlash('success', "Horaire {$schedule->getName()} mis à jour.");
+            $this->addFlash('success', ['key' => 'flash.schedule_updated', 'params' => ['%name%' => $schedule->getName()]]);
             return $this->redirectToRoute('work_schedule_index');
         }
 
@@ -168,14 +168,14 @@ class WorkScheduleController extends AbstractController
     public function delete(WorkSchedule $schedule, Request $request, EntityManagerInterface $em): Response
     {
         if (! $this->isCsrfTokenValid('work_schedule_delete_' . $schedule->getId(), (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Jeton de sécurité invalide.');
+            $this->addFlash('error', ['key' => 'flash.invalid_csrf']);
             return $this->redirectToRoute('work_schedule_index');
         }
 
         $em->remove($schedule);
         $em->flush();
 
-        $this->addFlash('success', "Horaire {$schedule->getName()} supprimé.");
+        $this->addFlash('success', ['key' => 'flash.schedule_deleted', 'params' => ['%name%' => $schedule->getName()]]);
         return $this->redirectToRoute('work_schedule_index');
     }
 
@@ -183,13 +183,13 @@ class WorkScheduleController extends AbstractController
     public function syncDevice(WorkSchedule $schedule, int $deviceId, Request $request, DeviceRepository $devices, WeekPlanSyncService $sync): Response
     {
         if (! $this->isCsrfTokenValid('work_schedule_sync_' . $schedule->getId(), (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Jeton de sécurité invalide.');
+            $this->addFlash('error', ['key' => 'flash.invalid_csrf']);
             return $this->redirectToRoute('work_schedule_index');
         }
 
         $device = $devices->find($deviceId);
         if (! $device) {
-            $this->addFlash('error', 'Device introuvable.');
+            $this->addFlash('error', ['key' => 'flash.device_not_found']);
             return $this->redirectToRoute('work_schedule_index');
         }
 
@@ -198,9 +198,9 @@ class WorkScheduleController extends AbstractController
             // (voir WeekPlanSyncService::resolvePlanNo()) — pas de saisie manuelle,
             // pour ne jamais risquer d'écraser le mauvais plan par erreur de frappe.
             $planNo = $sync->sync($device, $schedule);
-            $this->addFlash('success', "Planning {$schedule->getName()} synchronisé sur {$device->getName()} (plan #{$planNo} détecté automatiquement).");
+            $this->addFlash('success', ['key' => 'flash.schedule_synced', 'params' => ['%schedule%' => $schedule->getName(), '%device%' => $device->getName(), '%plan%' => $planNo]]);
         } catch (\Throwable $e) {
-            $this->addFlash('error', "Échec de synchro sur {$device->getName()} : {$e->getMessage()}");
+            $this->addFlash('error', ['key' => 'flash.schedule_sync_failed', 'params' => ['%name%' => $device->getName(), '%error%' => $e->getMessage()]]);
         }
 
         return $this->redirectToRoute('work_schedule_index');
@@ -210,20 +210,20 @@ class WorkScheduleController extends AbstractController
     public function importFromDevice(int $deviceId, Request $request, DeviceRepository $devices, WeekPlanSyncService $sync): Response
     {
         if (! $this->isCsrfTokenValid('work_schedule_import_' . $deviceId, (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Jeton de sécurité invalide.');
+            $this->addFlash('error', ['key' => 'flash.invalid_csrf']);
             return $this->redirectToRoute('work_schedule_index');
         }
 
         $device = $devices->find($deviceId);
         if (! $device) {
-            $this->addFlash('error', 'Device introuvable.');
+            $this->addFlash('error', ['key' => 'flash.device_not_found']);
             return $this->redirectToRoute('work_schedule_index');
         }
 
         try {
             $imported = $sync->importFromDevice($device);
         } catch (\Throwable $e) {
-            $this->addFlash('error', "Échec de l'import depuis {$device->getName()} : {$e->getMessage()}");
+            $this->addFlash('error', ['key' => 'flash.schedule_import_failed', 'params' => ['%name%' => $device->getName(), '%error%' => $e->getMessage()]]);
             return $this->redirectToRoute('work_schedule_index');
         }
 
@@ -232,7 +232,7 @@ class WorkScheduleController extends AbstractController
             'days' => $imported['days'],
         ]);
 
-        $this->addFlash('success', "Planning importé depuis {$device->getName()} (plan #{$imported['planNo']}) — vérifiez et enregistrez ci-dessous.");
+        $this->addFlash('success', ['key' => 'flash.schedule_imported', 'params' => ['%name%' => $device->getName(), '%plan%' => $imported['planNo']]]);
         return $this->redirectToRoute('work_schedule_new');
     }
 }

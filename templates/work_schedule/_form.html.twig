@@ -13,7 +13,7 @@
         {{ form_label(form.endTime) }}
         {{ form_widget(form.endTime, {attr: {class: 'form-control'}}) }}
         {{ form_errors(form.endTime) }}
-        <span class="form-help">Si l'heure de fin est avant l'heure de début, l'équipe est considérée à cheval sur minuit.</span>
+        <span class="form-help">{{ 'schedule.midnight_help'|trans }}</span>
     </div>
     <div class="form-row">
         {{ form_label(form.toleranceMinutes) }}
@@ -24,26 +24,26 @@
         {{ form_label(form.checkWindowMarginMinutes) }}
         {{ form_widget(form.checkWindowMarginMinutes, {attr: {class: 'form-control'}}) }}
         {{ form_errors(form.checkWindowMarginMinutes) }}
-        <span class="form-help">Utilisée pour classer un pointage en entrée ou sortie quand la pointeuse n'indique pas explicitement lequel des deux c'est.</span>
+        <span class="form-help">{{ 'schedule.margin_help'|trans }}</span>
     </div>
     <div class="form-row">
-        <label class="form-label">Planning hebdomadaire</label>
-        <span class="form-help">Laisse un jour décoché pour reprendre l'horaire par défaut ci-dessus, coche "Repos" pour un jour sans travail attendu (ex. dimanche) — sans impact négatif sur le statut de présence ce jour-là.</span>
+        <label class="form-label">{{ 'schedule.weekly_plan'|trans }}</label>
+        <span class="form-help">{{ 'schedule.weekly_plan_help'|trans }}</span>
         <div class="table-wrap">
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Jour</th>
-                        <th>Repos</th>
-                        <th>Début</th>
-                        <th>Fin</th>
+                        <th>{{ 'schedule.day'|trans }}</th>
+                        <th>{{ 'form.rest_day'|trans }}</th>
+                        <th>{{ 'form.start_short'|trans }}</th>
+                        <th>{{ 'form.end_short'|trans }}</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for dayOfWeek in 1..7 %}
                         {% set dayForm = attribute(form, 'day' ~ dayOfWeek) %}
                         <tr data-week-plan-row>
-                            <td>{{ dayForm.vars.label }}</td>
+                            <td>{{ dayForm.vars.label|trans }}</td>
                             <td>{{ form_widget(dayForm.isRestDay, {attr: {'data-week-plan-rest': ''}}) }}</td>
                             <td>{{ form_widget(dayForm.startTime, {attr: {class: 'form-control', 'data-week-plan-time': ''}}) }}</td>
                             <td>{{ form_widget(dayForm.endTime, {attr: {class: 'form-control', 'data-week-plan-time': ''}}) }}</td>
@@ -55,16 +55,16 @@
     </div>
     {% if departments is defined and departments is not empty %}
         <div class="form-row">
-            <label class="form-label">Affecter par département</label>
+            <label class="form-label">{{ 'schedule.assign_by_department'|trans }}</label>
             <div class="checkbox-list" data-department-picker>
                 {% for dep in departments %}
                     <label class="checkbox-row">
                         <input type="checkbox" data-department-toggle="{{ dep.id }}">
-                        <span>{{ dep.name }} <span class="text-muted">({{ dep.employees|length }} employé(s))</span></span>
+                        <span>{{ dep.name }} <span class="text-muted">({{ 'employee.count'|trans({'%count%': dep.employees|length}) }})</span></span>
                     </label>
                 {% endfor %}
             </div>
-            <span class="form-help">Coche un département pour sélectionner tous ses employés ci-dessous — chaque case reste ensuite modifiable individuellement avant d'enregistrer.</span>
+            <span class="form-help">{{ 'schedule.department_picker_help'|trans }}</span>
         </div>
     {% endif %}
     <div class="form-row">
@@ -77,7 +77,7 @@
                     <span>
                         {{ emp.fullName }}
                         {% if emp.workSchedule and (schedule is not defined or emp.workSchedule != schedule) %}
-                            <span class="text-muted">(actuellement : {{ emp.workSchedule.name }})</span>
+                            <span class="text-muted">({{ 'schedule.currently'|trans }}: {{ emp.workSchedule.name }})</span>
                         {% endif %}
                     </span>
                 </label>
@@ -86,7 +86,7 @@
         {{ form_errors(form.employees) }}
     </div>
     <div class="btn-group">
-        <button class="btn btn--primary" type="submit">Enregistrer</button>
-        <a class="btn" href="{{ path('work_schedule_index') }}">Annuler</a>
+        <button class="btn btn--primary" type="submit">{{ 'common.save'|trans }}</button>
+        <a class="btn" href="{{ path('work_schedule_index') }}">{{ 'common.cancel'|trans }}</a>
     </div>
 {{ form_end(form) }}

@@ -39,7 +39,7 @@ class DepartmentController extends AbstractController
 
             $em->flush();
 
-            $this->addFlash('success', "Département {$department->getName()} créé.");
+            $this->addFlash('success', ['key' => 'flash.department_created', 'params' => ['%name%' => $department->getName()]]);
             return $this->redirectToRoute('department_index');
         }
 
@@ -71,7 +71,7 @@ class DepartmentController extends AbstractController
 
             $em->flush();
 
-            $this->addFlash('success', "Département {$department->getName()} mis à jour.");
+            $this->addFlash('success', ['key' => 'flash.department_updated', 'params' => ['%name%' => $department->getName()]]);
             return $this->redirectToRoute('department_index');
         }
 
@@ -96,14 +96,14 @@ class DepartmentController extends AbstractController
     public function delete(Department $department, Request $request, EntityManagerInterface $em): Response
     {
         if (! $this->isCsrfTokenValid('department_delete_' . $department->getId(), (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Jeton de sécurité invalide.');
+            $this->addFlash('error', ['key' => 'flash.invalid_csrf']);
             return $this->redirectToRoute('department_index');
         }
 
         $em->remove($department);
         $em->flush();
 
-        $this->addFlash('success', "Département {$department->getName()} supprimé.");
+        $this->addFlash('success', ['key' => 'flash.department_deleted', 'params' => ['%name%' => $department->getName()]]);
         return $this->redirectToRoute('department_index');
     }
 }

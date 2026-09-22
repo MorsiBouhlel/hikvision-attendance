@@ -14,7 +14,7 @@
                     <span>
                         {{ emp.fullName }}
                         {% if emp.department and (department is not defined or emp.department != department) %}
-                            <span class="text-muted">(actuellement : {{ emp.department.name }})</span>
+                            <span class="text-muted">({{ 'schedule.currently'|trans }}: {{ emp.department.name }})</span>
                         {% endif %}
                     </span>
                 </label>
@@ -23,7 +23,7 @@
         {{ form_errors(form.employees) }}
     </div>
     <div class="btn-group">
-        <button class="btn btn--primary" type="submit">Enregistrer</button>
-        <a class="btn" href="{{ path('department_index') }}">Annuler</a>
+        <button class="btn btn--primary" type="submit">{{ 'common.save'|trans }}</button>
+        <a class="btn" href="{{ path('department_index') }}">{{ 'common.cancel'|trans }}</a>
     </div>
 {{ form_end(form) }}

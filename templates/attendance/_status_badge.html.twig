@@ -1,17 +1,17 @@
 {% macro badge(status, lateMinutes) %}
     {% if status == 'late' %}
-        <span class="badge badge--warning">En retard{{ lateMinutes ? ' (' ~ lateMinutes ~ ' min)' : '' }}</span>
+        <span class="badge badge--warning">{{ 'status.late'|trans }}{{ lateMinutes ? ' (' ~ lateMinutes ~ ' min)' : '' }}</span>
     {% elseif status == 'early_leave_pending' %}
-        <span class="badge badge--warning">Départ anticipé ?</span>
+        <span class="badge badge--warning">{{ 'status.early_leave_pending'|trans }}</span>
     {% elseif status == 'on_leave' %}
-        <span class="badge badge--inactive">En congé</span>
+        <span class="badge badge--inactive">{{ 'status.on_leave'|trans }}</span>
     {% elseif status == 'holiday' %}
-        <span class="badge badge--inactive">Jour férié</span>
+        <span class="badge badge--inactive">{{ 'status.holiday'|trans }}</span>
     {% elseif status == 'rest_day' %}
-        <span class="badge badge--inactive">Repos</span>
+        <span class="badge badge--inactive">{{ 'status.rest_day'|trans }}</span>
     {% elseif status == 'present' %}
-        <span class="badge badge--present">Présent</span>
+        <span class="badge badge--present">{{ 'status.present'|trans }}</span>
     {% else %}
-        <span class="badge badge--absent">Absent</span>
+        <span class="badge badge--absent">{{ 'status.absent'|trans }}</span>
     {% endif %}
 {% endmacro %}

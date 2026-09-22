@@ -1,10 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Éditer {{ device.name }}{% endblock %}
+{% block title %}{{ 'common.edit'|trans }} {{ device.name }}{% endblock %}
 
 {% block body %}
     <div class="page-header">
-        <h1>Éditer {{ device.name }}</h1>
+        <h1>{{ 'common.edit'|trans }} {{ device.name }}</h1>
     </div>
 
     <div class="card">

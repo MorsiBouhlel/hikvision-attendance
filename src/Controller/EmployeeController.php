@@ -35,7 +35,7 @@ class EmployeeController extends AbstractController
             $em->persist($employee);
             $em->flush();
 
-            $this->addFlash('success', "Employé {$employee->getFullName()} créé.");
+            $this->addFlash('success', ['key' => 'flash.employee_created', 'params' => ['%name%' => $employee->getFullName()]]);
             return $this->redirectToRoute('employee_index');
         }
 
@@ -86,7 +86,7 @@ class EmployeeController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
 
-            $this->addFlash('success', "Employé {$employee->getFullName()} mis à jour.");
+            $this->addFlash('success', ['key' => 'flash.employee_updated', 'params' => ['%name%' => $employee->getFullName()]]);
             return $this->redirectToRoute('employee_index');
         }
 
@@ -100,14 +100,14 @@ class EmployeeController extends AbstractController
     public function deactivate(Employee $employee, Request $request, EntityManagerInterface $em): Response
     {
         if (! $this->isCsrfTokenValid('employee_deactivate_' . $employee->getId(), (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Jeton de sécurité invalide.');
+            $this->addFlash('error', ['key' => 'flash.invalid_csrf']);
             return $this->redirectToRoute('employee_index');
         }
 
         $employee->setIsActive(false);
         $em->flush();
 
-        $this->addFlash('success', "Employé {$employee->getFullName()} désactivé.");
+        $this->addFlash('success', ['key' => 'flash.employee_deactivated', 'params' => ['%name%' => $employee->getFullName()]]);
         return $this->redirectToRoute('employee_index');
     }
 }

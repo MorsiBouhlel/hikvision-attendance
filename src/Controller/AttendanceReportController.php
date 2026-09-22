@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[Route('/rapports', name: 'attendance_report_')]
 class AttendanceReportController extends AbstractController
@@ -34,15 +35,24 @@ class AttendanceReportController extends AbstractController
     }
 
     #[Route('/mensuel/export', name: 'monthly_export', methods: ['GET'])]
-    public function monthlyExport(Request $request): Response
+    public function monthlyExport(Request $request, TranslatorInterface $translator): Response
     {
         [$from, $to] = $this->resolveRange($request);
         $department = $request->query->getInt('department') ?: null;
         $rows = $this->attendanceService->rangeSummary($from, $to, $department);
 
-        $response = new StreamedResponse(function () use ($rows) {
+        $response = new StreamedResponse(function () use ($rows, $translator) {
             $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['Employé', 'Heures travaillées', 'Retards', 'Minutes de retard', 'Absences', 'Départs anticipés', 'Overtime entrée (min)', 'Overtime sortie (min)']);
+            fputcsv($handle, [
+                $translator->trans('summary.employee'),
+                $translator->trans('report.worked_hours'),
+                $translator->trans('report.lateness_count'),
+                $translator->trans('report.late_minutes'),
+                $translator->trans('report.absences'),
+                $translator->trans('report.early_leaves'),
+                $translator->trans('report.overtime_in'),
+                $translator->trans('report.overtime_out'),
+            ]);
             foreach ($rows as $row) {
                 fputcsv($handle, [
                     $row['employee'],

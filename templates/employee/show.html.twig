@@ -12,35 +12,35 @@
             <div>
                 <h1>{{ employee.fullName }}</h1>
                 <p class="page-header__meta">
-                    {{ employee.department.name ?? 'Aucun département' }} ·
+                    {{ employee.department.name ?? 'form.no_department'|trans }} ·
                     {% if employee.active %}
-                        <span class="badge badge--present">Actif</span>
+                        <span class="badge badge--present">{{ 'common.active'|trans }}</span>
                     {% else %}
-                        <span class="badge badge--inactive">Inactif</span>
+                        <span class="badge badge--inactive">{{ 'common.inactive'|trans }}</span>
                     {% endif %}
                 </p>
             </div>
         </div>
         <div class="btn-group">
             {% if is_granted('ROLE_ADMIN') %}
-                <a class="btn" href="{{ path('employee_edit', {id: employee.id}) }}">Éditer</a>
+                <a class="btn" href="{{ path('employee_edit', {id: employee.id}) }}">{{ 'common.edit'|trans }}</a>
             {% endif %}
-            <a class="btn" href="{{ path('employee_index') }}">Retour</a>
+            <a class="btn" href="{{ path('employee_index') }}">{{ 'common.back'|trans }}</a>
         </div>
     </div>
 
     <div class="card">
         <div class="card__header">
-            <h2>Pointeuses liées</h2>
+            <h2>{{ 'employee.linked_devices'|trans }}</h2>
         </div>
         {% if employee.deviceLinks is empty %}
-            <div class="table--empty">Cet employé n'est lié à aucune pointeuse.</div>
+            <div class="table--empty">{{ 'employee.no_linked_device'|trans }}</div>
         {% else %}
             <div class="table-wrap">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Device</th>
+                            <th>{{ 'common.device'|trans }}</th>
                             <th>employeeNo</th>
                         </tr>
                     </thead>
@@ -61,37 +61,37 @@
         <div class="card__body">
             <form method="get" class="filter-bar">
                 <div class="form-row">
-                    <label class="form-label" for="from">Du</label>
+                    <label class="form-label" for="from">{{ 'common.from'|trans }}</label>
                     <input class="form-control" type="date" id="from" name="from" value="{{ start|date('Y-m-d') }}">
                 </div>
                 <div class="form-row">
-                    <label class="form-label" for="to">Au</label>
+                    <label class="form-label" for="to">{{ 'common.to'|trans }}</label>
                     <input class="form-control" type="date" id="to" name="to" value="{{ end|date('Y-m-d') }}">
                 </div>
-                <button class="btn btn--primary" type="submit">Afficher</button>
+                <button class="btn btn--primary" type="submit">{{ 'common.show'|trans }}</button>
             </form>
         </div>
     </div>
 
     <div class="card">
         <div class="card__header">
-            <h2>Historique de pointages</h2>
+            <h2>{{ 'employee.punch_history'|trans }}</h2>
         </div>
         {% if history is empty %}
-            <div class="table--empty">Aucune donnée sur cette période.</div>
+            <div class="table--empty">{{ 'common.no_data_for_period'|trans }}</div>
         {% else %}
             <div class="table-wrap">
                 <table class="table" data-table>
                     <thead>
                         <tr>
                             <th></th>
-                            <th data-sort="text">Date</th>
-                            <th data-sort="text">Statut</th>
-                            <th data-sort="text">Entrée</th>
-                            <th data-sort="text">Sortie</th>
-                            <th data-sort="number">Heures</th>
-                            <th data-sort="number">Pointages</th>
-                            <th data-sort="text">Overtime</th>
+                            <th data-sort="text">{{ 'summary.date'|trans }}</th>
+                            <th data-sort="text">{{ 'summary.status'|trans }}</th>
+                            <th data-sort="text">{{ 'summary.check_in'|trans }}</th>
+                            <th data-sort="text">{{ 'summary.check_out'|trans }}</th>
+                            <th data-sort="number">{{ 'summary.hours'|trans }}</th>
+                            <th data-sort="number">{{ 'summary.punches'|trans }}</th>
+                            <th data-sort="text">{{ 'summary.overtime'|trans }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -110,7 +110,7 @@
                                 <td>
                                     {{ badges.badge(row.status, row.late_minutes) }}
                                     {% if row.is_early_leave %}
-                                        <span class="badge badge--warning">Départ anticipé</span>
+                                        <span class="badge badge--warning">{{ 'summary.early_leave'|trans }}</span>
                                     {% endif %}
                                 </td>
                                 <td>{{ row.check_in ?? '—' }}</td>
@@ -119,9 +119,9 @@
                                 <td>{{ row.events_count }}</td>
                                 <td>
                                     {% if row.overtime_in_minutes or row.overtime_out_minutes %}
-                                        {% if row.overtime_in_minutes %}<span class="text-muted">+{{ row.overtime_in_minutes }} min (entrée)</span>{% endif %}
+                                        {% if row.overtime_in_minutes %}<span class="text-muted">+{{ row.overtime_in_minutes }} {{ 'summary.min_check_in'|trans }}</span>{% endif %}
                                         {% if row.overtime_in_minutes and row.overtime_out_minutes %}<br>{% endif %}
-                                        {% if row.overtime_out_minutes %}<span class="text-muted">+{{ row.overtime_out_minutes }} min (sortie)</span>{% endif %}
+                                        {% if row.overtime_out_minutes %}<span class="text-muted">+{{ row.overtime_out_minutes }} {{ 'summary.min_check_out'|trans }}</span>{% endif %}
                                     {% else %}
                                         —
                                     {% endif %}

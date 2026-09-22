@@ -19,13 +19,13 @@ class DepartmentType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, [
-                'label' => 'Nom',
+                'label' => 'form.name',
                 'constraints' => [new Assert\NotBlank(), new Assert\Length(max: 100)],
             ])
             ->add('employees', EntityType::class, [
                 'class' => Employee::class,
                 'choice_label' => 'fullName',
-                'label' => 'Employés',
+                'label' => 'form.employees',
                 'multiple' => true,
                 'expanded' => true,
                 'mapped' => false,

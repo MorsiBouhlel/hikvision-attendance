@@ -20,46 +20,46 @@ use Symfony\Component\Validator\Constraints as Assert;
 class WorkScheduleType extends AbstractType
 {
     public const DAY_LABELS = [
-        1 => 'Lundi',
-        2 => 'Mardi',
-        3 => 'Mercredi',
-        4 => 'Jeudi',
-        5 => 'Vendredi',
-        6 => 'Samedi',
-        7 => 'Dimanche',
+        1 => 'day.monday',
+        2 => 'day.tuesday',
+        3 => 'day.wednesday',
+        4 => 'day.thursday',
+        5 => 'day.friday',
+        6 => 'day.saturday',
+        7 => 'day.sunday',
     ];
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('name', TextType::class, [
-                'label' => 'Nom',
+                'label' => 'form.name',
                 'constraints' => [new Assert\NotBlank(), new Assert\Length(max: 100)],
             ])
             ->add('startTime', TimeType::class, [
-                'label' => 'Heure de début',
+                'label' => 'form.start_time',
                 'widget' => 'single_text',
                 'input' => 'datetime_immutable',
                 'constraints' => [new Assert\NotBlank()],
             ])
             ->add('endTime', TimeType::class, [
-                'label' => 'Heure de fin',
+                'label' => 'form.end_time',
                 'widget' => 'single_text',
                 'input' => 'datetime_immutable',
                 'constraints' => [new Assert\NotBlank()],
             ])
             ->add('toleranceMinutes', IntegerType::class, [
-                'label' => 'Tolérance (minutes)',
+                'label' => 'form.tolerance_minutes',
                 'constraints' => [new Assert\NotBlank(), new Assert\PositiveOrZero()],
             ])
             ->add('checkWindowMarginMinutes', IntegerType::class, [
-                'label' => 'Marge de badgeage (minutes)',
+                'label' => 'form.check_window_margin_minutes',
                 'constraints' => [new Assert\NotBlank(), new Assert\PositiveOrZero()],
             ])
             ->add('employees', EntityType::class, [
                 'class' => Employee::class,
                 'choice_label' => 'fullName',
-                'label' => 'Employés',
+                'label' => 'form.employees',
                 'multiple' => true,
                 'expanded' => true,
                 'mapped' => false,
@@ -78,17 +78,17 @@ class WorkScheduleType extends AbstractType
             ]);
             $builder->get('day' . $dayOfWeek)
                 ->add('isRestDay', CheckboxType::class, [
-                    'label' => 'Repos',
+                    'label' => 'form.rest_day',
                     'required' => false,
                 ])
                 ->add('startTime', TimeType::class, [
-                    'label' => 'Début',
+                    'label' => 'form.start_short',
                     'widget' => 'single_text',
                     'input' => 'datetime_immutable',
                     'required' => false,
                 ])
                 ->add('endTime', TimeType::class, [
-                    'label' => 'Fin',
+                    'label' => 'form.end_short',
                     'widget' => 'single_text',
                     'input' => 'datetime_immutable',
                     'required' => false,
