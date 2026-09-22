@@ -19,7 +19,9 @@ function initDataTable(table) {
     const tbody = table.querySelector('tbody');
     if (!tbody) return;
 
-    const rows = Array.from(tbody.querySelectorAll('tr')).filter((row) => !row.hasAttribute('data-table-detail'));
+    // Mutable: réordonné en place après un tri (voir applySort) pour que la
+    // pagination, qui découpe cet ordre-ci et non l'ordre DOM, reste cohérente.
+    let rows = Array.from(tbody.querySelectorAll('tr')).filter((row) => !row.hasAttribute('data-table-detail'));
 
     // Une ligne de détail (ex. pointages bruts d'une journée) reste rattachée
     // à la ligne qui la précède — jamais triée/recherchée/paginée indépendamment.
@@ -173,6 +175,8 @@ function initDataTable(table) {
                 const detail = detailFor(row);
                 if (detail) tbody.appendChild(detail);
             });
+
+            rows = sorted;
 
             currentPage = 1;
             applyPagination();
