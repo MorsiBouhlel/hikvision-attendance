@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'device.push_employees'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1>{{ 'device.push_title'|trans({'%name%': device.name}) }}</h1>
+            <p class="page-header__meta">{{ 'device.push_subtitle'|trans }}</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__body">
+            {% if pushable is empty %}
+                <p class="text-muted">{{ 'device.no_pushable_employee'|trans }}</p>
+                <div class="btn-group" style="margin-top: 16px;">
+                    <a class="btn" href="{{ path('device_index') }}">{{ 'common.back'|trans }}</a>
+                </div>
+            {% else %}
+                <form method="post" action="{{ path('device_push_employees_confirm', {id: device.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('device_push_' ~ device.id) }}">
+                    <div class="checkbox-list checkbox-list--scroll" data-checkbox-search data-checkbox-select-all>
+                        {% for employee in pushable %}
+                            <label class="checkbox-row">
+                                <input type="checkbox" name="selected[]" value="{{ employee.id }}" checked>
+                                <span>{{ employee.fullName }} {% if employee.department %}<span class="text-muted">({{ employee.department.name }})</span>{% endif %}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    <div class="btn-group" style="margin-top: 20px;">
+                        <button class="btn btn--primary" type="submit">{{ 'device.push_selected'|trans }}</button>
+                        <a class="btn" href="{{ path('device_index') }}">{{ 'common.cancel'|trans }}</a>
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

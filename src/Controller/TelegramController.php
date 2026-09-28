@@ -24,6 +24,7 @@ class TelegramController extends AbstractController
         return $this->render('telegram/index.html.twig', [
             'recipients' => $recipients->findAll(),
             'enabled' => $settings->isEnabled(),
+            'veryLateThresholdMinutes' => $settings->getOrCreate()->getVeryLateThresholdMinutes(),
             'form' => $form,
         ]);
     }
@@ -93,6 +94,28 @@ class TelegramController extends AbstractController
         $em->flush();
 
         $this->addFlash('success', ['key' => $settings->isEnabled() ? 'flash.alerts_enabled' : 'flash.alerts_disabled']);
+        return $this->redirectToRoute('telegram_index');
+    }
+
+    #[Route('/very-late-threshold', name: 'very_late_threshold', methods: ['POST'])]
+    public function veryLateThreshold(Request $request, AlertSettingsRepository $settingsRepo, EntityManagerInterface $em): Response
+    {
+        if (! $this->isCsrfTokenValid('telegram_very_late_threshold', (string) $request->request->get('_token'))) {
+            $this->addFlash('error', ['key' => 'flash.invalid_csrf']);
+            return $this->redirectToRoute('telegram_index');
+        }
+
+        $minutes = (int) $request->request->get('very_late_threshold_minutes');
+        if ($minutes < 1) {
+            $this->addFlash('error', ['key' => 'flash.invalid_threshold']);
+            return $this->redirectToRoute('telegram_index');
+        }
+
+        $settings = $settingsRepo->getOrCreate();
+        $settings->setVeryLateThresholdMinutes($minutes);
+        $em->flush();
+
+        $this->addFlash('success', ['key' => 'flash.threshold_updated', 'params' => ['%minutes%' => $minutes]]);
         return $this->redirectToRoute('telegram_index');
     }
 

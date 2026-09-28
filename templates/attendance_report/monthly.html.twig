@@ -1,4 +1,5 @@
 {% extends 'base.html.twig' %}
+{% import 'attendance/_status_badge.html.twig' as badges %}
 
 {% block title %}{{ 'nav.reports'|trans }}{% endblock %}
 
@@ -32,6 +33,7 @@
                 </div>
                 <button class="btn btn--primary" type="submit">{{ 'common.show'|trans }}</button>
                 <a class="btn" href="{{ path('attendance_report_monthly_export', {from: from|date('Y-m-d'), to: to|date('Y-m-d'), department: department}) }}">{{ 'report.export_csv'|trans }}</a>
+                <a class="btn" href="{{ path('attendance_report_monthly_export_detailed', {from: from|date('Y-m-d'), to: to|date('Y-m-d'), department: department}) }}">{{ 'report.export_csv_detailed'|trans }}</a>
             </form>
         </div>
     </div>
@@ -47,6 +49,7 @@
                 <table class="table" data-table>
                     <thead>
                         <tr>
+                            <th></th>
                             <th data-sort="text">{{ 'summary.employee'|trans }}</th>
                             <th data-sort="number">{{ 'report.worked_hours'|trans }}</th>
                             <th data-sort="number">{{ 'report.lateness_count'|trans }}</th>
@@ -59,7 +62,8 @@
                     </thead>
                     <tbody>
                         {% for row in rows %}
-                            <tr>
+                            <tr class="row--clickable" data-day-toggle>
+                                <td><span class="js-day-chevron" aria-hidden="true">▸</span></td>
                                 <td>{{ row.employee }}</td>
                                 <td>{{ row.worked_hours }} h</td>
                                 <td>{{ row.late_count }}</td>
@@ -68,6 +72,56 @@
                                 <td>{{ row.early_leave_count }}</td>
                                 <td>{{ row.overtime_in_total }}</td>
                                 <td>{{ row.overtime_out_total }}</td>
+                            </tr>
+                            <tr data-table-detail hidden>
+                                <td></td>
+                                <td colspan="8">
+                                    <table class="table table--nested">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th>{{ 'summary.date'|trans }}</th>
+                                                <th>{{ 'summary.status'|trans }}</th>
+                                                <th>{{ 'summary.check_in'|trans }}</th>
+                                                <th>{{ 'summary.check_out'|trans }}</th>
+                                                <th>{{ 'summary.hours'|trans }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for day in row.days %}
+                                                {% if day.punches is not empty %}
+                                                    <tr class="row--clickable" data-day-toggle>
+                                                {% else %}
+                                                    <tr>
+                                                {% endif %}
+                                                    <td>
+                                                        {% if day.punches is not empty %}
+                                                            <span class="js-day-chevron" aria-hidden="true">▸</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>{{ day.date|date('d/m/Y') }}</td>
+                                                    <td>
+                                                        {{ badges.badge(day.status, day.late_minutes) }}
+                                                        {% if day.is_early_leave %}
+                                                            <span class="badge badge--warning">{{ 'summary.early_leave'|trans }}</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>{{ day.check_in ?? '—' }}</td>
+                                                    <td>{{ day.check_out ?? '—' }}</td>
+                                                    <td>{{ day.worked_hours is not null ? day.worked_hours ~ ' h' : '—' }}</td>
+                                                </tr>
+                                                {% if day.punches is not empty %}
+                                                    <tr data-table-detail hidden>
+                                                        <td></td>
+                                                        <td colspan="5">
+                                                            {% include 'attendance/_punches_table.html.twig' with { punches: day.punches } %}
+                                                        </td>
+                                                    </tr>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>

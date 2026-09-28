@@ -8,6 +8,8 @@ use App\Repository\EmployeeRepository;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -22,6 +24,18 @@ class DepartmentType extends AbstractType
                 'label' => 'form.name',
                 'constraints' => [new Assert\NotBlank(), new Assert\Length(max: 100)],
             ])
+            ->add('isRemote', CheckboxType::class, [
+                'label' => 'form.is_remote',
+                'required' => false,
+            ])
+            ->add('breaks', CollectionType::class, [
+                'entry_type' => DepartmentBreakType::class,
+                'label' => 'form.breaks',
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+                'required' => false,
+            ])
             ->add('employees', EntityType::class, [
                 'class' => Employee::class,
                 'choice_label' => 'fullName',
@@ -32,6 +46,7 @@ class DepartmentType extends AbstractType
                 'required' => false,
                 'query_builder' => fn (EmployeeRepository $repo): QueryBuilder => $repo->createQueryBuilder('e')
                     ->andWhere('e.isActive = true')
+                    ->andWhere('e.isTrackingEnabled = true')
                     ->orderBy('e.lastName', 'ASC'),
             ]);
     }

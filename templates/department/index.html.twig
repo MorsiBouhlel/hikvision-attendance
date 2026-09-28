@@ -23,6 +23,8 @@
                         <tr>
                             <th data-sort="text">{{ 'form.name'|trans }}</th>
                             <th data-sort="number">{{ 'form.employees'|trans }}</th>
+                            <th>{{ 'form.is_remote'|trans }}</th>
+                            <th data-sort="number">{{ 'form.breaks'|trans }}</th>
                             <th>{{ 'common.actions'|trans }}</th>
                         </tr>
                     </thead>
@@ -31,6 +33,18 @@
                             <tr>
                                 <td>{{ department.name }}</td>
                                 <td>{{ department.employees|length }}</td>
+                                <td>
+                                    {% if department.remote %}
+                                        <span class="badge badge--info">{{ 'department.remote'|trans }}</span>
+                                    {% endif %}
+                                </td>
+                                <td data-sort-value="{{ department.totalBreakMinutes }}">
+                                    {% if department.totalBreakMinutes > 0 %}
+                                        {{ department.totalBreakMinutes }} min
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
                                 <td>
                                     {% if is_granted('ROLE_ADMIN') %}
                                         <div class="btn-group">

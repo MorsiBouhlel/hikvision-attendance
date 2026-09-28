@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Device;
 use App\Form\DeviceType;
 use App\Repository\DeviceRepository;
+use App\Repository\EmployeeRepository;
 use App\Service\AttendanceEventSyncService;
 use App\Service\EmployeeSyncService;
 use App\Service\WebhookRegistrar;
@@ -127,6 +128,51 @@ class DeviceController extends AbstractController
         $created = $employeeSync->linkSelected($device, $selected);
 
         $this->addFlash('success', ['key' => 'flash.employees_synced', 'params' => ['%count%' => count($created), '%name%' => $device->getName()]]);
+
+        return $this->redirectToRoute('device_index');
+    }
+
+    #[Route('/{id}/push-employees', name: 'push_employees_preview', methods: ['GET'])]
+    public function pushEmployeesPreview(Device $device, EmployeeSyncService $employeeSync): Response
+    {
+        try {
+            $pushable = $employeeSync->previewPushable($device);
+        } catch (\Throwable $e) {
+            $this->addFlash('error', ['key' => 'flash.device_unreachable', 'params' => ['%name%' => $device->getName(), '%error%' => $e->getMessage()]]);
+            return $this->redirectToRoute('device_index');
+        }
+
+        return $this->render('device/push_preview.html.twig', [
+            'device' => $device,
+            'pushable' => $pushable,
+        ]);
+    }
+
+    #[Route('/{id}/push-employees', name: 'push_employees_confirm', methods: ['POST'])]
+    public function pushEmployeesConfirm(Device $device, Request $request, EmployeeSyncService $employeeSync, EmployeeRepository $employees): Response
+    {
+        if (! $this->isCsrfTokenValid('device_push_' . $device->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', ['key' => 'flash.invalid_csrf']);
+            return $this->redirectToRoute('device_index');
+        }
+
+        $selected = array_filter(array_map(
+            fn ($id) => $employees->find($id),
+            $request->request->all('selected')
+        ));
+
+        try {
+            $result = $employeeSync->pushSelected($device, $selected);
+        } catch (\Throwable $e) {
+            $this->addFlash('error', ['key' => 'flash.device_unreachable', 'params' => ['%name%' => $device->getName(), '%error%' => $e->getMessage()]]);
+            return $this->redirectToRoute('device_index');
+        }
+
+        if (empty($result['failed'])) {
+            $this->addFlash('success', ['key' => 'flash.employees_pushed', 'params' => ['%count%' => count($result['pushed']), '%name%' => $device->getName()]]);
+        } else {
+            $this->addFlash('error', ['key' => 'flash.employees_push_partial', 'params' => ['%success%' => count($result['pushed']), '%failed%' => count($result['failed']), '%name%' => $device->getName()]]);
+        }
 
         return $this->redirectToRoute('device_index');
     }

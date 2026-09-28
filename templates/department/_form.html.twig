@@ -4,6 +4,33 @@
         {{ form_widget(form.name, {attr: {class: 'form-control'}}) }}
         {{ form_errors(form.name) }}
     </div>
+    <div class="form-row form-row--inline">
+        {{ form_widget(form.isRemote) }}
+        {{ form_label(form.isRemote) }}
+    </div>
+    <p class="form-help">{{ 'form.is_remote_help'|trans }}</p>
+    <div class="form-row">
+        {{ form_label(form.breaks) }}
+        <p class="form-help">{{ 'form.breaks_help'|trans }}</p>
+        <div class="collection" data-collection>
+            <div class="collection" data-collection-list data-prototype="{{ form_widget(form.breaks.vars.prototype)|e('html_attr') }}" data-index="{{ form.breaks|length }}">
+                {% for row in form.breaks %}
+                    <div class="collection-row">
+                        <div class="form-row">
+                            {{ form_label(row.label) }}
+                            {{ form_widget(row.label, {attr: {class: 'form-control'}}) }}
+                        </div>
+                        <div class="form-row">
+                            {{ form_label(row.durationMinutes) }}
+                            {{ form_widget(row.durationMinutes, {attr: {class: 'form-control'}}) }}
+                        </div>
+                        <button class="btn btn--sm btn--danger" type="button" data-collection-remove>{{ 'common.delete'|trans }}</button>
+                    </div>
+                {% endfor %}
+            </div>
+            <button class="btn btn--sm" type="button" data-collection-add>+ {{ 'form.add_break'|trans }}</button>
+        </div>
+    </div>
     <div class="form-row">
         {{ form_label(form.employees) }}
         <div class="checkbox-list checkbox-list--scroll" data-checkbox-search data-checkbox-select-all>

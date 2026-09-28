@@ -51,6 +51,7 @@
                                             <button class="btn btn--sm" type="submit">{{ 'device.register_webhook'|trans }}</button>
                                         </form>
                                         <a class="btn btn--sm" href="{{ path('device_sync_employees_preview', {id: device.id}) }}">{{ 'device.sync_employees'|trans }}</a>
+                                        <a class="btn btn--sm" href="{{ path('device_push_employees_preview', {id: device.id}) }}">{{ 'device.push_employees'|trans }}</a>
                                     </div>
                                     <form method="post" action="{{ path('device_sync_events', {id: device.id}) }}" class="btn-group" style="margin-top: 8px; align-items: center;">
                                         <input type="hidden" name="_token" value="{{ csrf_token('device_sync_events_' ~ device.id) }}">

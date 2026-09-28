@@ -8,9 +8,14 @@
             <h1>{{ 'nav.employees'|trans }}</h1>
             <p class="page-header__meta">{{ 'employee.count'|trans({'%count%': employees|length}) }}</p>
         </div>
-        {% if is_granted('ROLE_ADMIN') %}
-            <a class="btn btn--primary" href="{{ path('employee_new') }}">+ {{ 'employee.new'|trans }}</a>
-        {% endif %}
+        <div class="btn-group">
+            <a class="btn btn--sm{{ showExcluded ? ' btn--primary' : '' }}" href="{{ path('employee_index', showExcluded ? {} : {show_excluded: 1}) }}">
+                {{ (showExcluded ? 'employee.hide_excluded' : 'employee.show_excluded')|trans }}
+            </a>
+            {% if is_granted('ROLE_ADMIN') %}
+                <a class="btn btn--primary" href="{{ path('employee_new') }}">+ {{ 'employee.new'|trans }}</a>
+            {% endif %}
+        </div>
     </div>
 
     <div class="card">
@@ -40,7 +45,9 @@
                                 </td>
                                 <td>{{ employee.department.name ?? '—' }}</td>
                                 <td>
-                                    {% if employee.active %}
+                                    {% if not employee.trackingEnabled %}
+                                        <span class="badge badge--inactive">{{ 'employee.excluded'|trans }}</span>
+                                    {% elseif employee.active %}
                                         <span class="badge badge--present">{{ 'common.active'|trans }}</span>
                                     {% else %}
                                         <span class="badge badge--inactive">{{ 'common.inactive'|trans }}</span>
@@ -50,12 +57,18 @@
                                     {% if is_granted('ROLE_ADMIN') %}
                                         <div class="btn-group">
                                             <a class="btn btn--sm" href="{{ path('employee_edit', {id: employee.id}) }}">{{ 'common.edit'|trans }}</a>
-                                            {% if employee.active %}
+                                            {% if employee.active and employee.trackingEnabled %}
                                                 <form method="post" action="{{ path('employee_deactivate', {id: employee.id}) }}">
                                                     <input type="hidden" name="_token" value="{{ csrf_token('employee_deactivate_' ~ employee.id) }}">
                                                     <button class="btn btn--sm btn--danger" type="submit">{{ 'employee.deactivate'|trans }}</button>
                                                 </form>
                                             {% endif %}
+                                            <form method="post" action="{{ path('employee_toggle_tracking', {id: employee.id}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('employee_toggle_tracking_' ~ employee.id) }}">
+                                                <button class="btn btn--sm{{ employee.trackingEnabled ? ' btn--danger' : '' }}" type="submit">
+                                                    {{ (employee.trackingEnabled ? 'employee.exclude' : 'employee.include')|trans }}
+                                                </button>
+                                            </form>
                                         </div>
                                     {% endif %}
                                 </td>

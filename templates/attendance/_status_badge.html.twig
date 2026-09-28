@@ -11,6 +11,8 @@
         <span class="badge badge--inactive">{{ 'status.rest_day'|trans }}</span>
     {% elseif status == 'present' %}
         <span class="badge badge--present">{{ 'status.present'|trans }}</span>
+    {% elseif status == 'remote' %}
+        <span class="badge badge--info">{{ 'status.remote'|trans }}</span>
     {% else %}
         <span class="badge badge--absent">{{ 'status.absent'|trans }}</span>
     {% endif %}

@@ -25,6 +25,7 @@ form:
     admin_password_edit: Admin password (leave blank to keep unchanged)
     serial_number: Serial number
     active: Active
+    tracking_enabled: Subject to attendance tracking
     first_name: First name
     department: Department
     no_department: No department
@@ -47,6 +48,12 @@ form:
     check_window_margin_minutes: Badge margin (minutes)
     employees: Employees
     rest_day: Rest day
+    is_remote: Remote department
+    is_remote_help: Employees in this department are automatically marked present during their assigned slot (requires a WorkSchedule), no physical punch needed — unless they actually punch in that day.
+    breaks: Breaks
+    breaks_help: These breaks (coffee, lunch...) are automatically deducted from worked hours for every employee in this department, with no dedicated punch needed.
+    add_break: Add a break
+    duration_minutes: Duration (minutes)
     start_short: Start
     end_short: End
 
@@ -80,6 +87,8 @@ flash:
     employee_created: 'Employee %name% created.'
     employee_updated: 'Employee %name% updated.'
     employee_deactivated: 'Employee %name% deactivated.'
+    employee_tracking_disabled: '%name% will no longer be listed (not subject to attendance tracking).'
+    employee_tracking_enabled: '%name% is subject to attendance tracking again.'
     department_created: 'Department %name% created.'
     department_updated: 'Department %name% updated.'
     department_deleted: 'Department %name% deleted.'
@@ -91,6 +100,15 @@ flash:
     employees_synced: '{0}No employee created and linked to %name%.|{1}%count% employee created and linked to %name%.|]1,Inf[%count% employees created and linked to %name%.'
     events_synced: '{0}No event synced from %name%.|{1}%count% event synced from %name%.|]1,Inf[%count% events synced from %name%.'
     sync_failed: 'Sync failed for %name%: %error%'
+    employees_pushed: '{0}No employee pushed to %name%.|{1}%count% employee pushed to %name%.|]1,Inf[%count% employees pushed to %name%.'
+    employees_push_partial: '%success% employee(s) pushed to %name%, %failed% failure(s) — see logs.'
+    employee_pushed: '%name% pushed to %device% — facial enrollment still needs to be done on the terminal.'
+    employee_push_failed: 'Failed to push %name% to %device%: %error%'
+    no_employee_no_selected: Select a user to link.
+    employee_pulled: '%name% linked to %device% (employeeNo: %employeeNo%).'
+    employee_pull_failed: 'Failed to import %name% from %device%: %error%'
+    employee_update_pushed: '%name% synced to %device%.'
+    employee_push_update_failed: 'Failed to sync %name% to %device%: %error%'
     recipient_added: 'Recipient %name% added.'
     invalid_recipient_form: Invalid form — check the name and chat ID.
     recipient_activated: '%name% activated.'
@@ -100,6 +118,8 @@ flash:
     alerts_disabled: Alerts disabled.
     no_active_recipient: No active recipient — add one before testing.
     test_sent: '%success% message(s) sent, %failed% failure(s).'
+    invalid_threshold: The threshold must be a number of minutes greater than 0.
+    threshold_updated: '"Very late" threshold updated: %minutes% min.'
     leave_end_before_start: End date must be on or after the start date.
     leave_created: 'Leave created for %name%.'
     leave_deleted: Leave deleted.
@@ -119,6 +139,9 @@ flash:
     user_deactivated: '%email% deactivated.'
     cannot_delete_self: Cannot delete your own account.
     user_deleted: 'Account %email% deleted.'
+    punch_created: 'Punch added for %name%.'
+    punch_updated: 'Punch updated for %name%.'
+    punch_deleted: 'Punch deleted for %name%.'
 
 status:
     late: Late
@@ -128,6 +151,7 @@ status:
     rest_day: Rest day
     present: Present
     absent: Absent
+    remote: Remote
 
 punches:
     none_that_day: No punch that day.
@@ -136,6 +160,18 @@ punches:
     device: Device
     check_in: Check in
     check_out: Check out
+    unspecified: Unspecified
+    manual: Manual correction
+    add: Add a punch
+    correction_new: Add a punch
+    correction_edit: Edit punch
+    corrections_title: Manual corrections
+    correction_date: Correction date
+    correction_action: Action
+    correction_by: By
+    action_created: Added
+    action_updated: Updated
+    action_deleted: Deleted
 
 summary:
     no_active_employees: No active employees to display.
@@ -181,6 +217,17 @@ employee:
     new: New employee
     none_registered: No employees registered.
     deactivate: Deactivate
+    excluded: Not tracked
+    exclude: Exclude from tracking
+    include: Re-include in tracking
+    show_excluded: Show excluded employees
+    hide_excluded: Hide excluded employees
+    push_to: 'Push to %name%'
+    pull_from: 'Import from %name%'
+    pull_title: 'Import %name% from the terminal'
+    pull_subtitle: 'Users registered on %device% not yet linked to an employee'
+    pull_selected: Link selected user
+    push_update: Sync
 
 dashboard:
     today: Today
@@ -207,6 +254,11 @@ device:
     sync_subtitle: Users registered on the device not yet linked to an employee
     no_unlinked_user: No unlinked user found on this device.
     link_selected: Link selected employees
+    push_employees: Push employees
+    push_title: 'Push to %name%'
+    push_subtitle: Employees from the platform not yet created on this device — the facial enrollment still needs to be done on site afterwards.
+    no_pushable_employee: All active employees are already linked to this device.
+    push_selected: Push selected employees
 
 telegram:
     title: Telegram alerts
@@ -220,6 +272,8 @@ telegram:
     add: Add
     recipients: Recipients
     none_registered: No recipients registered.
+    very_late_threshold: '"Very late" threshold (minutes)'
+    very_late_threshold_help: Beyond this lateness (on top of the schedule's tolerance), a separate Telegram alert is sent.
 
 schedule:
     title: Work schedules
@@ -256,6 +310,7 @@ department:
     count: '{0}No departments|{1}%count% department|]1,Inf[%count% departments'
     new: New department
     none_defined: No departments defined.
+    remote: Remote
 
 user:
     count: '{0}No accounts|{1}%count% account|]1,Inf[%count% accounts'
@@ -267,6 +322,7 @@ report:
     title: Monthly report
     range: 'From %from% to %to%'
     export_csv: Export CSV
+    export_csv_detailed: Detailed export (day by day)
     summary: 'Summary from %from% to %to%'
     worked_hours: Worked hours
     lateness_count: Late count

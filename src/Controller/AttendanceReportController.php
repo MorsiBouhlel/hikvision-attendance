@@ -74,6 +74,55 @@ class AttendanceReportController extends AbstractController
         return $response;
     }
 
+    /**
+     * Même plage/filtre que monthlyExport(), mais une ligne par employé ET
+     * par jour (via 'days', accumulé gratuitement par rangeSummary() — voir
+     * son commentaire) au lieu d'une ligne agrégée par employé.
+     */
+    #[Route('/mensuel/export-detaille', name: 'monthly_export_detailed', methods: ['GET'])]
+    public function monthlyExportDetailed(Request $request, TranslatorInterface $translator): Response
+    {
+        [$from, $to] = $this->resolveRange($request);
+        $department = $request->query->getInt('department') ?: null;
+        $rows = $this->attendanceService->rangeSummary($from, $to, $department);
+
+        $response = new StreamedResponse(function () use ($rows, $translator) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, [
+                $translator->trans('summary.employee'),
+                $translator->trans('summary.date'),
+                $translator->trans('summary.status'),
+                $translator->trans('summary.check_in'),
+                $translator->trans('summary.check_out'),
+                $translator->trans('report.worked_hours'),
+                $translator->trans('report.late_minutes'),
+                $translator->trans('report.overtime_in'),
+                $translator->trans('report.overtime_out'),
+            ]);
+            foreach ($rows as $row) {
+                foreach ($row['days'] as $day) {
+                    fputcsv($handle, [
+                        $row['employee'],
+                        $day['date'],
+                        $translator->trans('status.' . $day['status']),
+                        $day['check_in'] ?? '',
+                        $day['check_out'] ?? '',
+                        $day['worked_hours'] ?? '',
+                        $day['late_minutes'] ?? '',
+                        $day['overtime_in_minutes'] ?? '',
+                        $day['overtime_out_minutes'] ?? '',
+                    ]);
+                }
+            }
+            fclose($handle);
+        });
+
+        $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
+        $response->headers->set('Content-Disposition', 'attachment; filename="rapport-detaille-' . $from->format('Y-m-d') . '_' . $to->format('Y-m-d') . '.csv"');
+
+        return $response;
+    }
+
     /** @return array{0: \DateTimeImmutable, 1: \DateTimeImmutable} */
     private function resolveRange(Request $request): array
     {

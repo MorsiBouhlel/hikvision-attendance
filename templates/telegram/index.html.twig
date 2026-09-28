@@ -30,6 +30,18 @@
                     <button class="btn btn--sm btn--primary" type="submit">{{ 'telegram.send_test'|trans }}</button>
                 </form>
             </div>
+
+            <form method="post" action="{{ path('telegram_very_late_threshold') }}" class="form" style="margin-top: 1rem;">
+                <input type="hidden" name="_token" value="{{ csrf_token('telegram_very_late_threshold') }}">
+                <div class="form-row">
+                    <label for="very_late_threshold_minutes">{{ 'telegram.very_late_threshold'|trans }}</label>
+                    <input type="number" min="1" step="1" id="very_late_threshold_minutes" name="very_late_threshold_minutes" value="{{ veryLateThresholdMinutes }}" class="form-control" style="max-width: 120px;">
+                    <span class="form-help">{{ 'telegram.very_late_threshold_help'|trans }}</span>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn--sm" type="submit">{{ 'common.save'|trans }}</button>
+                </div>
+            </form>
         </div>
     </div>
 

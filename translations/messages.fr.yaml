@@ -25,6 +25,7 @@ form:
     admin_password_edit: Mot de passe admin (laisser vide pour ne pas changer)
     serial_number: Numéro de série
     active: Actif
+    tracking_enabled: Concerné par le pointage
     first_name: Prénom
     department: Département
     no_department: Aucun département
@@ -49,6 +50,12 @@ form:
     rest_day: Repos
     start_short: Début
     end_short: Fin
+    is_remote: Département en télétravail
+    is_remote_help: Les employés de ce département sont considérés présents automatiquement sur leur créneau (WorkSchedule assigné requis), sans pointage physique — sauf s'ils pointent réellement ce jour-là.
+    breaks: Pauses
+    breaks_help: Ces pauses (café, déjeuner...) sont déduites automatiquement du temps travaillé de chaque employé de ce département, sans pointage dédié.
+    add_break: Ajouter une pause
+    duration_minutes: Durée (minutes)
 
 day:
     monday: Lundi
@@ -80,6 +87,8 @@ flash:
     employee_created: 'Employé %name% créé.'
     employee_updated: 'Employé %name% mis à jour.'
     employee_deactivated: 'Employé %name% désactivé.'
+    employee_tracking_disabled: '%name% ne sera plus listé (non concerné par le pointage).'
+    employee_tracking_enabled: '%name% est de nouveau concerné par le pointage.'
     department_created: 'Département %name% créé.'
     department_updated: 'Département %name% mis à jour.'
     department_deleted: 'Département %name% supprimé.'
@@ -91,6 +100,15 @@ flash:
     employees_synced: '{0}Aucun employé créé et lié à %name%.|{1}%count% employé créé et lié à %name%.|]1,Inf[%count% employés créés et liés à %name%.'
     events_synced: '{0}Aucun événement synchronisé depuis %name%.|{1}%count% événement synchronisé depuis %name%.|]1,Inf[%count% événements synchronisés depuis %name%.'
     sync_failed: 'Échec de la synchronisation pour %name% : %error%'
+    employees_pushed: '{0}Aucun employé poussé vers %name%.|{1}%count% employé poussé vers %name%.|]1,Inf[%count% employés poussés vers %name%.'
+    employees_push_partial: '%success% employé(s) poussé(s) vers %name%, %failed% échec(s) — voir les logs.'
+    employee_pushed: '%name% poussé vers %device% — reste à prendre l''empreinte faciale sur le terminal.'
+    employee_push_failed: "Échec du push de %name% vers %device% : %error%"
+    no_employee_no_selected: Sélectionne un utilisateur à lier.
+    employee_pulled: '%name% lié à %device% (employeeNo: %employeeNo%).'
+    employee_pull_failed: "Échec de l'import de %name% depuis %device% : %error%"
+    employee_update_pushed: '%name% synchronisé vers %device%.'
+    employee_push_update_failed: "Échec de la synchronisation de %name% vers %device% : %error%"
     recipient_added: 'Destinataire %name% ajouté.'
     invalid_recipient_form: Formulaire invalide — vérifie le nom et le chat ID.
     recipient_activated: '%name% activé.'
@@ -100,6 +118,8 @@ flash:
     alerts_disabled: Alertes désactivées.
     no_active_recipient: Aucun destinataire actif — ajoute-en un avant de tester.
     test_sent: '%success% message(s) envoyé(s), %failed% échec(s).'
+    invalid_threshold: Le seuil doit être un nombre de minutes supérieur à 0.
+    threshold_updated: 'Seuil "trop en retard" mis à jour : %minutes% min.'
     leave_end_before_start: La date de fin doit être postérieure ou égale à la date de début.
     leave_created: 'Congé créé pour %name%.'
     leave_deleted: Congé supprimé.
@@ -119,6 +139,9 @@ flash:
     user_deactivated: '%email% désactivé.'
     cannot_delete_self: Impossible de supprimer son propre compte.
     user_deleted: 'Compte %email% supprimé.'
+    punch_created: 'Pointage ajouté pour %name%.'
+    punch_updated: 'Pointage mis à jour pour %name%.'
+    punch_deleted: 'Pointage supprimé pour %name%.'
 
 status:
     late: En retard
@@ -128,6 +151,7 @@ status:
     rest_day: Repos
     present: Présent
     absent: Absent
+    remote: Télétravail
 
 punches:
     none_that_day: Aucun pointage ce jour-là.
@@ -136,6 +160,18 @@ punches:
     device: Pointeuse
     check_in: Entrée
     check_out: Sortie
+    unspecified: Non précisé
+    manual: Correction manuelle
+    add: Ajouter un pointage
+    correction_new: Ajouter un pointage
+    correction_edit: Modifier un pointage
+    corrections_title: Corrections manuelles
+    correction_date: Date de la correction
+    correction_action: Action
+    correction_by: Par
+    action_created: Ajout
+    action_updated: Modification
+    action_deleted: Suppression
 
 summary:
     no_active_employees: Aucun employé actif à afficher.
@@ -181,6 +217,17 @@ employee:
     new: Nouvel employé
     none_registered: Aucun employé enregistré.
     deactivate: Désactiver
+    excluded: Non concerné
+    exclude: Exclure du pointage
+    include: Réintégrer au pointage
+    show_excluded: Afficher les employés exclus
+    hide_excluded: Masquer les employés exclus
+    push_to: 'Pousser vers %name%'
+    pull_from: 'Importer depuis %name%'
+    pull_title: 'Importer %name% depuis la pointeuse'
+    pull_subtitle: 'Utilisateurs enregistrés sur %device% non encore liés à un employé'
+    pull_selected: "Lier l'utilisateur sélectionné"
+    push_update: Synchroniser
 
 dashboard:
     today: "Aujourd'hui"
@@ -207,6 +254,11 @@ device:
     sync_subtitle: Utilisateurs enregistrés sur le device non encore liés à un employé
     no_unlinked_user: Aucun utilisateur non lié trouvé sur ce device.
     link_selected: Lier les employés sélectionnés
+    push_employees: Pousser employés
+    push_title: 'Pousser vers %name%'
+    push_subtitle: Employés de la plateforme pas encore créés sur ce device — l'empreinte faciale reste à prendre sur place après le push.
+    no_pushable_employee: Tous les employés actifs sont déjà liés à ce device.
+    push_selected: Pousser les employés sélectionnés
 
 telegram:
     title: Alertes Telegram
@@ -220,6 +272,8 @@ telegram:
     add: Ajouter
     recipients: Destinataires
     none_registered: Aucun destinataire enregistré.
+    very_late_threshold: Seuil "trop en retard" (minutes)
+    very_late_threshold_help: Au-delà de ce retard (en plus de la tolérance de l'horaire), une alerte Telegram distincte est envoyée.
 
 schedule:
     title: Horaires de travail
@@ -256,6 +310,7 @@ department:
     count: '{0}Aucun département|{1}%count% département|]1,Inf[%count% départements'
     new: Nouveau département
     none_defined: Aucun département défini.
+    remote: Télétravail
 
 user:
     count: '{0}Aucun compte|{1}%count% compte|]1,Inf[%count% comptes'
@@ -267,6 +322,7 @@ report:
     title: Rapport mensuel
     range: 'Du %from% au %to%'
     export_csv: Exporter CSV
+    export_csv_detailed: Export détaillé (jour par jour)
     summary: 'Résumé du %from% au %to%'
     worked_hours: Heures travaillées
     lateness_count: Retards

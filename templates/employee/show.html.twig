@@ -42,6 +42,7 @@
                         <tr>
                             <th>{{ 'common.device'|trans }}</th>
                             <th>employeeNo</th>
+                            {% if is_granted('ROLE_ADMIN') %}<th>{{ 'common.actions'|trans }}</th>{% endif %}
                         </tr>
                     </thead>
                     <tbody>
@@ -49,10 +50,32 @@
                             <tr>
                                 <td>{{ link.device.name }}</td>
                                 <td>{{ link.employeeNo }}</td>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <td>
+                                        <form method="post" action="{{ path('employee_push_update_to_device', {id: employee.id, deviceId: link.device.id}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('employee_push_update_' ~ employee.id ~ '_' ~ link.device.id) }}">
+                                            <button class="btn btn--sm" type="submit">{{ 'employee.push_update'|trans }}</button>
+                                        </form>
+                                    </td>
+                                {% endif %}
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+        {% endif %}
+        {% if is_granted('ROLE_ADMIN') and pushableDevices is not empty %}
+            <div class="card__body">
+                {% for device in pushableDevices %}
+                    <div class="btn-group" style="flex-wrap: wrap; margin-bottom: 8px;">
+                        <span class="text-muted">{{ device.name }} :</span>
+                        <form method="post" action="{{ path('employee_push_to_device', {id: employee.id, deviceId: device.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('employee_push_' ~ employee.id ~ '_' ~ device.id) }}">
+                            <button class="btn btn--sm" type="submit">{{ 'employee.push_to'|trans({'%name%': device.name}) }}</button>
+                        </form>
+                        <a class="btn btn--sm" href="{{ path('employee_pull_from_device_preview', {id: employee.id, deviceId: device.id}) }}">{{ 'employee.pull_from'|trans({'%name%': device.name}) }}</a>
+                    </div>
+                {% endfor %}
             </div>
         {% endif %}
     </div>
@@ -92,6 +115,7 @@
                             <th data-sort="number">{{ 'summary.hours'|trans }}</th>
                             <th data-sort="number">{{ 'summary.punches'|trans }}</th>
                             <th data-sort="text">{{ 'summary.overtime'|trans }}</th>
+                            {% if is_granted('ROLE_ADMIN') %}<th></th>{% endif %}
                         </tr>
                     </thead>
                     <tbody>
@@ -126,12 +150,17 @@
                                         —
                                     {% endif %}
                                 </td>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <td onclick="event.stopPropagation()">
+                                        <a class="btn btn--sm" href="{{ path('employee_punch_new', {id: employee.id, date: row.date|date('Y-m-d')}) }}">+ {{ 'punches.add'|trans }}</a>
+                                    </td>
+                                {% endif %}
                             </tr>
                             {% if row.punches is not empty %}
                                 <tr data-table-detail hidden>
                                     <td></td>
-                                    <td colspan="7">
-                                        {% include 'attendance/_punches_table.html.twig' with { punches: row.punches } %}
+                                    <td colspan="{{ is_granted('ROLE_ADMIN') ? 8 : 7 }}">
+                                        {% include 'attendance/_punches_table.html.twig' with { punches: row.punches, employee: employee } %}
                                     </td>
                                 </tr>
                             {% endif %}
@@ -141,4 +170,36 @@
             </div>
         {% endif %}
     </div>
+
+    {% if is_granted('ROLE_ADMIN') and corrections is not empty %}
+        <div class="card">
+            <div class="card__header">
+                <h2>{{ 'punches.corrections_title'|trans }}</h2>
+            </div>
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>{{ 'punches.correction_date'|trans }}</th>
+                            <th>{{ 'punches.correction_action'|trans }}</th>
+                            <th>{{ 'summary.date'|trans }}</th>
+                            <th>{{ 'form.reason'|trans }}</th>
+                            <th>{{ 'punches.correction_by'|trans }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for correction in corrections %}
+                            <tr>
+                                <td>{{ correction.createdAt|date('d/m/Y H:i') }}</td>
+                                <td>{{ ('punches.action_' ~ correction.action)|trans }}</td>
+                                <td>{{ correction.occurredAt|date('d/m/Y H:i') }}</td>
+                                <td>{{ correction.reason ?? '—' }}</td>
+                                <td>{{ correction.user.email }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}

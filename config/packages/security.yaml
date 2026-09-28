@@ -30,6 +30,11 @@ security:
         - { path: ^/employees/new, roles: ROLE_ADMIN }
         - { path: ^/employees/\d+/edit, roles: ROLE_ADMIN }
         - { path: ^/employees/\d+/deactivate, roles: ROLE_ADMIN }
+        - { path: ^/employees/\d+/toggle-tracking, roles: ROLE_ADMIN }
+        - { path: '^/employees/\d+/push/\d+', roles: ROLE_ADMIN }
+        - { path: '^/employees/\d+/push-update/\d+', roles: ROLE_ADMIN }
+        - { path: '^/employees/\d+/pull/\d+', roles: ROLE_ADMIN }
+        - { path: '^/employees/\d+/punches/\d{4}-\d{2}-\d{2}/(new|\d+/edit|\d+/delete)', roles: ROLE_ADMIN }
         - { path: ^/departements/new, roles: ROLE_ADMIN }
         - { path: ^/departements/\d+/edit, roles: ROLE_ADMIN }
         - { path: ^/departements/\d+/delete, roles: ROLE_ADMIN }

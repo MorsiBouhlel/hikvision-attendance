@@ -66,6 +66,7 @@ class WorkScheduleType extends AbstractType
                 'required' => false,
                 'query_builder' => fn (EmployeeRepository $repo): QueryBuilder => $repo->createQueryBuilder('e')
                     ->andWhere('e.isActive = true')
+                    ->andWhere('e.isTrackingEnabled = true')
                     ->orderBy('e.lastName', 'ASC'),
             ]);
 

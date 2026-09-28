@@ -7,8 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Trace les alertes email déjà envoyées, pour garantir au plus une alerte
- * par employé/jour/type (retard ou absence) — évite le spam en cas de
- * rattrapage de pointages, redémarrage de cron, etc.
+ * par employé/jour/type (retard, retard important, ou absence) — évite le
+ * spam en cas de rattrapage de pointages, redémarrage de cron, etc.
  */
 #[ORM\Entity(repositoryClass: AlertLogRepository::class)]
 #[ORM\Table(name: 'alert_logs')]
@@ -28,7 +28,7 @@ class AlertLog
     private \DateTimeImmutable $date;
 
     #[ORM\Column(length: 10)]
-    private string $type; // late / absent
+    private string $type; // late / very_late / absent
 
     #[ORM\Column]
     private \DateTimeImmutable $sentAt;

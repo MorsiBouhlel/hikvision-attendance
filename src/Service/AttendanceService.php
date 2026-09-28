@@ -59,7 +59,7 @@ class AttendanceService
         );
     }
 
-    /** @return Employee[] employés actifs n'ayant pas pointé aujourd'hui (hors congé/férié) */
+    /** @return Employee[] employés actifs n'ayant pas pointé aujourd'hui (hors congé/férié/télétravail auto) */
     public function missingToday(): array
     {
         $today = new \DateTimeImmutable('today');
@@ -73,8 +73,28 @@ class AttendanceService
 
         return array_filter(
             $this->employees->findActive(),
-            fn (Employee $e) => ! in_array($e->getId(), $presentIds, true) && ! in_array($e->getId(), $onLeaveIds, true)
+            fn (Employee $e) => ! in_array($e->getId(), $presentIds, true)
+                && ! in_array($e->getId(), $onLeaveIds, true)
+                && ! $this->isAutoRemoteToday($e, $today)
         );
+    }
+
+    /**
+     * Un employé d'un département marqué "remote" est considéré présent
+     * automatiquement sur les jours couverts par son WorkSchedule, sans
+     * pointage physique requis — voir classifyDay() pour la même règle
+     * appliquée aux résumés. Utilisé ici pour ne jamais le compter comme
+     * "absent" (dashboard missingToday() / alerte Telegram check-absences).
+     */
+    private function isAutoRemoteToday(Employee $employee, \DateTimeImmutable $date): bool
+    {
+        if ($employee->getDepartment()?->isRemote() !== true) {
+            return false;
+        }
+
+        $schedule = $employee->getWorkSchedule();
+
+        return $schedule !== null && $this->expectedWindow($schedule, $date) !== null;
     }
 
     /**
@@ -82,6 +102,12 @@ class AttendanceService
      * heures travaillées totales, nombre de retards, minutes de retard
      * cumulées, absences. Toutes les données sont préchargées en 3 requêtes
      * bulk (jamais de requête par employé/jour).
+     *
+     * Chaque ligne porte aussi 'days' (le détail jour par jour, même forme
+     * que employeeHistory()) — accumulé dans la même boucle que l'agrégat,
+     * donc gratuit: pas de requête supplémentaire, pas de second appel à
+     * classifyDay(). Consommé par le tableau dépliable de la page rapports
+     * et par l'export CSV détaillé (monthlyExportDetailed).
      *
      * @return array<int, array>
      */
@@ -122,6 +148,7 @@ class AttendanceService
             $earlyLeaveCount = 0;
             $overtimeInTotal = 0;
             $overtimeOutTotal = 0;
+            $days = [];
 
             $cursor = $start;
             while ($cursor <= $end) {
@@ -146,11 +173,16 @@ class AttendanceService
                 $overtimeInTotal += $summary['overtime_in_minutes'] ?? 0;
                 $overtimeOutTotal += $summary['overtime_out_minutes'] ?? 0;
 
+                usort($dayEvents, fn (AttendanceEvent $a, AttendanceEvent $b) => $a->getOccurredAt() <=> $b->getOccurredAt());
+                $summary['punches'] = $dayEvents;
+                $days[] = $summary;
+
                 $cursor = $cursor->modify('+1 day');
             }
 
             $rows[] = [
                 'employee' => $employee->getFullName(),
+                'employee_id' => $employee->getId(),
                 'worked_hours' => round($workedHours, 2),
                 'late_count' => $lateCount,
                 'late_minutes' => $lateMinutesTotal,
@@ -158,6 +190,7 @@ class AttendanceService
                 'early_leave_count' => $earlyLeaveCount,
                 'overtime_in_total' => $overtimeInTotal,
                 'overtime_out_total' => $overtimeOutTotal,
+                'days' => $days,
             ];
         }
 
@@ -317,7 +350,33 @@ class AttendanceService
         $schedule = $employee->getWorkSchedule();
 
         if (empty($dayEvents)) {
-            $isRestDay = $schedule && $this->expectedWindow($schedule, $date) === null;
+            $window = $schedule ? $this->expectedWindow($schedule, $date) : null;
+            $isRestDay = $schedule && $window === null;
+            $isRemote = $schedule && $window !== null && $employee->getDepartment()?->isRemote() === true;
+
+            if (! $isHoliday && ! $onLeave && $isRemote) {
+                [$expectedStart, $expectedEnd] = $window;
+                $rawHours = ($expectedEnd->getTimestamp() - $expectedStart->getTimestamp()) / 3600;
+
+                return [
+                    'employee' => $employee->getFullName(),
+                    'employee_id' => $employee->getId(),
+                    'date' => $date->format('Y-m-d'),
+                    'check_in' => $expectedStart->format('H:i:s'),
+                    'check_out' => $expectedEnd->format('H:i:s'),
+                    'worked_hours' => round($this->deductBreaks($rawHours, $employee), 2),
+                    'events_count' => 0,
+                    'status' => 'remote',
+                    'late_minutes' => null,
+                    'early_leave_minutes' => null,
+                    'is_early_leave' => null,
+                    'expected_hours' => null,
+                    'overtime_in_minutes' => null,
+                    'overtime_out_minutes' => null,
+                    'schedule' => $schedule?->getName(),
+                ];
+            }
+
             $status = $isHoliday ? 'holiday' : ($onLeave ? 'on_leave' : ($isRestDay ? 'rest_day' : 'absent'));
 
             return [
@@ -344,7 +403,7 @@ class AttendanceService
         $workedHours = null;
         if ($last) {
             $diffMinutes = ($last->getTimestamp() - $first->getTimestamp()) / 60;
-            $workedHours = round($diffMinutes / 60, 2);
+            $workedHours = round($this->deductBreaks($diffMinutes / 60, $employee), 2);
         }
 
         $lateMinutes = null;
@@ -371,7 +430,7 @@ class AttendanceService
             }
         }
 
-        $expectedHours = $workedHours !== null ? $this->expectedDailyHours($schedule, $date) : null;
+        $expectedHours = $workedHours !== null ? $this->expectedDailyHours($schedule, $date, $employee) : null;
         $isEarlyLeave = $workedHours !== null ? $workedHours < $expectedHours : null;
 
         return [
@@ -516,11 +575,18 @@ class AttendanceService
         return [$expectedStart, $expectedEnd];
     }
 
-    /** Nombre d'heures attendues pour $date: durée de la fenêtre du jour, 0h si jour de repos, ou 8h par défaut sans schedule assigné. */
-    private function expectedDailyHours(?WorkSchedule $schedule, \DateTimeImmutable $date): float
+    /**
+     * Nombre d'heures attendues pour $date: durée de la fenêtre du jour, 0h
+     * si jour de repos, ou 8h par défaut sans schedule assigné — dans les
+     * deux cas, diminuée des pauses du département de l'employé (voir
+     * deductBreaks()) pour que la comparaison avec worked_hours
+     * (is_early_leave) reste équitable: un employé qui prend sa pause
+     * déjeuner ne doit pas apparaître en retrait juste pour ça.
+     */
+    private function expectedDailyHours(?WorkSchedule $schedule, \DateTimeImmutable $date, Employee $employee): float
     {
         if (! $schedule) {
-            return 8.0;
+            return $this->deductBreaks(8.0, $employee);
         }
 
         $window = $this->expectedWindow($schedule, $date);
@@ -529,7 +595,23 @@ class AttendanceService
         }
 
         [$expectedStart, $expectedEnd] = $window;
+        $rawHours = ($expectedEnd->getTimestamp() - $expectedStart->getTimestamp()) / 3600;
 
-        return ($expectedEnd->getTimestamp() - $expectedStart->getTimestamp()) / 3600;
+        return $this->deductBreaks($rawHours, $employee);
+    }
+
+    /**
+     * Déduit les pauses configurées sur le département de l'employé (café,
+     * déjeuner...) d'un nombre d'heures — toujours en entier, sans vérifier
+     * si l'employé était présent au moment précis de la pause (décision
+     * utilisateur du 2026-09-28: pas de pointage dédié pour les pauses).
+     * Jamais négatif. Pas de département ou aucune pause configurée = 0
+     * déduction, comportement inchangé.
+     */
+    private function deductBreaks(float $hours, Employee $employee): float
+    {
+        $breakMinutes = $employee->getDepartment()?->totalBreakMinutes() ?? 0;
+
+        return max(0.0, $hours - $breakMinutes / 60);
     }
 }

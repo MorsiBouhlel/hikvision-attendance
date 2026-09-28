@@ -37,6 +37,10 @@ class EmployeeType extends AbstractType
                 'label' => 'form.active',
                 'required' => false,
             ])
+            ->add('isTrackingEnabled', CheckboxType::class, [
+                'label' => 'form.tracking_enabled',
+                'required' => false,
+            ])
             ->add('workSchedule', EntityType::class, [
                 'class' => WorkSchedule::class,
                 'choice_label' => 'name',

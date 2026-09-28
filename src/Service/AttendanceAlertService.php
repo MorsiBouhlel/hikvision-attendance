@@ -37,7 +37,7 @@ class AttendanceAlertService
     public function checkLate(AttendanceEvent $event): void
     {
         $employee = $event->getEmployee();
-        if (! $employee) {
+        if (! $employee || ! $employee->isTrackingEnabled()) {
             return;
         }
 
@@ -49,6 +49,11 @@ class AttendanceAlertService
         }
 
         $this->send($employee, $date, 'late', $summary['late_minutes']);
+
+        $threshold = $this->settings->getOrCreate()->getVeryLateThresholdMinutes();
+        if ($summary['late_minutes'] >= $threshold) {
+            $this->send($employee, $date, 'very_late', $summary['late_minutes']);
+        }
     }
 
     /**
@@ -124,9 +129,11 @@ class AttendanceAlertService
 
         $day = $date->format('d/m/Y');
 
-        $text = $type === 'late'
-            ? "⏰ Retard : {$employee->getFullName()} ({$day})" . ($lateMinutes ? " — {$lateMinutes} min" : '')
-            : "❌ Absence : {$employee->getFullName()} n'a pointé sur aucune pointeuse le {$day}";
+        $text = match ($type) {
+            'late' => "⏰ Retard : {$employee->getFullName()} ({$day})" . ($lateMinutes ? " — {$lateMinutes} min" : ''),
+            'very_late' => "🚨 Retard important : {$employee->getFullName()} ({$day})" . ($lateMinutes ? " — {$lateMinutes} min" : ''),
+            default => "❌ Absence : {$employee->getFullName()} n'a pointé sur aucune pointeuse le {$day}",
+        };
 
         if ($employee->getDepartment()) {
             $text .= " · {$employee->getDepartment()}";

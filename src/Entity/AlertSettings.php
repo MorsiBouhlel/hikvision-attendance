@@ -18,8 +18,15 @@ class AlertSettings
     #[ORM\Column]
     private bool $enabled = false;
 
+    /** Retard (en minutes) à partir duquel une alerte "trop en retard" distincte est envoyée. */
+    #[ORM\Column]
+    private int $veryLateThresholdMinutes = 60;
+
     public function getId(): ?int { return $this->id; }
 
     public function isEnabled(): bool { return $this->enabled; }
     public function setEnabled(bool $e): static { $this->enabled = $e; return $this; }
+
+    public function getVeryLateThresholdMinutes(): int { return $this->veryLateThresholdMinutes; }
+    public function setVeryLateThresholdMinutes(int $m): static { $this->veryLateThresholdMinutes = $m; return $this; }
 }

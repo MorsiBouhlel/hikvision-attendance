@@ -46,7 +46,20 @@ class HikvisionDigestClient
     {
         $url = $this->device->getBaseUrl() . '/ISAPI' . $path;
 
-        return $this->decode($this->requestUrl($method, $url, $options));
+        $response = $this->requestUrl($method, $url, $options);
+        $decoded = $this->decode($response);
+
+        $status = $response->getStatusCode();
+        if ($status >= 400) {
+            // Le device répond une erreur HTTP (400/403/...) — le corps ISAPI
+            // contient généralement statusCode/statusString/subStatusCode/errorMsg
+            // exploitables pour comprendre pourquoi (ex. payload UserInfo rejeté).
+            // Sans ça l'appelant ne voit qu'un tableau vide silencieux.
+            $reason = $decoded['errorMsg'] ?? $decoded['statusString'] ?? $decoded['subStatusCode'] ?? $response->getContent(false);
+            throw new \RuntimeException("{$method} {$path} a échoué (HTTP {$status}) : {$reason}");
+        }
+
+        return $decoded;
     }
 
     /**
@@ -226,6 +239,76 @@ class HikvisionDigestClient
         } while ($status === 'MORE' && count($list) > 0);
 
         return $all;
+    }
+
+    /**
+     * Crée un utilisateur côté device (sans biométrie — l'empreinte
+     * faciale reste à prendre physiquement sur le terminal après coup).
+     * Format `AccessControl/UserInfo/Record`, validé en POST sur un device
+     * réel de ce déploiement (DS-K1T341CMF) : `PUT` renvoie 400
+     * `methodNotAllowed` sur ce firmware — seul `POST` est accepté pour la
+     * création, contrairement à ce que suggère `Capabilities.supportFunction`
+     * (`"post,delete,put,get,setUp"`, `put` sert visiblement à autre chose
+     * sur `UserInfo`, pas à l'écriture d'un enregistrement).
+     */
+    public function addUser(string $employeeNo, string $name): array
+    {
+        return $this->post('/AccessControl/UserInfo/Record', $this->userInfoPayload($employeeNo, $name));
+    }
+
+    /**
+     * Met à jour le nom d'un utilisateur déjà enregistré côté device
+     * (employeeNo inchangé) — endpoint et méthode différents de addUser(),
+     * validé sur un device réel de ce déploiement : POST UserInfo/Record
+     * (celui de addUser()) rejette un employeeNo déjà existant en 400
+     * `employeeNoAlreadyExist` (Record ne sert qu'à créer sur ce firmware,
+     * contrairement au comportement générique documenté par le SDK
+     * Hikvision où le même appel ferait l'upsert) ; PUT UserInfo/Modify
+     * avec ce même employeeNo répond 200 et applique bien le changement.
+     * N'affecte ni la biométrie ni les droits déjà enregistrés (RightPlan,
+     * numOfCard/FP/Face, faceURL) — confirmé inchangés après un appel réel,
+     * seuls les champs envoyés ici sont réécrits.
+     */
+    public function updateUser(string $employeeNo, string $name): array
+    {
+        return $this->put('/AccessControl/UserInfo/Modify', $this->userInfoPayload($employeeNo, $name));
+    }
+
+    /**
+     * beginTime/endTime bornés à la plage acceptée par ce device, lue sur
+     * son propre `UserInfo/Capabilities.Valid` (`timeRangeBegin`/`timeRangeEnd`,
+     * confirmé "2000-01-01T00:00:00" → "2037-12-31T23:59:59" sur un device
+     * réel de ce déploiement) — une valeur hors plage (ex. +20 ans depuis
+     * aujourd'hui) est rejetée en 400 `badJsonContent` sur `endTime`. 2037
+     * est la borne de l'epoch 32 bits, probable limite matérielle commune à
+     * ce type de firmware plutôt qu'une config spécifique à ce device —
+     * gardé en dur plutôt que lu dynamiquement via Capabilities à chaque
+     * appel (coût d'une requête HTTP en plus pour une constante qui ne
+     * bouge pas).
+     *
+     * Utilisé par addUser() ET updateUser() : sur un updateUser(), ceci
+     * réécrit aussi Valid.beginTime à la date du jour même s'il était plus
+     * ancien avant (ex. date d'enrôlement d'origine) — testé sur un device
+     * réel, sans effet fonctionnel puisque endTime reste 2037 dans les deux
+     * cas, mais à savoir si Valid.beginTime est un jour affiché/exploité
+     * ailleurs. RightPlan/doorRight/numOfCard/FP/Face/faceURL ne sont pas
+     * dans ce payload et restent inchangés côté device (confirmé) — seuls
+     * name et Valid sont réécrits.
+     */
+    private function userInfoPayload(string $employeeNo, string $name): array
+    {
+        return [
+            'UserInfo' => [
+                'employeeNo' => $employeeNo,
+                'name' => $name,
+                'userType' => 'normal',
+                'Valid' => [
+                    'enable' => true,
+                    'beginTime' => (new \DateTimeImmutable())->format('Y-m-d\TH:i:s'),
+                    'endTime' => '2037-12-31T23:59:59',
+                ],
+            ],
+        ];
     }
 
     /**

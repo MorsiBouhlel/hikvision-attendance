@@ -29,6 +29,9 @@ class Employee
     #[ORM\Column]
     private bool $isActive = true;
 
+    #[ORM\Column]
+    private bool $isTrackingEnabled = true;
+
     #[ORM\ManyToOne(targetEntity: WorkSchedule::class, inversedBy: 'employees')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?WorkSchedule $workSchedule = null;
@@ -58,6 +61,9 @@ class Employee
 
     public function isActive(): bool { return $this->isActive; }
     public function setIsActive(bool $a): static { $this->isActive = $a; return $this; }
+
+    public function isTrackingEnabled(): bool { return $this->isTrackingEnabled; }
+    public function setIsTrackingEnabled(bool $t): static { $this->isTrackingEnabled = $t; return $this; }
 
     public function getWorkSchedule(): ?WorkSchedule { return $this->workSchedule; }
     public function setWorkSchedule(?WorkSchedule $s): static { $this->workSchedule = $s; return $this; }

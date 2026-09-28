@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'employee.pull_title'|trans({'%name%': employee.fullName}) }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1>{{ 'employee.pull_title'|trans({'%name%': employee.fullName}) }}</h1>
+            <p class="page-header__meta">{{ 'employee.pull_subtitle'|trans({'%device%': device.name}) }}</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__body">
+            {% if unlinked is empty %}
+                <p class="text-muted">{{ 'device.no_unlinked_user'|trans }}</p>
+                <div class="btn-group" style="margin-top: 16px;">
+                    <a class="btn" href="{{ path('employee_show', {id: employee.id}) }}">{{ 'common.back'|trans }}</a>
+                </div>
+            {% else %}
+                <form method="post" action="{{ path('employee_pull_from_device_confirm', {id: employee.id, deviceId: device.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('employee_pull_' ~ employee.id ~ '_' ~ device.id) }}">
+                    <div class="checkbox-list checkbox-list--scroll" data-checkbox-search>
+                        {% for entry in unlinked %}
+                            <label class="checkbox-row">
+                                <input type="radio" name="employee_no" value="{{ entry.employeeNo }}" {% if loop.first %}checked{% endif %}>
+                                <span>{{ entry.name }} <span class="text-muted">(employeeNo: {{ entry.employeeNo }})</span></span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    <div class="btn-group" style="margin-top: 20px;">
+                        <button class="btn btn--primary" type="submit">{{ 'employee.pull_selected'|trans }}</button>
+                        <a class="btn" href="{{ path('employee_show', {id: employee.id}) }}">{{ 'common.cancel'|trans }}</a>
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
