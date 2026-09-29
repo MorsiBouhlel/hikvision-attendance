@@ -8,7 +8,7 @@
             <h1>{{ 'schedule.title'|trans }}</h1>
             <p class="page-header__meta">{{ 'schedule.count'|trans({'%count%': schedules|length}) }}</p>
         </div>
-        {% if is_granted('ROLE_ADMIN') %}
+        {% if is_granted('ROLE_MANAGER') %}
             <div class="btn-group">
                 {% for device in devices %}
                     <form method="post" action="{{ path('work_schedule_import_from_device', {deviceId: device.id}) }}">
@@ -16,7 +16,7 @@
                         <button class="btn btn--sm" type="submit" title="{{ 'schedule.import_help'|trans }}">{{ 'schedule.import_from'|trans({'%name%': device.name}) }}</button>
                     </form>
                 {% endfor %}
-                <a class="btn btn--primary" href="{{ path('work_schedule_new') }}">+ {{ 'schedule.new'|trans }}</a>
+                <a class="btn btn--primary" href="{{ path('work_schedule_new') }}">{{ icon('plus', 15) }}{{ 'schedule.new'|trans }}</a>
             </div>
         {% endif %}
     </div>
@@ -59,12 +59,12 @@
                                 <td>{{ schedule.toleranceMinutes }} min</td>
                                 <td>{{ schedule.checkWindowMarginMinutes }} min</td>
                                 <td>
-                                    {% if is_granted('ROLE_ADMIN') %}
+                                    {% if is_granted('ROLE_MANAGER') %}
                                         <div class="btn-group">
-                                            <a class="btn btn--sm" href="{{ path('work_schedule_edit', {id: schedule.id}) }}">{{ 'common.edit'|trans }}</a>
+                                            <a class="btn btn--sm" href="{{ path('work_schedule_edit', {id: schedule.id}) }}">{{ icon('pencil', 14) }}{{ 'common.edit'|trans }}</a>
                                             <form method="post" action="{{ path('work_schedule_delete', {id: schedule.id}) }}">
                                                 <input type="hidden" name="_token" value="{{ csrf_token('work_schedule_delete_' ~ schedule.id) }}">
-                                                <button class="btn btn--sm btn--danger" type="submit">{{ 'common.delete'|trans }}</button>
+                                                <button class="btn btn--sm btn--danger" type="submit">{{ icon('trash', 14) }}{{ 'common.delete'|trans }}</button>
                                             </form>
                                         </div>
                                         {% if devices is defined and devices is not empty %}

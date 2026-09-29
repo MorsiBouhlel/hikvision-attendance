@@ -1,0 +1,173 @@
+{% extends 'base.html.twig' %}
+{% import 'leave_request/_status_badge.html.twig' as badges %}
+
+{% block title %}{{ 'employee_space.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>{{ 'employee_space.title'|trans }}{% if employee %} — {{ employee.fullName }}{% endif %}</h1>
+        {% if employee %}
+            <div class="btn-group">
+                <a class="btn btn--primary" href="{{ path('employee_space_leave_new') }}">{{ icon('plus', 15) }}{{ 'leave_request.new'|trans }}</a>
+                <a class="btn" href="{{ path('employee_space_remote_new') }}">{{ icon('plus', 15) }}{{ 'remote_work.new'|trans }}</a>
+                <a class="btn" href="{{ path('employee_space_permission_new') }}">{{ icon('plus', 15) }}{{ 'permission.new'|trans }}</a>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if balance %}
+        <div class="card">
+            <div class="card__body">
+                <h2>{{ 'leave_balance.title'|trans({'%year%': year}) }}</h2>
+            </div>
+            {% include 'leave_balance/_summary.html.twig' %}
+        </div>
+
+        {% if quota %}
+            <div class="card">
+                <div class="card__body">
+                    <h2>{{ 'quota.title'|trans({'%month%': 'now'|date('m/Y')}) }}</h2>
+                    <p>
+                        {{ 'quota.remote'|trans }} :
+                        <strong>{{ quota.remote.used }} / {{ quota.remote.quota }}</strong> {{ 'quota.days'|trans }}
+                        {% if quota.remote.used > quota.remote.quota %}<span class="badge badge--warning">{{ 'quota.exceeded'|trans }}</span>{% endif %}
+                    </p>
+                    <p>
+                        {{ 'quota.permission'|trans }} :
+                        <strong>{{ quota.permission.used|number_format(2, ',', ' ') }} / {{ quota.permission.quota|number_format(2, ',', ' ') }}</strong> {{ 'quota.hours'|trans }}
+                        {% if quota.permission.used > quota.permission.quota %}<span class="badge badge--warning">{{ 'quota.exceeded'|trans }}</span>{% endif %}
+                    </p>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card__body">
+                <h2>{{ 'leave_request.my_requests'|trans }}</h2>
+            </div>
+            {% if requests is empty %}
+                <div class="table--empty">{{ 'leave_request.none'|trans }}</div>
+            {% else %}
+                <div class="table-wrap">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{{ 'form.start_short'|trans }}</th>
+                                <th>{{ 'form.end_short'|trans }}</th>
+                                <th>{{ 'form.type'|trans }}</th>
+                                <th>{{ 'leave_request.status_label'|trans }}</th>
+                                <th>{{ 'leave_request.comment'|trans }}</th>
+                                <th>{{ 'common.actions'|trans }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in requests %}
+                                <tr>
+                                    <td>{{ r.startDate|date('d/m/Y') }}</td>
+                                    <td>{{ r.endDate|date('d/m/Y') }}</td>
+                                    <td>{{ ('leave_type.' ~ r.type)|trans }}</td>
+                                    <td>{{ badges.badge(r.status) }}</td>
+                                    <td>{{ r.decisionComment ?? '—' }}</td>
+                                    <td>
+                                        {% if r.cancellable %}
+                                            <form method="post" action="{{ path('employee_space_leave_cancel', {id: r.id}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('leave_request_cancel_' ~ r.id) }}">
+                                                <button class="btn btn--sm btn--danger" type="submit">{{ 'common.cancel'|trans }}</button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <div class="card__body">
+                <h2>{{ 'remote_work.my_requests'|trans }}</h2>
+            </div>
+            {% if remote_requests is empty %}
+                <div class="table--empty">{{ 'remote_work.none'|trans }}</div>
+            {% else %}
+                <div class="table-wrap">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{{ 'form.start_short'|trans }}</th>
+                                <th>{{ 'form.end_short'|trans }}</th>
+                                <th>{{ 'leave_request.status_label'|trans }}</th>
+                                <th>{{ 'leave_request.comment'|trans }}</th>
+                                <th>{{ 'common.actions'|trans }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in remote_requests %}
+                                <tr>
+                                    <td>{{ r.startDate|date('d/m/Y') }}</td>
+                                    <td>{{ r.endDate|date('d/m/Y') }}</td>
+                                    <td>{{ badges.badge(r.status) }}</td>
+                                    <td>{{ r.decisionComment ?? '—' }}</td>
+                                    <td>
+                                        {% if r.cancellable %}
+                                            <form method="post" action="{{ path('employee_space_remote_cancel', {id: r.id}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('remote_work_cancel_' ~ r.id) }}">
+                                                <button class="btn btn--sm btn--danger" type="submit">{{ 'common.cancel'|trans }}</button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <div class="card__body">
+                <h2>{{ 'permission.my_requests'|trans }}</h2>
+            </div>
+            {% if permission_requests is empty %}
+                <div class="table--empty">{{ 'permission.none'|trans }}</div>
+            {% else %}
+                <div class="table-wrap">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{{ 'form.date'|trans }}</th>
+                                <th>{{ 'permission.hours_range'|trans }}</th>
+                                <th>{{ 'permission.duration'|trans }}</th>
+                                <th>{{ 'leave_request.status_label'|trans }}</th>
+                                <th>{{ 'leave_request.comment'|trans }}</th>
+                                <th>{{ 'common.actions'|trans }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in permission_requests %}
+                                <tr>
+                                    <td>{{ r.date|date('d/m/Y') }}</td>
+                                    <td>{{ r.startTime|date('H:i') }} – {{ r.endTime|date('H:i') }}</td>
+                                    <td>{{ r.hours|number_format(2, ',', ' ') }} h</td>
+                                    <td>{{ badges.badge(r.status) }}</td>
+                                    <td>{{ r.decisionComment ?? '—' }}</td>
+                                    <td>
+                                        {% if r.cancellable %}
+                                            <form method="post" action="{{ path('employee_space_permission_cancel', {id: r.id}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('permission_cancel_' ~ r.id) }}">
+                                                <button class="btn btn--sm btn--danger" type="submit">{{ 'common.cancel'|trans }}</button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="card"><div class="card__body"><p>{{ 'employee_space.no_employee'|trans }}</p></div></div>
+    {% endif %}
+{% endblock %}

@@ -1,6 +1,7 @@
 nav:
-    brand: Attendance
-    brand_subtitle: Hikvision Attendance
+    hr: Human resources
+    brand: Softy RH
+    brand_subtitle: Attendance & HR management
     dashboard: Dashboard
     history: History
     reports: Reports
@@ -13,7 +14,14 @@ nav:
     leaves: Leaves
     telegram: Telegram
     users: Users
+    my_space: My space
     logout: Logout
+    leave_requests: Leave requests
+    leave_balances: Leave balances
+    remote_work: Remote work requests
+    calendar: Calendar
+    permission_requests: Permission requests
+    hr_settings: HR settings
 
 form:
     name: Name
@@ -43,6 +51,8 @@ form:
     password_confirm: Confirm password
     password_mismatch: Passwords do not match.
     role: Role
+    linked_employee: Linked employee
+    linked_employee_placeholder: None
     chat_id: Chat ID
     start_time: Start time
     end_time: End time
@@ -58,6 +68,15 @@ form:
     duration_minutes: Duration (minutes)
     start_short: Start
     end_short: End
+    annual_leave_days: Annual leave (days)
+    hire_date: Hire date
+    remote_work_quota_override: Remote work quota (days/month)
+    permission_quota_override: Permission quota (hours/month)
+    quota_global: Global value
+
+employee_space:
+    title: My space
+    no_employee: This account is not linked to any employee record.
 
 day:
     monday: Monday
@@ -82,10 +101,14 @@ leave_type:
 
 role:
     admin: Administrator
+    manager: HR manager
     viewer: Read-only
+    employee: Employee (self-service)
 
 flash:
     invalid_csrf: Invalid security token.
+    employee_role_requires_employee: The "Employee" role requires selecting a linked employee.
+    employee_already_has_account: This employee already has a linked account.
     employee_created: 'Employee %name% created.'
     employee_updated: 'Employee %name% updated.'
     employee_deactivated: 'Employee %name% deactivated.'
@@ -146,6 +169,31 @@ flash:
     punch_created: 'Punch added for %name%.'
     punch_updated: 'Punch updated for %name%.'
     punch_deleted: 'Punch deleted for %name%.'
+    leave_request_no_working_day: The requested period contains no working day.
+    leave_request_overlap: The period overlaps an existing leave or request.
+    leave_request_exceeds_balance: Note, this request exceeds your leave balance — it was sent anyway and the manager will see it.
+    leave_request_submitted: Request sent, a manager will review it.
+    leave_request_cancelled: Request cancelled.
+    leave_request_already_decided: This request has already been processed.
+    leave_request_approved: 'Request from %name% approved.'
+    leave_request_rejected: 'Request from %name% rejected.'
+    leave_adjustment_invalid: Enter a non-zero number of days and a reason.
+    leave_adjustment_created: Adjustment saved.
+    remote_work_overlap: The period overlaps an existing remote work request.
+    remote_work_submitted: Remote work request sent, a manager will review it.
+    remote_work_cancelled: Remote work request cancelled.
+    remote_work_approved: 'Remote work for %name% approved.'
+    remote_work_rejected: 'Remote work for %name% rejected.'
+    password_reset_requested: If an active account exists for this address, a reset e-mail has just been sent.
+    hr_settings_saved: HR settings saved.
+    permission_end_before_start: The end time must be after the start time.
+    permission_overlap: A permission already exists on this time slot.
+    permission_submitted: Permission request sent, a manager will review it.
+    permission_cancelled: Permission request cancelled.
+    permission_approved: 'Permission for %name% approved.'
+    permission_rejected: 'Permission for %name% rejected.'
+    permission_exceeds_quota: Note, this request exceeds your monthly permission hours quota — it was sent anyway and the manager will see it.
+    remote_work_exceeds_quota: Note, this request exceeds your monthly remote work days quota — it was sent anyway and the manager will see it.
 
 status:
     late: Late
@@ -214,6 +262,8 @@ common:
     close: Close
 
 employee:
+    create_account: Create access
+    has_account: 'Has access (%email%)'
     linked_devices: Linked devices
     no_linked_device: This employee is not linked to any device.
     punch_history: Punch history
@@ -327,7 +377,11 @@ user:
     resend_invitation: Resend invitation
     set_password: Set your password
     invitation_expired: This invitation link is invalid or has expired.
+    employee_role_help: Only required for the "Employee" role — grants access to that employee's personal space (leave, remote work).
     invitation_expired_help: Ask an administrator to resend you an invitation from the Users page.
+    forgot_password: Forgot password
+    forgot_password_help: Enter your e-mail address and we will send you a link to choose a new password.
+    send_reset_link: Send link
 
 report:
     title: Monthly report
@@ -342,3 +396,71 @@ report:
     early_leaves: Early leaves
     overtime_in: Overtime in (min)
     overtime_out: Overtime out (min)
+
+leave_request:
+    exceeds_balance: Exceeds balance
+    new: New leave request
+    submit: Send request
+    my_requests: My requests
+    none: No requests.
+    status_label: Status
+    comment: Comment
+    approve: Approve
+    reject: Reject
+    status:
+        pending: Pending
+        approved: Approved
+        rejected: Rejected
+        cancelled: Cancelled
+
+leave_balance:
+    carried_over: Carried over
+    title: 'Leave balance %year%'
+    accrued: Accrued
+    adjustments: Adjustments
+    taken: Taken
+    pending: Pending
+    remaining: Remaining
+    add_adjustment: Add an adjustment
+    days: Days (+/−)
+    date: Date
+    by: By
+    no_adjustments: No adjustments this year.
+
+remote_work:
+    new: New remote work request
+    my_requests: My remote work requests
+    none: No remote work requests.
+    declarative_note: Remote work is declarative — it does not change the attendance status.
+
+calendar:
+    close: Close
+    state:
+        ongoing: Ongoing
+        upcoming: Upcoming
+        past: Finished
+    today: Today
+    remote: Remote work
+    no_employee: No employee to display.
+
+permission:
+    new: New permission request
+    my_requests: My permission requests
+    none: No permission requests.
+    hours_range: Time slot
+    duration: Duration
+    declarative_note: Permissions are declarative — deducted from the hours quota, with no effect on lateness or attendance.
+
+quota:
+    title: 'Quotas this month (%month%)'
+    remote: Remote work
+    permission: Permissions
+    days: days
+    hours: hours
+    exceeded: Quota exceeded
+    exceeds: Exceeds quota
+
+hr_settings:
+    help: Default monthly quotas for all employees. They can be overridden per employee from the employee record (empty field = value below). Exceeding a quota never blocks a request, it only triggers a warning.
+    remote_work_days: Remote work — days per month
+    permission_hours: Permissions — hours per month

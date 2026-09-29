@@ -8,8 +8,8 @@
             <h1>{{ 'nav.departments'|trans }}</h1>
             <p class="page-header__meta">{{ 'department.count'|trans({'%count%': departments|length}) }}</p>
         </div>
-        {% if is_granted('ROLE_ADMIN') %}
-            <a class="btn btn--primary" href="{{ path('department_new') }}">+ {{ 'department.new'|trans }}</a>
+        {% if is_granted('ROLE_MANAGER') %}
+            <a class="btn btn--primary" href="{{ path('department_new') }}">{{ icon('plus', 15) }}{{ 'department.new'|trans }}</a>
         {% endif %}
     </div>
 
@@ -46,12 +46,12 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if is_granted('ROLE_ADMIN') %}
+                                    {% if is_granted('ROLE_MANAGER') %}
                                         <div class="btn-group">
-                                            <a class="btn btn--sm" href="{{ path('department_edit', {id: department.id}) }}">{{ 'common.edit'|trans }}</a>
+                                            <a class="btn btn--sm" href="{{ path('department_edit', {id: department.id}) }}">{{ icon('pencil', 14) }}{{ 'common.edit'|trans }}</a>
                                             <form method="post" action="{{ path('department_delete', {id: department.id}) }}">
                                                 <input type="hidden" name="_token" value="{{ csrf_token('department_delete_' ~ department.id) }}">
-                                                <button class="btn btn--sm btn--danger" type="submit">{{ 'common.delete'|trans }}</button>
+                                                <button class="btn btn--sm btn--danger" type="submit">{{ icon('trash', 14) }}{{ 'common.delete'|trans }}</button>
                                             </form>
                                         </div>
                                     {% endif %}

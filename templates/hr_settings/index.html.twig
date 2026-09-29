@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'nav.hr_settings'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>{{ 'nav.hr_settings'|trans }}</h1>
+    </div>
+
+    <div class="card">
+        <div class="card__body">
+            <p>{{ 'hr_settings.help'|trans }}</p>
+            {{ form_start(form, {attr: {class: 'form'}}) }}
+                {% for field in [form.remoteWorkDaysPerMonth, form.permissionHoursPerMonth] %}
+                    <div class="form-row">
+                        {{ form_label(field) }}
+                        {{ form_widget(field, {attr: {class: 'form-control'}}) }}
+                        {{ form_errors(field) }}
+                    </div>
+                {% endfor %}
+                <div class="btn-group">
+                    <button class="btn btn--primary" type="submit">{{ 'common.save'|trans }}</button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

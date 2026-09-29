@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserType;
+use App\Repository\EmployeeRepository;
 use App\Repository\UserRepository;
 use App\Service\UserInvitationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,14 +25,42 @@ class UserController extends AbstractController
     }
 
     #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
-    public function new(Request $request, UserInvitationService $invitations): Response
+    public function new(Request $request, UserInvitationService $invitations, EmployeeRepository $employees, UserRepository $users): Response
     {
         $user = new User();
-        $form = $this->createForm(UserType::class, $user);
+
+        // Pré-remplissage depuis le bouton "Créer un accès" de /employees/{id} : présélectionne
+        // le rôle Employé + l'employé lié, l'admin n'a plus qu'à valider.
+        $preselectedEmployee = $request->query->has('employee')
+            ? $employees->find($request->query->getInt('employee'))
+            : null;
+        if ($preselectedEmployee !== null) {
+            $user->setEmployee($preselectedEmployee);
+        }
+
+        $form = $this->createForm(UserType::class, $user, [
+            'preselected_role' => $preselectedEmployee !== null ? 'ROLE_EMPLOYEE' : null,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $user->setRoles([$form->get('role')->getData()]);
+            $role = $form->get('role')->getData();
+
+            if ($role === 'ROLE_EMPLOYEE' && $user->getEmployee() === null) {
+                $this->addFlash('error', ['key' => 'flash.employee_role_requires_employee']);
+                return $this->render('user/new.html.twig', ['form' => $form]);
+            }
+
+            if ($role === 'ROLE_EMPLOYEE' && $users->findByEmployee($user->getEmployee()) !== null) {
+                $this->addFlash('error', ['key' => 'flash.employee_already_has_account']);
+                return $this->render('user/new.html.twig', ['form' => $form]);
+            }
+
+            if ($role !== 'ROLE_EMPLOYEE') {
+                $user->setEmployee(null);
+            }
+
+            $user->setRoles([$role]);
             $invitations->invite($user);
 
             $this->addFlash('success', ['key' => 'flash.user_invited', 'params' => ['%email%' => $user->getEmail()]]);

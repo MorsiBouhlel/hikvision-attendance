@@ -19,6 +19,26 @@
         {{ form_widget(form.workSchedule, {attr: {class: 'form-control'}}) }}
         {{ form_errors(form.workSchedule) }}
     </div>
+    <div class="form-row">
+        {{ form_label(form.annualLeaveDays) }}
+        {{ form_widget(form.annualLeaveDays, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.annualLeaveDays) }}
+    </div>
+    <div class="form-row">
+        {{ form_label(form.remoteWorkQuotaOverride) }}
+        {{ form_widget(form.remoteWorkQuotaOverride, {attr: {class: 'form-control', placeholder: 'form.quota_global'|trans}}) }}
+        {{ form_errors(form.remoteWorkQuotaOverride) }}
+    </div>
+    <div class="form-row">
+        {{ form_label(form.permissionQuotaOverride) }}
+        {{ form_widget(form.permissionQuotaOverride, {attr: {class: 'form-control', placeholder: 'form.quota_global'|trans}}) }}
+        {{ form_errors(form.permissionQuotaOverride) }}
+    </div>
+    <div class="form-row">
+        {{ form_label(form.hireDate) }}
+        {{ form_widget(form.hireDate, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(form.hireDate) }}
+    </div>
     <div class="form-row form-row--inline">
         {{ form_widget(form.isActive) }}
         {{ form_label(form.isActive) }}

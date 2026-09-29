@@ -8,8 +8,8 @@
             <h1>{{ 'nav.holidays'|trans }}</h1>
             <p class="page-header__meta">{{ 'holiday.count'|trans({'%count%': holidays|length}) }}</p>
         </div>
-        {% if is_granted('ROLE_ADMIN') %}
-            <a class="btn btn--primary" href="{{ path('holiday_new') }}">+ {{ 'holiday.new'|trans }}</a>
+        {% if is_granted('ROLE_MANAGER') %}
+            <a class="btn btn--primary" href="{{ path('holiday_new') }}">{{ icon('plus', 15) }}{{ 'holiday.new'|trans }}</a>
         {% endif %}
     </div>
 
@@ -32,10 +32,10 @@
                                 <td>{{ holiday.date|date('d/m/Y') }}</td>
                                 <td>{{ holiday.label }}</td>
                                 <td>
-                                    {% if is_granted('ROLE_ADMIN') %}
+                                    {% if is_granted('ROLE_MANAGER') %}
                                         <form method="post" action="{{ path('holiday_delete', {id: holiday.id}) }}">
                                             <input type="hidden" name="_token" value="{{ csrf_token('holiday_delete_' ~ holiday.id) }}">
-                                            <button class="btn btn--sm btn--danger" type="submit">{{ 'common.delete'|trans }}</button>
+                                            <button class="btn btn--sm btn--danger" type="submit">{{ icon('trash', 14) }}{{ 'common.delete'|trans }}</button>
                                         </form>
                                     {% endif %}
                                 </td>

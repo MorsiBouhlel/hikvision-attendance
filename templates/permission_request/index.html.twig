@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+{% import 'leave_request/_status_badge.html.twig' as badges %}
+
+{% block title %}{{ 'nav.permission_requests'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>{{ 'nav.permission_requests'|trans }}</h1>
+        <small>{{ 'permission.declarative_note'|trans }}</small>
+    </div>
+
+    <div class="card">
+        {% if requests is empty %}
+            <div class="table--empty">{{ 'permission.none'|trans }}</div>
+        {% else %}
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>{{ 'form.employee'|trans }}</th>
+                            <th>{{ 'form.date'|trans }}</th>
+                            <th>{{ 'permission.hours_range'|trans }}</th>
+                            <th>{{ 'permission.duration'|trans }}</th>
+                            <th>{{ 'form.reason'|trans }}</th>
+                            <th>{{ 'leave_request.status_label'|trans }}</th>
+                            <th>{{ 'common.actions'|trans }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in requests %}
+                            <tr>
+                                <td>{{ r.employee.fullName }}</td>
+                                <td>{{ r.date|date('d/m/Y') }}</td>
+                                <td>{{ r.startTime|date('H:i') }} – {{ r.endTime|date('H:i') }}</td>
+                                <td>{{ r.hours|number_format(2, ',', ' ') }} h</td>
+                                <td>{{ r.reason ?? '—' }}</td>
+                                <td>
+                                    {{ badges.badge(r.status) }}
+                                    {% if exceeds[r.id] ?? false %}<span class="badge badge--warning">{{ 'quota.exceeds'|trans }}</span>{% endif %}
+                                    {% if r.decisionComment %}<br><small>{{ r.decisionComment }}</small>{% endif %}
+                                </td>
+                                <td>
+                                    {% if r.pending %}
+                                        <form method="post" class="form form--inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('permission_decide_' ~ r.id) }}">
+                                            <input class="form-control" type="text" name="comment" maxlength="255" placeholder="{{ 'leave_request.comment'|trans }}">
+                                            <button class="btn btn--sm btn--primary" type="submit" formaction="{{ path('permission_decide', {id: r.id, action: 'approve'}) }}">{{ 'leave_request.approve'|trans }}</button>
+                                            <button class="btn btn--sm btn--danger" type="submit" formaction="{{ path('permission_decide', {id: r.id, action: 'reject'}) }}">{{ 'leave_request.reject'|trans }}</button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

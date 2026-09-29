@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'nav.leave_balances'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>{{ 'nav.leave_balances'|trans }} — {{ year }}</h1>
+        <form method="get" class="form form--inline">
+            <input class="form-control" type="number" name="year" value="{{ year }}" min="2000" max="2100">
+            <button class="btn" type="submit">{{ 'common.show'|trans }}</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="table-wrap">
+            <table class="table" data-table>
+                <thead>
+                    <tr>
+                        <th data-sort="text">{{ 'form.employee'|trans }}</th>
+                        <th data-sort="number">{{ 'leave_balance.accrued'|trans }}</th>
+                        <th data-sort="number">{{ 'leave_balance.carried_over'|trans }}</th>
+                        <th data-sort="number">{{ 'leave_balance.adjustments'|trans }}</th>
+                        <th data-sort="number">{{ 'leave_balance.taken'|trans }}</th>
+                        <th data-sort="number">{{ 'leave_balance.pending'|trans }}</th>
+                        <th data-sort="number">{{ 'leave_balance.remaining'|trans }}</th>
+                        <th>{{ 'common.actions'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in employees %}
+                        {% set b = balances[e.id] %}
+                        <tr>
+                            <td>{{ e.fullName }}</td>
+                            <td>{{ b.accrued|number_format(2, ',', ' ') }}</td>
+                            <td>{{ b.carried_over|number_format(2, ',', ' ') }}</td>
+                            <td>{{ b.adjustments|number_format(2, ',', ' ') }}</td>
+                            <td>{{ b.taken|number_format(2, ',', ' ') }}</td>
+                            <td>{{ b.pending|number_format(2, ',', ' ') }}</td>
+                            <td><strong>{{ b.remaining|number_format(2, ',', ' ') }}</strong></td>
+                            <td><a class="btn btn--sm" href="{{ path('leave_balance_show', {id: e.id, year: year}) }}">{{ 'common.show'|trans }}</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

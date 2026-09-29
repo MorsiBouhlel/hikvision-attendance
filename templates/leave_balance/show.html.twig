@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'nav.leave_balances'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>{{ employee.fullName }} — {{ year }}</h1>
+        <a class="btn" href="{{ path('leave_balance_index', {year: year}) }}">{{ 'common.back'|trans }}</a>
+    </div>
+
+    <div class="card">{% include 'leave_balance/_summary.html.twig' %}</div>
+
+    <div class="card">
+        <div class="card__body">
+            <h2>{{ 'leave_balance.add_adjustment'|trans }}</h2>
+            <form method="post" action="{{ path('leave_balance_adjust', {id: employee.id}) }}" class="form">
+                <input type="hidden" name="_token" value="{{ csrf_token('leave_adjust_' ~ employee.id) }}">
+                <input type="hidden" name="year" value="{{ year }}">
+                <div class="form-row">
+                    <label for="days">{{ 'leave_balance.days'|trans }}</label>
+                    <input class="form-control" id="days" type="number" step="0.5" name="days" required>
+                </div>
+                <div class="form-row">
+                    <label for="reason">{{ 'form.reason'|trans }}</label>
+                    <input class="form-control" id="reason" type="text" name="reason" maxlength="255" required>
+                </div>
+                <button class="btn btn--primary" type="submit">{{ 'common.save'|trans }}</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        {% if adjustments is empty %}
+            <div class="table--empty">{{ 'leave_balance.no_adjustments'|trans }}</div>
+        {% else %}
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>{{ 'leave_balance.date'|trans }}</th>
+                            <th>{{ 'leave_balance.days'|trans }}</th>
+                            <th>{{ 'form.reason'|trans }}</th>
+                            <th>{{ 'leave_balance.by'|trans }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for a in adjustments %}
+                            <tr>
+                                <td>{{ a.createdAt|date('d/m/Y H:i') }}</td>
+                                <td>{{ a.days > 0 ? '+' : '' }}{{ a.days|number_format(2, ',', ' ') }}</td>
+                                <td>{{ a.reason }}</td>
+                                <td>{{ a.createdBy ? a.createdBy.email : '—' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

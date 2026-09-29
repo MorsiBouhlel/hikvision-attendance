@@ -1,19 +1,19 @@
 {% macro badge(status, lateMinutes) %}
     {% if status == 'late' %}
-        <span class="badge badge--warning">{{ 'status.late'|trans }}{{ lateMinutes ? ' (' ~ lateMinutes ~ ' min)' : '' }}</span>
+        <span class="badge badge--warning">{{ icon('clock', 13) }}{{ 'status.late'|trans }}{{ lateMinutes ? ' (' ~ lateMinutes ~ ' min)' : '' }}</span>
     {% elseif status == 'early_leave_pending' %}
-        <span class="badge badge--warning">{{ 'status.early_leave_pending'|trans }}</span>
+        <span class="badge badge--warning">{{ icon('logout', 13) }}{{ 'status.early_leave_pending'|trans }}</span>
     {% elseif status == 'on_leave' %}
-        <span class="badge badge--inactive">{{ 'status.on_leave'|trans }}</span>
+        <span class="badge badge--inactive">{{ icon('sun', 13) }}{{ 'status.on_leave'|trans }}</span>
     {% elseif status == 'holiday' %}
-        <span class="badge badge--inactive">{{ 'status.holiday'|trans }}</span>
+        <span class="badge badge--inactive">{{ icon('flag', 13) }}{{ 'status.holiday'|trans }}</span>
     {% elseif status == 'rest_day' %}
-        <span class="badge badge--inactive">{{ 'status.rest_day'|trans }}</span>
+        <span class="badge badge--inactive">{{ icon('home', 13) }}{{ 'status.rest_day'|trans }}</span>
     {% elseif status == 'present' %}
-        <span class="badge badge--present">{{ 'status.present'|trans }}</span>
+        <span class="badge badge--present">{{ icon('check-circle', 13) }}{{ 'status.present'|trans }}</span>
     {% elseif status == 'remote' %}
-        <span class="badge badge--info">{{ 'status.remote'|trans }}</span>
+        <span class="badge badge--info">{{ icon('home', 13) }}{{ 'status.remote'|trans }}</span>
     {% else %}
-        <span class="badge badge--absent">{{ 'status.absent'|trans }}</span>
+        <span class="badge badge--absent">{{ icon('x-circle', 13) }}{{ 'status.absent'|trans }}</span>
     {% endif %}
 {% endmacro %}

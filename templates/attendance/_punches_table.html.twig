@@ -1,4 +1,4 @@
-{% set canEdit = employee is defined and employee and is_granted('ROLE_ADMIN') %}
+{% set canEdit = employee is defined and employee and is_granted('ROLE_MANAGER') %}
 {% if punches is empty %}
     <p class="text-muted">{{ 'punches.none_that_day'|trans }}</p>
 {% else %}
@@ -30,10 +30,10 @@
                     <td>{{ punch.device.name }}</td>
                     {% if canEdit %}
                         <td class="btn-group">
-                            <a class="btn btn--sm" href="{{ path('employee_punch_edit', {id: employee.id, date: punch.occurredAt|date('Y-m-d'), eventId: punch.id}) }}">{{ 'common.edit'|trans }}</a>
+                            <a class="btn btn--sm" href="{{ path('employee_punch_edit', {id: employee.id, date: punch.occurredAt|date('Y-m-d'), eventId: punch.id}) }}">{{ icon('pencil', 14) }}{{ 'common.edit'|trans }}</a>
                             <form method="post" action="{{ path('employee_punch_delete', {id: employee.id, date: punch.occurredAt|date('Y-m-d'), eventId: punch.id}) }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token('punch_delete_' ~ punch.id) }}">
-                                <button class="btn btn--sm btn--danger" type="submit">{{ 'common.delete'|trans }}</button>
+                                <button class="btn btn--sm btn--danger" type="submit">{{ icon('trash', 14) }}{{ 'common.delete'|trans }}</button>
                             </form>
                         </td>
                     {% endif %}

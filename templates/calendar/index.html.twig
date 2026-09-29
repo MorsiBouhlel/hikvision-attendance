@@ -1,0 +1,124 @@
+{% extends 'base.html.twig' %}
+
+{% import 'leave_request/_status_badge.html.twig' as badges %}
+
+{% block title %}{{ 'nav.calendar'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <div>
+            <h1>{{ 'nav.calendar'|trans }} — {{ month|date('m/Y') }}</h1>
+        </div>
+        <div class="btn-group">
+            <a class="btn" href="{{ path('calendar_index', {month: prev|date('Y-m'), department: department}) }}">←</a>
+            <a class="btn" href="{{ path('calendar_index', {month: 'now'|date('Y-m'), department: department}) }}">{{ 'calendar.today'|trans }}</a>
+            <a class="btn" href="{{ path('calendar_index', {month: next|date('Y-m'), department: department}) }}">→</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__body calendar-toolbar">
+            <form method="get" class="filter-bar" data-autosubmit>
+                <input type="hidden" name="month" value="{{ month|date('Y-m') }}">
+                <div class="form-row">
+                    <label class="form-label" for="department">{{ 'form.department'|trans }}</label>
+                    <select class="form-control" id="department" name="department">
+                        <option value="">{{ 'common.all_departments'|trans }}</option>
+                        {% for dep in departments %}
+                            <option value="{{ dep.id }}" {{ dep.id == department ? 'selected' }}>{{ dep.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <noscript><button class="btn btn--primary" type="submit">{{ 'common.show'|trans }}</button></noscript>
+            </form>
+            <div class="calendar-legend">
+                <span class="item"><span class="cal-cell cal-cell--conge"></span>{{ 'leave_type.conge'|trans }}</span>
+                <span class="item"><span class="cal-cell cal-cell--maladie"></span>{{ 'leave_type.maladie'|trans }}</span>
+                <span class="item"><span class="cal-cell cal-cell--autre"></span>{{ 'leave_type.autre'|trans }}</span>
+                <span class="item"><span class="cal-cell cal-cell--remote"></span>{{ 'calendar.remote'|trans }}</span>
+                <span class="item"><span class="cal-cell cal-cell--conge is-pending"></span>{{ 'leave_request.status.pending'|trans }}</span>
+                <span class="item"><span class="cal-cell cal-cell--holiday"></span>{{ 'nav.holidays'|trans }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        {% if rows is empty %}
+            <div class="table--empty">{{ 'calendar.no_employee'|trans }}</div>
+        {% else %}
+            <div class="table-wrap">
+                <table class="table calendar">
+                    <thead>
+                        <tr>
+                            <th class="calendar__name">{{ 'form.employee'|trans }}</th>
+                            {% for day in days %}
+                                <th class="calendar__day {{ day.weekend ? 'is-weekend' }} {{ day.holiday ? 'is-holiday' }} {{ day.today ? 'is-today' }}">{{ day.date|date('j') }}<small>{{ ('day.' ~ day.date|date('l')|lower)|trans|slice(0, 1) }}</small></th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                            <tr>
+                                <td class="calendar__name">{{ row.employee.fullName }}</td>
+                                {% for key, day in days %}
+                                    {% set cell = row.cells[key] ?? null %}
+                                    <td class="calendar__day {{ day.weekend ? 'is-weekend' }} {{ day.holiday ? 'is-holiday' }} {{ day.today ? 'is-today' }}">
+                                        {% if cell %}
+                                            <button type="button" class="cal-cell cal-cell--{{ cell.kind }} {{ cell.pending ? 'is-pending' }}" data-cal-events="{{ cell.events|join(' ') }}" data-cal-date="{{ day.date|date('d/m/Y') }}" title="{{ (cell.kind == 'remote' ? 'calendar.remote' : 'leave_type.' ~ cell.kind)|trans }}{{ cell.pending ? ' — ' ~ 'leave_request.status.pending'|trans }}" aria-label="{{ row.employee.fullName }} — {{ day.date|date('d/m/Y') }}"></button>
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    <dialog class="cal-dialog" id="cal-dialog">
+        <div class="cal-dialog__head">
+            <strong data-cal-dialog-title></strong>
+            <button type="button" class="btn btn--sm" data-cal-dialog-close>{{ 'calendar.close'|trans }}</button>
+        </div>
+        <div class="cal-dialog__body" data-cal-dialog-body></div>
+    </dialog>
+
+    <div hidden>
+        {% for key, ev in events %}
+            {% set e = ev.entity %}
+            <section data-cal-event="{{ key }}" class="cal-event">
+                <h3><a href="{{ path('employee_show', {id: e.employee.id}) }}">{{ e.employee.fullName }}</a></h3>
+                <p>
+                    {% if ev.source == 'remote_request' %}
+                        <span class="badge badge--info">{{ 'calendar.remote'|trans }}</span>
+                    {% else %}
+                        <span class="badge badge--info">{{ ('leave_type.' ~ e.type)|trans }}</span>
+                    {% endif %}
+                    {% if ev.source == 'leave' %}
+                        {% set today = 'today'|date('Y-m-d') %}
+                        <span class="badge {{ e.startDate|date('Y-m-d') <= today and e.endDate|date('Y-m-d') >= today ? 'badge--present' : 'badge--inactive' }}">
+                            {% if e.startDate|date('Y-m-d') > today %}{{ 'calendar.state.upcoming'|trans }}
+                            {% elseif e.endDate|date('Y-m-d') < today %}{{ 'calendar.state.past'|trans }}
+                            {% else %}{{ 'calendar.state.ongoing'|trans }}{% endif %}
+                        </span>
+                    {% else %}
+                        {{ badges.badge(e.status) }}
+                    {% endif %}
+                </p>
+                <p>{{ e.startDate|date('d/m/Y') }} → {{ e.endDate|date('d/m/Y') }}</p>
+                {% if e.reason %}<p><em>{{ e.reason }}</em></p>{% endif %}
+                {% if ev.source != 'leave' and e.pending and is_granted('ROLE_MANAGER') %}
+                    {% set decide = ev.source == 'remote_request' ? 'remote_work_decide' : 'leave_request_decide' %}
+                    <form method="post" class="form form--inline">
+                        <input type="hidden" name="_token" value="{{ csrf_token(decide ~ '_' ~ e.id) }}">
+                        <input type="hidden" name="return_month" value="{{ month|date('Y-m') }}">
+                        <input class="form-control" type="text" name="comment" maxlength="255" placeholder="{{ 'leave_request.comment'|trans }}">
+                        <button class="btn btn--sm btn--primary" type="submit" formaction="{{ path(decide, {id: e.id, action: 'approve'}) }}">{{ 'leave_request.approve'|trans }}</button>
+                        <button class="btn btn--sm btn--danger" type="submit" formaction="{{ path(decide, {id: e.id, action: 'reject'}) }}">{{ 'leave_request.reject'|trans }}</button>
+                    </form>
+                {% endif %}
+            </section>
+        {% endfor %}
+    </div>
+{% endblock %}

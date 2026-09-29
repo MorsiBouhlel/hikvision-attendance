@@ -12,8 +12,8 @@
             <a class="btn btn--sm{{ showExcluded ? ' btn--primary' : '' }}" href="{{ path('employee_index', showExcluded ? {} : {show_excluded: 1}) }}">
                 {{ (showExcluded ? 'employee.hide_excluded' : 'employee.show_excluded')|trans }}
             </a>
-            {% if is_granted('ROLE_ADMIN') %}
-                <a class="btn btn--primary" href="{{ path('employee_new') }}">+ {{ 'employee.new'|trans }}</a>
+            {% if is_granted('ROLE_MANAGER') %}
+                <a class="btn btn--primary" href="{{ path('employee_new') }}">{{ icon('plus', 15) }}{{ 'employee.new'|trans }}</a>
             {% endif %}
         </div>
     </div>
@@ -54,9 +54,9 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if is_granted('ROLE_ADMIN') %}
+                                    {% if is_granted('ROLE_MANAGER') %}
                                         <div class="btn-group">
-                                            <a class="btn btn--sm" href="{{ path('employee_edit', {id: employee.id}) }}">{{ 'common.edit'|trans }}</a>
+                                            <a class="btn btn--sm" href="{{ path('employee_edit', {id: employee.id}) }}">{{ icon('pencil', 14) }}{{ 'common.edit'|trans }}</a>
                                             {% if employee.active and employee.trackingEnabled %}
                                                 <form method="post" action="{{ path('employee_deactivate', {id: employee.id}) }}">
                                                     <input type="hidden" name="_token" value="{{ csrf_token('employee_deactivate_' ~ employee.id) }}">

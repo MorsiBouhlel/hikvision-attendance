@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'permission.new'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>{{ 'permission.new'|trans }}</h1>
+    </div>
+
+    <div class="card">
+        <div class="card__body">
+            {{ form_start(form, {attr: {class: 'form'}}) }}
+                {% for field in [form.date, form.startTime, form.endTime, form.reason] %}
+                    <div class="form-row">
+                        {{ form_label(field) }}
+                        {{ form_widget(field, {attr: {class: 'form-control'}}) }}
+                        {{ form_errors(field) }}
+                    </div>
+                {% endfor %}
+                <div class="btn-group">
+                    <button class="btn btn--primary" type="submit">{{ 'leave_request.submit'|trans }}</button>
+                    <a class="btn" href="{{ path('employee_space_index') }}">{{ 'common.cancel'|trans }}</a>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

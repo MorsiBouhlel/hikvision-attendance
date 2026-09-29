@@ -22,6 +22,17 @@ services:
             $mailerFromAddress: '%env(MAILER_FROM_ADDRESS)%'
             $mailerFromName: '%env(MAILER_FROM_NAME)%'
 
+    App\Service\LeaveBalanceService:
+        arguments:
+            # 1re année dont le solde non pris est reporté sur la suivante (avant : historique inconnu de l'app)
+            $carryOverFirstSourceYear: 2026
+
+    App\Service\NotificationMailer:
+        arguments:
+            $appBaseUrl: '%env(APP_BASE_URL)%'
+            $mailerFromAddress: '%env(MAILER_FROM_ADDRESS)%'
+            $mailerFromName: '%env(MAILER_FROM_NAME)%'
+
     App\Service\EmployeePhotoService:
         arguments:
             $publicDir: '%kernel.project_dir%/public'

@@ -1,6 +1,7 @@
 nav:
-    brand: Présence
-    brand_subtitle: Hikvision Attendance
+    hr: Ressources humaines
+    brand: Softy RH
+    brand_subtitle: Pointage & gestion RH
     dashboard: Dashboard
     history: Historique
     reports: Rapports
@@ -13,7 +14,14 @@ nav:
     leaves: Congés
     telegram: Telegram
     users: Utilisateurs
+    my_space: Mon espace
     logout: Déconnexion
+    leave_requests: Demandes de congé
+    leave_balances: Soldes de congés
+    remote_work: Demandes de télétravail
+    calendar: Calendrier
+    permission_requests: Demandes d'autorisation
+    hr_settings: Réglages RH
 
 form:
     name: Nom
@@ -43,6 +51,8 @@ form:
     password_confirm: Confirmer le mot de passe
     password_mismatch: Les mots de passe ne correspondent pas.
     role: Rôle
+    linked_employee: Employé lié
+    linked_employee_placeholder: Aucun
     chat_id: Chat ID
     start_time: Heure de début
     end_time: Heure de fin
@@ -58,6 +68,15 @@ form:
     breaks_help: Ces pauses (café, déjeuner...) sont déduites automatiquement du temps travaillé de chaque employé de ce département, sans pointage dédié.
     add_break: Ajouter une pause
     duration_minutes: Durée (minutes)
+    annual_leave_days: Congés annuels (jours)
+    hire_date: Date d'embauche
+    remote_work_quota_override: Quota télétravail (jours/mois)
+    permission_quota_override: Quota autorisations (heures/mois)
+    quota_global: Valeur globale
+
+employee_space:
+    title: Mon espace
+    no_employee: Ce compte n'est lié à aucune fiche employé.
 
 day:
     monday: Lundi
@@ -82,10 +101,14 @@ leave_type:
 
 role:
     admin: Administrateur
+    manager: Manager RH
     viewer: Lecture seule
+    employee: Employé (espace personnel)
 
 flash:
     invalid_csrf: Jeton de sécurité invalide.
+    employee_role_requires_employee: Le rôle "Employé" nécessite de sélectionner un employé lié.
+    employee_already_has_account: Cet employé a déjà un compte lié.
     employee_created: 'Employé %name% créé.'
     employee_updated: 'Employé %name% mis à jour.'
     employee_deactivated: 'Employé %name% désactivé.'
@@ -146,6 +169,31 @@ flash:
     punch_created: 'Pointage ajouté pour %name%.'
     punch_updated: 'Pointage mis à jour pour %name%.'
     punch_deleted: 'Pointage supprimé pour %name%.'
+    leave_request_no_working_day: La période demandée ne contient aucun jour ouvré.
+    leave_request_overlap: La période chevauche un congé ou une demande déjà enregistrés.
+    leave_request_exceeds_balance: Attention, cette demande dépasse ton solde de congés — elle est envoyée quand même, le manager en sera informé.
+    leave_request_submitted: Demande envoyée, elle sera examinée par un manager.
+    leave_request_cancelled: Demande annulée.
+    leave_request_already_decided: Cette demande a déjà été traitée.
+    leave_request_approved: 'Demande de %name% acceptée.'
+    leave_request_rejected: 'Demande de %name% refusée.'
+    leave_adjustment_invalid: Saisis un nombre de jours non nul et un motif.
+    leave_adjustment_created: Ajustement enregistré.
+    remote_work_overlap: La période chevauche une demande de télétravail déjà enregistrée.
+    remote_work_submitted: Demande de télétravail envoyée, elle sera examinée par un manager.
+    remote_work_cancelled: Demande de télétravail annulée.
+    remote_work_approved: 'Télétravail de %name% accepté.'
+    remote_work_rejected: 'Télétravail de %name% refusé.'
+    password_reset_requested: Si un compte actif existe pour cette adresse, un e-mail de réinitialisation vient d'être envoyé.
+    hr_settings_saved: Réglages RH enregistrés.
+    permission_end_before_start: L'heure de fin doit être postérieure à l'heure de début.
+    permission_overlap: Une autorisation existe déjà sur ce créneau.
+    permission_submitted: Demande d'autorisation envoyée, elle sera examinée par un manager.
+    permission_cancelled: Demande d'autorisation annulée.
+    permission_approved: 'Autorisation de %name% acceptée.'
+    permission_rejected: 'Autorisation de %name% refusée.'
+    permission_exceeds_quota: Attention, cette demande dépasse ton quota d'heures d'autorisation du mois — elle est envoyée quand même, le manager en sera informé.
+    remote_work_exceeds_quota: Attention, cette demande dépasse ton quota de jours de télétravail du mois — elle est envoyée quand même, le manager en sera informé.
 
 status:
     late: En retard
@@ -214,6 +262,8 @@ common:
     close: Fermer
 
 employee:
+    create_account: Créer un accès
+    has_account: 'A un accès (%email%)'
     linked_devices: Pointeuses liées
     no_linked_device: Cet employé n'est lié à aucune pointeuse.
     punch_history: Historique de pointages
@@ -327,7 +377,11 @@ user:
     resend_invitation: Renvoyer l'invitation
     set_password: Définir votre mot de passe
     invitation_expired: Ce lien d'invitation est invalide ou a expiré.
+    employee_role_help: Requis uniquement pour le rôle "Employé" — donne accès à l'espace personnel de cet employé (congés, télétravail).
     invitation_expired_help: Demandez à un administrateur de vous renvoyer une invitation depuis la page Utilisateurs.
+    forgot_password: Mot de passe oublié
+    forgot_password_help: Saisissez votre adresse e-mail, nous vous enverrons un lien pour choisir un nouveau mot de passe.
+    send_reset_link: Envoyer le lien
 
 report:
     title: Rapport mensuel
@@ -342,3 +396,71 @@ report:
     early_leaves: Départs anticipés
     overtime_in: Overtime entrée (min)
     overtime_out: Overtime sortie (min)
+
+leave_request:
+    exceeds_balance: Dépasse le solde
+    new: Nouvelle demande de congé
+    submit: Envoyer la demande
+    my_requests: Mes demandes
+    none: Aucune demande.
+    status_label: Statut
+    comment: Commentaire
+    approve: Accepter
+    reject: Refuser
+    status:
+        pending: En attente
+        approved: Acceptée
+        rejected: Refusée
+        cancelled: Annulée
+
+leave_balance:
+    carried_over: Report N-1
+    title: 'Solde de congés %year%'
+    accrued: Acquis
+    adjustments: Ajustements
+    taken: Pris
+    pending: En attente
+    remaining: Restant
+    add_adjustment: Ajouter un ajustement
+    days: Jours (+/−)
+    date: Date
+    by: Par
+    no_adjustments: Aucun ajustement sur cette année.
+
+remote_work:
+    new: Nouvelle demande de télétravail
+    my_requests: Mes demandes de télétravail
+    none: Aucune demande de télétravail.
+    declarative_note: Le télétravail est déclaratif — il ne modifie pas le statut de présence.
+
+calendar:
+    close: Fermer
+    state:
+        ongoing: En cours
+        upcoming: À venir
+        past: Terminé
+    today: Aujourd'hui
+    remote: Télétravail
+    no_employee: Aucun employé à afficher.
+
+permission:
+    new: Nouvelle demande d'autorisation
+    my_requests: Mes demandes d'autorisation
+    none: Aucune demande d'autorisation.
+    hours_range: Créneau
+    duration: Durée
+    declarative_note: Les autorisations sont déclaratives — décomptées du quota d'heures, sans effet sur les retards ni la présence.
+
+quota:
+    title: 'Quotas du mois (%month%)'
+    remote: Télétravail
+    permission: Autorisations
+    days: jours
+    hours: heures
+    exceeded: Quota dépassé
+    exceeds: Dépasse le quota
+
+hr_settings:
+    help: Quotas mensuels par défaut, valables pour tous les employés. Ils peuvent être surchargés individuellement depuis la fiche de l'employé (champ vide = valeur ci-dessous). Un dépassement n'est jamais bloquant, il déclenche un avertissement.
+    remote_work_days: Télétravail — jours par mois
+    permission_hours: Autorisations — heures par mois

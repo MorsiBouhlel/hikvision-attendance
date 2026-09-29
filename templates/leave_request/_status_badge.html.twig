@@ -1,0 +1,6 @@
+{% macro badge(status) %}
+    {% if status == 'approved' %}<span class="badge badge--present">{{ 'leave_request.status.approved'|trans }}</span>
+    {% elseif status == 'rejected' %}<span class="badge badge--absent">{{ 'leave_request.status.rejected'|trans }}</span>
+    {% elseif status == 'pending' %}<span class="badge badge--warning">{{ 'leave_request.status.pending'|trans }}</span>
+    {% else %}<span class="badge badge--inactive">{{ 'leave_request.status.cancelled'|trans }}</span>{% endif %}
+{% endmacro %}

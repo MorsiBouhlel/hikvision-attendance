@@ -1,4 +1,12 @@
 security:
+    # ROLE_ADMIN hérite de tout ce qu'accorde ROLE_MANAGER (RH : employés, départements,
+    # horaires, jours fériés, congés/télétravail, corrections de pointage), qui lui-même
+    # hérite de ROLE_VIEWER (lecture dashboard/historique/rapports). ROLE_EMPLOYEE reste
+    # volontairement hors de cette hiérarchie (voir User::getRoles()) — un compte employé
+    # ne doit hériter de rien, il est cantonné à /mon-espace.
+    role_hierarchy:
+        ROLE_ADMIN: ROLE_MANAGER
+        ROLE_MANAGER: ROLE_VIEWER
     password_hashers:
         App\Entity\User: 'auto'
     providers:
@@ -24,29 +32,44 @@ security:
     access_control:
         - { path: ^/api/hikvision/webhook, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
+        # Sans cette règle, un compte ROLE_EMPLOYEE (non ROLE_VIEWER) tomberait sur le catch-all `^/` et recevrait un 403 au logout.
+        - { path: ^/logout, roles: PUBLIC_ACCESS }
         - { path: ^/definir-mot-de-passe, roles: PUBLIC_ACCESS }
+        - { path: ^/mot-de-passe-oublie, roles: PUBLIC_ACCESS }
+        - { path: ^/mon-espace, roles: ROLE_EMPLOYEE }
         - { path: ^/api, roles: ROLE_VIEWER }
         - { path: ^/users, roles: ROLE_ADMIN }
         - { path: ^/devices, roles: ROLE_ADMIN }
-        - { path: ^/employees/new, roles: ROLE_ADMIN }
-        - { path: ^/employees/\d+/edit, roles: ROLE_ADMIN }
-        - { path: ^/employees/\d+/deactivate, roles: ROLE_ADMIN }
-        - { path: ^/employees/\d+/toggle-tracking, roles: ROLE_ADMIN }
+        # Push/pull vers la pointeuse physique = action technique (device), pas RH — reste admin-only,
+        # à distinguer des routes RH ci-dessous (employé/horaires/congés/jours fériés) qui passent
+        # à ROLE_MANAGER (ROLE_ADMIN les garde aussi via la hiérarchie ci-dessus).
         - { path: '^/employees/\d+/push/\d+', roles: ROLE_ADMIN }
         - { path: '^/employees/\d+/push-update/\d+', roles: ROLE_ADMIN }
         - { path: '^/employees/\d+/pull/\d+', roles: ROLE_ADMIN }
-        - { path: '^/employees/\d+/punches/\d{4}-\d{2}-\d{2}/(new|\d+/edit|\d+/delete)', roles: ROLE_ADMIN }
-        - { path: ^/departements/new, roles: ROLE_ADMIN }
-        - { path: ^/departements/\d+/edit, roles: ROLE_ADMIN }
-        - { path: ^/departements/\d+/delete, roles: ROLE_ADMIN }
-        - { path: ^/horaires/new, roles: ROLE_ADMIN }
-        - { path: ^/horaires/\d+/edit, roles: ROLE_ADMIN }
-        - { path: ^/horaires/\d+/delete, roles: ROLE_ADMIN }
-        - { path: ^/jours-feries/new, roles: ROLE_ADMIN }
-        - { path: ^/jours-feries/\d+/delete, roles: ROLE_ADMIN }
-        - { path: ^/conges/new, roles: ROLE_ADMIN }
-        - { path: ^/conges/\d+/delete, roles: ROLE_ADMIN }
+        - { path: ^/employees/new, roles: ROLE_MANAGER }
+        - { path: ^/employees/\d+/edit, roles: ROLE_MANAGER }
+        - { path: ^/employees/\d+/deactivate, roles: ROLE_MANAGER }
+        - { path: ^/employees/\d+/toggle-tracking, roles: ROLE_MANAGER }
+        - { path: '^/employees/\d+/punches/\d{4}-\d{2}-\d{2}/(new|\d+/edit|\d+/delete)', roles: ROLE_MANAGER }
+        - { path: ^/departements/new, roles: ROLE_MANAGER }
+        - { path: ^/departements/\d+/edit, roles: ROLE_MANAGER }
+        - { path: ^/departements/\d+/delete, roles: ROLE_MANAGER }
+        - { path: ^/horaires/new, roles: ROLE_MANAGER }
+        - { path: ^/horaires/\d+/edit, roles: ROLE_MANAGER }
+        - { path: ^/horaires/\d+/delete, roles: ROLE_MANAGER }
+        - { path: ^/jours-feries/new, roles: ROLE_MANAGER }
+        - { path: ^/jours-feries/\d+/delete, roles: ROLE_MANAGER }
+        - { path: ^/conges/new, roles: ROLE_MANAGER }
+        - { path: ^/conges/\d+/delete, roles: ROLE_MANAGER }
+        - { path: ^/demandes-conges, roles: ROLE_MANAGER }
+        - { path: ^/soldes-conges, roles: ROLE_MANAGER }
+        - { path: ^/demandes-teletravail, roles: ROLE_MANAGER }
+        - { path: ^/demandes-autorisations, roles: ROLE_MANAGER }
+        - { path: ^/reglages-rh, roles: ROLE_MANAGER }
         - { path: ^/telegram, roles: ROLE_ADMIN }
+        # ROLE_EMPLOYEE n'inclut plus ROLE_VIEWER implicitement (voir User::getRoles()) : un
+        # compte employé ne matche donc aucune règle ci-dessus après /mon-espace et tombe ici,
+        # où il est refusé (seuls ROLE_VIEWER/ROLE_ADMIN passent) plutôt que de voir le reste de l'app.
         - { path: ^/, roles: ROLE_VIEWER }
 
 when@test:
