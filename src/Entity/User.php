@@ -10,6 +10,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'users')]
 #[ORM\UniqueConstraint(fields: ['email'])]
+#[ORM\UniqueConstraint(fields: ['employee'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -38,6 +39,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $resetTokenExpiresAt = null;
 
+    #[ORM\OneToOne(targetEntity: Employee::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Employee $employee = null;
+
     public function getId(): ?int { return $this->id; }
 
     public function getEmail(): string { return $this->email; }
@@ -50,6 +55,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array
     {
+        // ROLE_EMPLOYEE est un rôle exclusif (espace employé uniquement) : ne pas lui
+        // ajouter ROLE_VIEWER implicitement, sinon il verrait le dashboard/rapports globaux.
+        if (in_array('ROLE_EMPLOYEE', $this->roles, true)) {
+            return array_unique($this->roles);
+        }
+
         return array_unique([...$this->roles, 'ROLE_VIEWER']);
     }
 
@@ -66,6 +77,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getResetTokenExpiresAt(): ?\DateTimeImmutable { return $this->resetTokenExpiresAt; }
     public function setResetTokenExpiresAt(?\DateTimeImmutable $d): static { $this->resetTokenExpiresAt = $d; return $this; }
+
+    public function getEmployee(): ?Employee { return $this->employee; }
+    public function setEmployee(?Employee $e): static { $this->employee = $e; return $this; }
 
     public function eraseCredentials(): void
     {

@@ -24,6 +24,11 @@
         <div class="btn-group">
             {% if is_granted('ROLE_ADMIN') %}
                 <a class="btn" href="{{ path('employee_edit', {id: employee.id}) }}">{{ 'common.edit'|trans }}</a>
+                {% if linkedAccount %}
+                    <span class="badge badge--present">{{ 'employee.has_account'|trans({'%email%': linkedAccount.email}) }}</span>
+                {% else %}
+                    <a class="btn" href="{{ path('user_new', {employee: employee.id}) }}">{{ 'employee.create_account'|trans }}</a>
+                {% endif %}
             {% endif %}
             <a class="btn" href="{{ path('employee_index') }}">{{ 'common.back'|trans }}</a>
         </div>

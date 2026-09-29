@@ -13,6 +13,7 @@ nav:
     leaves: Leaves
     telegram: Telegram
     users: Users
+    my_space: My space
     logout: Logout
 
 form:
@@ -43,6 +44,8 @@ form:
     password_confirm: Confirm password
     password_mismatch: Passwords do not match.
     role: Role
+    linked_employee: Linked employee
+    linked_employee_placeholder: None
     chat_id: Chat ID
     start_time: Start time
     end_time: End time
@@ -58,6 +61,10 @@ form:
     duration_minutes: Duration (minutes)
     start_short: Start
     end_short: End
+
+employee_space:
+    title: My space
+    coming_soon: Leave and remote-work requests will be available here soon.
 
 day:
     monday: Monday
@@ -83,9 +90,12 @@ leave_type:
 role:
     admin: Administrator
     viewer: Read-only
+    employee: Employee (self-service)
 
 flash:
     invalid_csrf: Invalid security token.
+    employee_role_requires_employee: The "Employee" role requires selecting a linked employee.
+    employee_already_has_account: This employee already has a linked account.
     employee_created: 'Employee %name% created.'
     employee_updated: 'Employee %name% updated.'
     employee_deactivated: 'Employee %name% deactivated.'
@@ -214,6 +224,8 @@ common:
     close: Close
 
 employee:
+    create_account: Create access
+    has_account: 'Has access (%email%)'
     linked_devices: Linked devices
     no_linked_device: This employee is not linked to any device.
     punch_history: Punch history
@@ -327,6 +339,7 @@ user:
     resend_invitation: Resend invitation
     set_password: Set your password
     invitation_expired: This invitation link is invalid or has expired.
+    employee_role_help: Only required for the "Employee" role — grants access to that employee's personal space (leave, remote work).
     invitation_expired_help: Ask an administrator to resend you an invitation from the Users page.
 
 report:

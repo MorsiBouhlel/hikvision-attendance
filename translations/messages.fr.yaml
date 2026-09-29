@@ -13,6 +13,7 @@ nav:
     leaves: Congés
     telegram: Telegram
     users: Utilisateurs
+    my_space: Mon espace
     logout: Déconnexion
 
 form:
@@ -43,6 +44,8 @@ form:
     password_confirm: Confirmer le mot de passe
     password_mismatch: Les mots de passe ne correspondent pas.
     role: Rôle
+    linked_employee: Employé lié
+    linked_employee_placeholder: Aucun
     chat_id: Chat ID
     start_time: Heure de début
     end_time: Heure de fin
@@ -58,6 +61,10 @@ form:
     breaks_help: Ces pauses (café, déjeuner...) sont déduites automatiquement du temps travaillé de chaque employé de ce département, sans pointage dédié.
     add_break: Ajouter une pause
     duration_minutes: Durée (minutes)
+
+employee_space:
+    title: Mon espace
+    coming_soon: Les demandes de congé et de télétravail seront bientôt disponibles ici.
 
 day:
     monday: Lundi
@@ -83,9 +90,12 @@ leave_type:
 role:
     admin: Administrateur
     viewer: Lecture seule
+    employee: Employé (espace personnel)
 
 flash:
     invalid_csrf: Jeton de sécurité invalide.
+    employee_role_requires_employee: Le rôle "Employé" nécessite de sélectionner un employé lié.
+    employee_already_has_account: Cet employé a déjà un compte lié.
     employee_created: 'Employé %name% créé.'
     employee_updated: 'Employé %name% mis à jour.'
     employee_deactivated: 'Employé %name% désactivé.'
@@ -214,6 +224,8 @@ common:
     close: Fermer
 
 employee:
+    create_account: Créer un accès
+    has_account: 'A un accès (%email%)'
     linked_devices: Pointeuses liées
     no_linked_device: Cet employé n'est lié à aucune pointeuse.
     punch_history: Historique de pointages
@@ -327,6 +339,7 @@ user:
     resend_invitation: Renvoyer l'invitation
     set_password: Définir votre mot de passe
     invitation_expired: Ce lien d'invitation est invalide ou a expiré.
+    employee_role_help: Requis uniquement pour le rôle "Employé" — donne accès à l'espace personnel de cet employé (congés, télétravail).
     invitation_expired_help: Demandez à un administrateur de vous renvoyer une invitation depuis la page Utilisateurs.
 
 report:

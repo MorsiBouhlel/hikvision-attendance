@@ -25,6 +25,7 @@ security:
         - { path: ^/api/hikvision/webhook, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/definir-mot-de-passe, roles: PUBLIC_ACCESS }
+        - { path: ^/mon-espace, roles: ROLE_EMPLOYEE }
         - { path: ^/api, roles: ROLE_VIEWER }
         - { path: ^/users, roles: ROLE_ADMIN }
         - { path: ^/devices, roles: ROLE_ADMIN }
@@ -47,6 +48,9 @@ security:
         - { path: ^/conges/new, roles: ROLE_ADMIN }
         - { path: ^/conges/\d+/delete, roles: ROLE_ADMIN }
         - { path: ^/telegram, roles: ROLE_ADMIN }
+        # ROLE_EMPLOYEE n'inclut plus ROLE_VIEWER implicitement (voir User::getRoles()) : un
+        # compte employé ne matche donc aucune règle ci-dessus après /mon-espace et tombe ici,
+        # où il est refusé (seuls ROLE_VIEWER/ROLE_ADMIN passent) plutôt que de voir le reste de l'app.
         - { path: ^/, roles: ROLE_VIEWER }
 
 when@test:

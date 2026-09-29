@@ -21,6 +21,12 @@
                     {{ form_widget(form.role, {attr: {class: 'form-control'}}) }}
                     {{ form_errors(form.role) }}
                 </div>
+                <div class="form-row">
+                    {{ form_label(form.employee) }}
+                    {{ form_widget(form.employee, {attr: {class: 'form-control'}}) }}
+                    {{ form_errors(form.employee) }}
+                    <p class="page-header__meta">{{ 'user.employee_role_help'|trans }}</p>
+                </div>
                 <div class="btn-group">
                     <button class="btn btn--primary" type="submit">{{ 'user.send_invitation'|trans }}</button>
                     <a class="btn" href="{{ path('user_index') }}">{{ 'common.cancel'|trans }}</a>

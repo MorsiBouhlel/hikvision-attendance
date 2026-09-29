@@ -13,6 +13,7 @@ use App\Repository\AttendanceEventRepository;
 use App\Repository\DeviceEmployeeRepository;
 use App\Repository\DeviceRepository;
 use App\Repository\EmployeeRepository;
+use App\Repository\UserRepository;
 use App\Service\AttendanceService;
 use App\Service\EmployeeSyncService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -56,7 +57,7 @@ class EmployeeController extends AbstractController
     }
 
     #[Route('/{id}', name: 'show', methods: ['GET'])]
-    public function show(Employee $employee, Request $request, AttendanceService $attendanceService, AttendanceCorrectionRepository $corrections, DeviceRepository $devices): Response
+    public function show(Employee $employee, Request $request, AttendanceService $attendanceService, AttendanceCorrectionRepository $corrections, DeviceRepository $devices, UserRepository $users): Response
     {
         $defaultEnd = new \DateTimeImmutable('today');
         $defaultStart = $defaultEnd->modify('-29 days');
@@ -83,6 +84,7 @@ class EmployeeController extends AbstractController
             'end' => $end,
             'corrections' => $this->isGranted('ROLE_ADMIN') ? $corrections->findRecentForEmployee($employee) : [],
             'pushableDevices' => $pushableDevices,
+            'linkedAccount' => $users->findByEmployee($employee),
         ]);
     }
 
