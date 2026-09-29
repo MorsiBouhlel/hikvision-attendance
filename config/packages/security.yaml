@@ -24,6 +24,7 @@ security:
     access_control:
         - { path: ^/api/hikvision/webhook, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/definir-mot-de-passe, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: ROLE_VIEWER }
         - { path: ^/users, roles: ROLE_ADMIN }
         - { path: ^/devices, roles: ROLE_ADMIN }

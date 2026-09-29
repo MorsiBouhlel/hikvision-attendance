@@ -32,6 +32,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 5)]
     private string $locale = 'fr';
 
+    #[ORM\Column(length: 64, nullable: true, unique: true)]
+    private ?string $resetToken = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $resetTokenExpiresAt = null;
+
     public function getId(): ?int { return $this->id; }
 
     public function getEmail(): string { return $this->email; }
@@ -54,6 +60,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getLocale(): string { return $this->locale; }
     public function setLocale(string $l): static { $this->locale = $l; return $this; }
+
+    public function getResetToken(): ?string { return $this->resetToken; }
+    public function setResetToken(?string $t): static { $this->resetToken = $t; return $this; }
+
+    public function getResetTokenExpiresAt(): ?\DateTimeImmutable { return $this->resetTokenExpiresAt; }
+    public function setResetTokenExpiresAt(?\DateTimeImmutable $d): static { $this->resetTokenExpiresAt = $d; return $this; }
 
     public function eraseCredentials(): void
     {

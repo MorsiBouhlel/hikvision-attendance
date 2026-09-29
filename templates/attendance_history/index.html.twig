@@ -12,7 +12,7 @@
 
     <div class="card">
         <div class="card__body">
-            <form method="get" class="filter-bar">
+            <form method="get" class="filter-bar" data-autosubmit>
                 <div class="form-row">
                     <label class="form-label" for="from">{{ 'common.from'|trans }}</label>
                     <input class="form-control" type="date" id="from" name="from" value="{{ from|date('Y-m-d') }}">
@@ -30,7 +30,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <button class="btn btn--primary" type="submit">{{ 'common.show'|trans }}</button>
+                <noscript><button class="btn btn--primary" type="submit">{{ 'common.show'|trans }}</button></noscript>
             </form>
         </div>
     </div>

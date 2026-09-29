@@ -13,7 +13,7 @@
 
     <div class="card">
         <div class="card__body">
-            <form method="get" class="filter-bar">
+            <form method="get" class="filter-bar" data-autosubmit>
                 <div class="form-row">
                     <label class="form-label" for="from">{{ 'common.from'|trans }}</label>
                     <input class="form-control" type="date" id="from" name="from" value="{{ from|date('Y-m-d') }}">
@@ -31,7 +31,7 @@
                         {% endfor %}
                     </select>
                 </div>
-                <button class="btn btn--primary" type="submit">{{ 'common.show'|trans }}</button>
+                <noscript><button class="btn btn--primary" type="submit">{{ 'common.show'|trans }}</button></noscript>
                 <a class="btn" href="{{ path('attendance_report_monthly_export', {from: from|date('Y-m-d'), to: to|date('Y-m-d'), department: department}) }}">{{ 'report.export_csv'|trans }}</a>
                 <a class="btn" href="{{ path('attendance_report_monthly_export_detailed', {from: from|date('Y-m-d'), to: to|date('Y-m-d'), department: department}) }}">{{ 'report.export_csv_detailed'|trans }}</a>
             </form>

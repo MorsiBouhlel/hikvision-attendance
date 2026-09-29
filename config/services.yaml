@@ -16,6 +16,12 @@ services:
         arguments:
             $appBaseUrl: '%env(APP_BASE_URL)%'
 
+    App\Service\UserInvitationService:
+        arguments:
+            $appBaseUrl: '%env(APP_BASE_URL)%'
+            $mailerFromAddress: '%env(MAILER_FROM_ADDRESS)%'
+            $mailerFromName: '%env(MAILER_FROM_NAME)%'
+
     App\Service\EmployeePhotoService:
         arguments:
             $publicDir: '%kernel.project_dir%/public'

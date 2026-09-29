@@ -8,3 +8,4 @@ import './nav-group.js';
 import './day-detail-toggle.js';
 import './history-search.js';
 import './collection-row.js';
+import './filter-autosubmit.js';

@@ -5,11 +5,11 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
+use App\Service\UserInvitationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/users', name: 'user_')]
@@ -24,7 +24,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): Response
+    public function new(Request $request, UserInvitationService $invitations): Response
     {
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
@@ -32,18 +32,29 @@ class UserController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $user->setRoles([$form->get('role')->getData()]);
-            $user->setPassword($passwordHasher->hashPassword($user, $form->get('plainPassword')->getData()));
+            $invitations->invite($user);
 
-            $em->persist($user);
-            $em->flush();
-
-            $this->addFlash('success', ['key' => 'flash.user_created', 'params' => ['%email%' => $user->getEmail()]]);
+            $this->addFlash('success', ['key' => 'flash.user_invited', 'params' => ['%email%' => $user->getEmail()]]);
             return $this->redirectToRoute('user_index');
         }
 
         return $this->render('user/new.html.twig', [
             'form' => $form,
         ]);
+    }
+
+    #[Route('/{id}/resend-invitation', name: 'resend_invitation', methods: ['POST'])]
+    public function resendInvitation(User $user, Request $request, UserInvitationService $invitations): Response
+    {
+        if (! $this->isCsrfTokenValid('user_resend_' . $user->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', ['key' => 'flash.invalid_csrf']);
+            return $this->redirectToRoute('user_index');
+        }
+
+        $invitations->resend($user);
+
+        $this->addFlash('success', ['key' => 'flash.invitation_resent', 'params' => ['%email%' => $user->getEmail()]]);
+        return $this->redirectToRoute('user_index');
     }
 
     #[Route('/{id}/toggle', name: 'toggle', methods: ['POST'])]

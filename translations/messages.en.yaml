@@ -40,6 +40,8 @@ form:
     reason: Reason
     email: Email
     password: Password
+    password_confirm: Confirm password
+    password_mismatch: Passwords do not match.
     role: Role
     chat_id: Chat ID
     start_time: Start time
@@ -133,7 +135,9 @@ flash:
     schedule_sync_failed: 'Sync failed on %name%: %error%'
     schedule_import_failed: 'Import failed from %name%: %error%'
     schedule_imported: 'Schedule imported from %name% (plan #%plan%) — review and save below.'
-    user_created: 'Account %email% created.'
+    user_invited: 'Invitation sent to %email%.'
+    invitation_resent: 'Invitation resent to %email%.'
+    password_set: 'Password set. You can now log in.'
     cannot_deactivate_self: Cannot deactivate your own account.
     user_activated: '%email% activated.'
     user_deactivated: '%email% deactivated.'
@@ -317,6 +321,13 @@ user:
     new: New user
     none_registered: No users registered.
     you: You
+    invitation_help: "No password to enter here: the user will receive an email with a link to set their own."
+    send_invitation: Send invitation
+    invitation_pending: Invitation pending
+    resend_invitation: Resend invitation
+    set_password: Set your password
+    invitation_expired: This invitation link is invalid or has expired.
+    invitation_expired_help: Ask an administrator to resend you an invitation from the Users page.
 
 report:
     title: Monthly report

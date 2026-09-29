@@ -40,6 +40,8 @@ form:
     reason: Motif
     email: Email
     password: Mot de passe
+    password_confirm: Confirmer le mot de passe
+    password_mismatch: Les mots de passe ne correspondent pas.
     role: Rôle
     chat_id: Chat ID
     start_time: Heure de début
@@ -133,7 +135,9 @@ flash:
     schedule_sync_failed: 'Échec de synchro sur %name% : %error%'
     schedule_import_failed: "Échec de l'import depuis %name% : %error%"
     schedule_imported: 'Planning importé depuis %name% (plan #%plan%) — vérifiez et enregistrez ci-dessous.'
-    user_created: 'Compte %email% créé.'
+    user_invited: 'Invitation envoyée à %email%.'
+    invitation_resent: 'Invitation renvoyée à %email%.'
+    password_set: 'Mot de passe défini. Vous pouvez maintenant vous connecter.'
     cannot_deactivate_self: Impossible de désactiver son propre compte.
     user_activated: '%email% activé.'
     user_deactivated: '%email% désactivé.'
@@ -317,6 +321,13 @@ user:
     new: Nouvel utilisateur
     none_registered: Aucun utilisateur enregistré.
     you: Vous
+    invitation_help: "Aucun mot de passe à saisir ici : l'utilisateur recevra un email avec un lien pour définir le sien."
+    send_invitation: Envoyer l'invitation
+    invitation_pending: Invitation en attente
+    resend_invitation: Renvoyer l'invitation
+    set_password: Définir votre mot de passe
+    invitation_expired: Ce lien d'invitation est invalide ou a expiré.
+    invitation_expired_help: Demandez à un administrateur de vous renvoyer une invitation depuis la page Utilisateurs.
 
 report:
     title: Rapport mensuel
