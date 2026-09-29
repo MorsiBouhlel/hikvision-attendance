@@ -1,3 +1,5 @@
+import { carrySearchToFilterForm } from './search-carry.js';
+
 /**
  * Recherche unique pour l'historique (une carte par jour, chacune avec sa
  * propre table [data-table][data-table-search="external"] — voir
@@ -16,14 +18,26 @@ function initHistorySearch(container) {
     container.parentNode.insertBefore(searchWrap, container);
 
     const input = searchWrap.querySelector('input');
-    input.addEventListener('input', () => {
-        const term = input.value.trim().toLowerCase();
+
+    const runSearch = (term) => {
         cards.forEach((card) => {
             const table = card.querySelector('table[data-table]');
             const matchCount = table?.dataTableSearch ? table.dataTableSearch(term) : 0;
             card.hidden = matchCount === 0;
         });
-    });
+    };
+
+    // Reprend le terme depuis ?q= (voir search-carry.js) — sinon changer
+    // l'intervalle de dates, qui recharge cette page via le formulaire
+    // [data-autosubmit], effacerait ce que l'utilisateur avait tapé.
+    const initialTerm = new URLSearchParams(location.search).get('q') || '';
+    if (initialTerm) {
+        input.value = initialTerm;
+        runSearch(initialTerm.toLowerCase());
+    }
+
+    carrySearchToFilterForm(input);
+    input.addEventListener('input', () => runSearch(input.value.trim().toLowerCase()));
 }
 
 document.querySelectorAll('[data-history-search]').forEach(initHistorySearch);

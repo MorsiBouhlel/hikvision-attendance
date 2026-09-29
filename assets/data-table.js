@@ -10,6 +10,8 @@
  * de la page 1, ce qui est particulièrement pénible en cas d'actions
  * répétées ligne par ligne.
  */
+import { carrySearchToFilterForm } from './search-carry.js';
+
 const PAGE_SIZE = 20;
 
 // Indexée par URL + position du tableau dans la page, pour rester correcte
@@ -183,6 +185,18 @@ function initDataTable(table, index) {
         wrap.parentNode.insertBefore(searchWrap, wrap);
 
         const input = searchWrap.querySelector('input');
+
+        // Reprend le terme depuis ?q= (posé par un précédent submit du
+        // filtre from/to/department — voir search-carry.js et
+        // filter-autosubmit.js) pour que changer l'intervalle de dates ne
+        // fasse pas perdre ce que l'utilisateur avait tapé.
+        const initialTerm = new URLSearchParams(location.search).get('q') || '';
+        if (initialTerm) {
+            input.value = initialTerm;
+            runSearch(initialTerm.toLowerCase());
+        }
+
+        carrySearchToFilterForm(input);
         input.addEventListener('input', () => runSearch(input.value.trim().toLowerCase()));
     }
 

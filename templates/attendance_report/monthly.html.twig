@@ -31,6 +31,7 @@
                         {% endfor %}
                     </select>
                 </div>
+                <input type="hidden" name="q" value="{{ app.request.query.get('q') }}" data-search-carry>
                 <noscript><button class="btn btn--primary" type="submit">{{ 'common.show'|trans }}</button></noscript>
                 <a class="btn" href="{{ path('attendance_report_monthly_export', {from: from|date('Y-m-d'), to: to|date('Y-m-d'), department: department}) }}">{{ 'report.export_csv'|trans }}</a>
                 <a class="btn" href="{{ path('attendance_report_monthly_export_detailed', {from: from|date('Y-m-d'), to: to|date('Y-m-d'), department: department}) }}">{{ 'report.export_csv_detailed'|trans }}</a>

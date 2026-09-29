@@ -30,6 +30,7 @@
                         {% endfor %}
                     </select>
                 </div>
+                <input type="hidden" name="q" value="{{ app.request.query.get('q') }}" data-search-carry>
                 <noscript><button class="btn btn--primary" type="submit">{{ 'common.show'|trans }}</button></noscript>
             </form>
         </div>
