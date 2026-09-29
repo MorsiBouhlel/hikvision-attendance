@@ -13,12 +13,14 @@ use Twig\Environment;
 class UserInvitationService
 {
     private const TOKEN_TTL_HOURS = 24;
+    private const RESET_TOKEN_TTL_HOURS = 2;
 
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly MailerInterface $mailer,
         private readonly Environment $twig,
+        private readonly NotificationMailer $notifications,
         private readonly string $appBaseUrl, // injecté via services.yaml, ex: %env(APP_BASE_URL)%
         private readonly string $mailerFromAddress,
         private readonly string $mailerFromName,
@@ -50,10 +52,31 @@ class UserInvitationService
         $this->sendInvitationEmail($user);
     }
 
-    private function assignNewToken(User $user): void
+    /** Mot de passe oublié : le mot de passe actuel reste valable jusqu'à ce que le lien soit utilisé. */
+    public function sendPasswordReset(User $user): void
+    {
+        $this->assignNewToken($user, self::RESET_TOKEN_TTL_HOURS);
+        $this->em->flush();
+
+        $link = rtrim($this->appBaseUrl, '/') . "/definir-mot-de-passe/{$user->getResetToken()}";
+
+        $this->notifications->send(
+            $user->getEmail(),
+            'Réinitialisation de votre mot de passe',
+            sprintf(
+                "Une réinitialisation de mot de passe a été demandée pour %s.\n\nCe lien est valable %d heures. Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail : votre mot de passe actuel reste inchangé.",
+                $user->getEmail(),
+                self::RESET_TOKEN_TTL_HOURS,
+            ),
+            'Définir un nouveau mot de passe',
+            $link,
+        );
+    }
+
+    private function assignNewToken(User $user, int $ttlHours = self::TOKEN_TTL_HOURS): void
     {
         $user->setResetToken(bin2hex(random_bytes(32)));
-        $user->setResetTokenExpiresAt(new \DateTimeImmutable('+' . self::TOKEN_TTL_HOURS . ' hours'));
+        $user->setResetTokenExpiresAt(new \DateTimeImmutable("+$ttlHours hours"));
     }
 
     private function sendInvitationEmail(User $user): void
@@ -69,7 +92,8 @@ class UserInvitationService
         $email = (new Email())
             ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
             ->to($user->getEmail())
-            ->subject('Votre accès à Présence Hikvision')
+            ->subject('Votre accès à Softy RH')
+            ->text("Un compte a été créé pour vous ({$user->getEmail()}). Définissez votre mot de passe (lien valable 24 heures) : {$link}")
             ->html($html);
 
         $this->mailer->send($email);

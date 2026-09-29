@@ -9,7 +9,7 @@
             <p class="page-header__meta">{{ 'device.count'|trans({'%count%': devices|length}) }}</p>
         </div>
         {% if is_granted('ROLE_ADMIN') %}
-            <a class="btn btn--primary" href="{{ path('device_new') }}">+ {{ 'device.new'|trans }}</a>
+            <a class="btn btn--primary" href="{{ path('device_new') }}">{{ icon('plus', 15) }}{{ 'device.new'|trans }}</a>
         {% endif %}
     </div>
 
@@ -45,7 +45,7 @@
                                 <td data-sort-value="{{ device.lastSeenAt ? device.lastSeenAt|date('c') : '' }}">{{ device.lastSeenAt ? device.lastSeenAt|date('d/m/Y H:i') : 'device.never'|trans }}</td>
                                 <td>
                                     <div class="btn-group">
-                                        <a class="btn btn--sm" href="{{ path('device_edit', {id: device.id}) }}">{{ 'common.edit'|trans }}</a>
+                                        <a class="btn btn--sm" href="{{ path('device_edit', {id: device.id}) }}">{{ icon('pencil', 14) }}{{ 'common.edit'|trans }}</a>
                                         <form method="post" action="{{ path('device_register_webhook', {id: device.id}) }}">
                                             <input type="hidden" name="_token" value="{{ csrf_token('device_action_' ~ device.id) }}">
                                             <button class="btn btn--sm" type="submit">{{ 'device.register_webhook'|trans }}</button>

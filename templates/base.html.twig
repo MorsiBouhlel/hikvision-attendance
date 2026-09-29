@@ -11,41 +11,57 @@
     <div class="app-shell">
         <aside class="sidebar">
             <div class="sidebar__brand">
-                {{ 'nav.brand'|trans }}
-                <small>{{ 'nav.brand_subtitle'|trans }}</small>
+                <span class="sidebar__logo">{{ icon('fingerprint', 22) }}</span>
+                <span>{{ 'nav.brand'|trans }}<small>{{ 'nav.brand_subtitle'|trans }}</small></span>
             </div>
             <nav class="nav">
                 {% if is_granted('ROLE_VIEWER') %}
-                    <a class="nav__link {{ app.request.attributes.get('_route') == 'dashboard' ? 'is-active' }}" href="{{ path('dashboard') }}">{{ 'nav.dashboard'|trans }}</a>
-                    <a class="nav__link {{ app.request.attributes.get('_route') == 'attendance_history_index' ? 'is-active' }}" href="{{ path('attendance_history_index') }}">{{ 'nav.history'|trans }}</a>
-                    <a class="nav__link {{ app.request.attributes.get('_route') starts with 'attendance_report_' ? 'is-active' }}" href="{{ path('attendance_report_monthly') }}">{{ 'nav.reports'|trans }}</a>
+                    <a class="nav__link {{ app.request.attributes.get('_route') == 'dashboard' ? 'is-active' }}" href="{{ path('dashboard') }}">{{ icon('dashboard') }}<span>{{ 'nav.dashboard'|trans }}</span></a>
+                    <a class="nav__link {{ app.request.attributes.get('_route') == 'attendance_history_index' ? 'is-active' }}" href="{{ path('attendance_history_index') }}">{{ icon('history') }}<span>{{ 'nav.history'|trans }}</span></a>
+                    <a class="nav__link {{ app.request.attributes.get('_route') starts with 'attendance_report_' ? 'is-active' }}" href="{{ path('attendance_report_monthly') }}">{{ icon('chart') }}<span>{{ 'nav.reports'|trans }}</span></a>
                     {% if is_granted('ROLE_ADMIN') %}
-                        <a class="nav__link {{ app.request.attributes.get('_route') starts with 'device_' ? 'is-active' }}" href="{{ path('device_index') }}">{{ 'nav.devices'|trans }}</a>
+                        <a class="nav__link {{ app.request.attributes.get('_route') starts with 'device_' ? 'is-active' }}" href="{{ path('device_index') }}">{{ icon('device') }}<span>{{ 'nav.devices'|trans }}</span></a>
                     {% endif %}
-                    <a class="nav__link {{ app.request.attributes.get('_route') starts with 'employee_' ? 'is-active' }}" href="{{ path('employee_index') }}">{{ 'nav.employees'|trans }}</a>
 
-                    {% set inConfigGroup = app.request.attributes.get('_route') starts with 'department_'
-                        or app.request.attributes.get('_route') starts with 'work_schedule_'
-                        or app.request.attributes.get('_route') starts with 'holiday_'
-                        or app.request.attributes.get('_route') starts with 'leave_'
-                        or app.request.attributes.get('_route') starts with 'telegram_'
-                        or app.request.attributes.get('_route') starts with 'user_' %}
+                    {% set route = app.request.attributes.get('_route') %}
+                    <a class="nav__link {{ route starts with 'employee_' ? 'is-active' }}" href="{{ path('employee_index') }}">{{ icon('users') }}<span>{{ 'nav.employees'|trans }}</span></a>
+
+                    {% set inHrGroup = route starts with 'calendar_' or route starts with 'leave_' or route starts with 'remote_work_' or route starts with 'permission_' %}
+                    <button type="button" class="nav__group-toggle {{ inHrGroup ? 'is-open' }}" data-nav-group-toggle aria-expanded="{{ inHrGroup ? 'true' : 'false' }}">
+                        {{ icon('briefcase') }}<span class="nav__group-text">{{ 'nav.hr'|trans }}</span>
+                        <span class="nav__group-chevron">{{ icon('chevron-down', 14) }}</span>
+                    </button>
+                    <div class="nav__group {{ inHrGroup ? 'is-open' }}" data-nav-group>
+                        <a class="nav__link {{ route starts with 'calendar_' ? 'is-active' }}" href="{{ path('calendar_index') }}">{{ icon('calendar') }}<span>{{ 'nav.calendar'|trans }}</span></a>
+                        <a class="nav__link {{ route in ['leave_index', 'leave_new'] ? 'is-active' }}" href="{{ path('leave_index') }}">{{ icon('sun') }}<span>{{ 'nav.leaves'|trans }}</span></a>
+                        {% if is_granted('ROLE_MANAGER') %}
+                            <a class="nav__link {{ route starts with 'leave_request_' ? 'is-active' }}" href="{{ path('leave_request_index') }}">{{ icon('file-check') }}<span>{{ 'nav.leave_requests'|trans }}</span></a>
+                            <a class="nav__link {{ route starts with 'leave_balance_' ? 'is-active' }}" href="{{ path('leave_balance_index') }}">{{ icon('wallet') }}<span>{{ 'nav.leave_balances'|trans }}</span></a>
+                            <a class="nav__link {{ route starts with 'remote_work_' ? 'is-active' }}" href="{{ path('remote_work_index') }}">{{ icon('home') }}<span>{{ 'nav.remote_work'|trans }}</span></a>
+                            <a class="nav__link {{ route starts with 'permission_' ? 'is-active' }}" href="{{ path('permission_index') }}">{{ icon('timer') }}<span>{{ 'nav.permission_requests'|trans }}</span></a>
+                        {% endif %}
+                    </div>
+
+                    {% set inConfigGroup = route starts with 'department_' or route starts with 'work_schedule_' or route starts with 'holiday_' or route starts with 'hr_settings_'
+                        or route starts with 'telegram_' or route starts with 'user_' %}
                     <button type="button" class="nav__group-toggle {{ inConfigGroup ? 'is-open' }}" data-nav-group-toggle aria-expanded="{{ inConfigGroup ? 'true' : 'false' }}">
-                        {{ 'nav.configuration'|trans }}
-                        <svg class="nav__group-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        {{ icon('sliders') }}<span class="nav__group-text">{{ 'nav.configuration'|trans }}</span>
+                        <span class="nav__group-chevron">{{ icon('chevron-down', 14) }}</span>
                     </button>
                     <div class="nav__group {{ inConfigGroup ? 'is-open' }}" data-nav-group>
-                        <a class="nav__link {{ app.request.attributes.get('_route') starts with 'department_' ? 'is-active' }}" href="{{ path('department_index') }}">{{ 'nav.departments'|trans }}</a>
-                        <a class="nav__link {{ app.request.attributes.get('_route') starts with 'work_schedule_' ? 'is-active' }}" href="{{ path('work_schedule_index') }}">{{ 'nav.schedules'|trans }}</a>
-                        <a class="nav__link {{ app.request.attributes.get('_route') starts with 'holiday_' ? 'is-active' }}" href="{{ path('holiday_index') }}">{{ 'nav.holidays'|trans }}</a>
-                        <a class="nav__link {{ app.request.attributes.get('_route') starts with 'leave_' ? 'is-active' }}" href="{{ path('leave_index') }}">{{ 'nav.leaves'|trans }}</a>
+                        <a class="nav__link {{ route starts with 'department_' ? 'is-active' }}" href="{{ path('department_index') }}">{{ icon('building') }}<span>{{ 'nav.departments'|trans }}</span></a>
+                        <a class="nav__link {{ route starts with 'work_schedule_' ? 'is-active' }}" href="{{ path('work_schedule_index') }}">{{ icon('clock') }}<span>{{ 'nav.schedules'|trans }}</span></a>
+                        <a class="nav__link {{ route starts with 'holiday_' ? 'is-active' }}" href="{{ path('holiday_index') }}">{{ icon('flag') }}<span>{{ 'nav.holidays'|trans }}</span></a>
+                        {% if is_granted('ROLE_MANAGER') %}
+                            <a class="nav__link {{ route starts with 'hr_settings_' ? 'is-active' }}" href="{{ path('hr_settings_index') }}">{{ icon('sliders') }}<span>{{ 'nav.hr_settings'|trans }}</span></a>
+                        {% endif %}
                         {% if is_granted('ROLE_ADMIN') %}
-                            <a class="nav__link {{ app.request.attributes.get('_route') starts with 'telegram_' ? 'is-active' }}" href="{{ path('telegram_index') }}">{{ 'nav.telegram'|trans }}</a>
-                            <a class="nav__link {{ app.request.attributes.get('_route') starts with 'user_' ? 'is-active' }}" href="{{ path('user_index') }}">{{ 'nav.users'|trans }}</a>
+                            <a class="nav__link {{ route starts with 'telegram_' ? 'is-active' }}" href="{{ path('telegram_index') }}">{{ icon('send') }}<span>{{ 'nav.telegram'|trans }}</span></a>
+                            <a class="nav__link {{ route starts with 'user_' ? 'is-active' }}" href="{{ path('user_index') }}">{{ icon('shield') }}<span>{{ 'nav.users'|trans }}</span></a>
                         {% endif %}
                     </div>
                 {% elseif is_granted('ROLE_EMPLOYEE') %}
-                    <a class="nav__link {{ app.request.attributes.get('_route') starts with 'employee_space_' ? 'is-active' }}" href="{{ path('employee_space_index') }}">{{ 'nav.my_space'|trans }}</a>
+                    <a class="nav__link {{ app.request.attributes.get('_route') starts with 'employee_space_' ? 'is-active' }}" href="{{ path('employee_space_index') }}">{{ icon('user') }}<span>{{ 'nav.my_space'|trans }}</span></a>
                 {% endif %}
             </nav>
         </aside>
@@ -59,16 +75,19 @@
                         </form>
                     {% endfor %}
                 </div>
-                <span class="topbar__user">{{ app.user.email }}</span>
-                <a class="topbar__logout" href="{{ path('app_logout') }}">{{ 'nav.logout'|trans }}</a>
+                <span class="topbar__user">{{ icon('user', 16) }}{{ app.user.email }}</span>
+                <a class="topbar__logout" href="{{ path('app_logout') }}">{{ icon('logout', 16) }}{{ 'nav.logout'|trans }}</a>
             </header>
             <main class="main">
                 <div class="flash-stack">
                     {% for message in app.flashes('success') %}
-                        <div class="flash flash--success">{{ message is iterable ? message.key|trans(message.params|default({})) : message }}</div>
+                        <div class="flash flash--success">{{ icon('check-circle', 18) }}<span>{{ message is iterable ? message.key|trans(message.params|default({})) : message }}</span></div>
+                    {% endfor %}
+                    {% for message in app.flashes('warning') %}
+                        <div class="flash flash--warning">{{ icon('alert', 18) }}<span>{{ message is iterable ? message.key|trans(message.params|default({})) : message }}</span></div>
                     {% endfor %}
                     {% for message in app.flashes('error') %}
-                        <div class="flash flash--error">{{ message is iterable ? message.key|trans(message.params|default({})) : message }}</div>
+                        <div class="flash flash--error">{{ icon('x-circle', 18) }}<span>{{ message is iterable ? message.key|trans(message.params|default({})) : message }}</span></div>
                     {% endfor %}
                 </div>
                 {% block body %}{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+{% import 'leave_request/_status_badge.html.twig' as badges %}
+
+{% block title %}{{ 'nav.leave_requests'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h1>{{ 'nav.leave_requests'|trans }}</h1>
+    </div>
+
+    <div class="card">
+        {% if requests is empty %}
+            <div class="table--empty">{{ 'leave_request.none'|trans }}</div>
+        {% else %}
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>{{ 'form.employee'|trans }}</th>
+                            <th>{{ 'form.start_short'|trans }}</th>
+                            <th>{{ 'form.end_short'|trans }}</th>
+                            <th>{{ 'form.type'|trans }}</th>
+                            <th>{{ 'form.reason'|trans }}</th>
+                            <th>{{ 'leave_request.status_label'|trans }}</th>
+                            <th>{{ 'leave_balance.remaining'|trans }}</th>
+                            <th>{{ 'common.actions'|trans }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in requests %}
+                            <tr>
+                                <td>{{ r.employee.fullName }}</td>
+                                <td>{{ r.startDate|date('d/m/Y') }}</td>
+                                <td>{{ r.endDate|date('d/m/Y') }}</td>
+                                <td>{{ ('leave_type.' ~ r.type)|trans }}</td>
+                                <td>{{ r.reason ?? '—' }}</td>
+                                <td>
+                                    {{ badges.badge(r.status) }}
+                                    {% if r.decisionComment %}<br><small>{{ r.decisionComment }}</small>{% endif %}
+                                </td>
+                                <td>
+                                    {% if r.pending %}
+                                        {% set b = balances[r.employee.id] %}
+                                        {{ b.remaining|number_format(2, ',', ' ') }}
+                                        {% if r.type == 'conge' and b.remaining - b.pending < 0 %}<span class="badge badge--warning">{{ 'leave_request.exceeds_balance'|trans }}</span>{% endif %}
+                                    {% else %}—{% endif %}
+                                </td>
+                                <td>
+                                    {% if r.pending %}
+                                        <form method="post" class="form form--inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('leave_request_decide_' ~ r.id) }}">
+                                            <input class="form-control" type="text" name="comment" maxlength="255" placeholder="{{ 'leave_request.comment'|trans }}">
+                                            <button class="btn btn--sm btn--primary" type="submit" formaction="{{ path('leave_request_decide', {id: r.id, action: 'approve'}) }}">{{ 'leave_request.approve'|trans }}</button>
+                                            <button class="btn btn--sm btn--danger" type="submit" formaction="{{ path('leave_request_decide', {id: r.id, action: 'reject'}) }}">{{ 'leave_request.reject'|trans }}</button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

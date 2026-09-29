@@ -3,32 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Connexion — Hikvision Attendance</title>
+    <title>Connexion — Softy RH</title>
     {{ importmap('app') }}
 </head>
 <body>
     <div class="login-page">
         <div class="card login-card">
-            <div class="card__header">
-                <h1>Présence</h1>
-                <p class="page-header__meta">Hikvision Attendance</p>
+            <div class="login-card__hero">
+                <span class="sidebar__logo sidebar__logo--lg">{{ icon('fingerprint', 30) }}</span>
+                <h1>Softy RH</h1>
+                <p>Pointage & gestion RH</p>
             </div>
             <div class="card__body">
+                {% for message in app.flashes('success') %}
+                    <div class="flash flash--success">{{ message.key|trans }}</div>
+                {% endfor %}
                 {% if error %}
                     <div class="flash flash--error">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
                 {% endif %}
 
                 <form method="post" class="form">
                     <div class="form-row">
-                        <label for="username">Email</label>
-                        <input type="email" id="username" name="_username" value="{{ last_username }}" class="form-control" required autofocus>
+                        <label class="form-label" for="username">Email</label>
+                        <div class="input-icon">{{ icon('mail', 17) }}<input type="email" id="username" name="_username" value="{{ last_username }}" class="form-control" required autofocus></div>
                     </div>
                     <div class="form-row">
-                        <label for="password">Mot de passe</label>
-                        <input type="password" id="password" name="_password" class="form-control" required>
+                        <label class="form-label" for="password">Mot de passe</label>
+                        <div class="input-icon">{{ icon('lock', 17) }}<input type="password" id="password" name="_password" class="form-control" required></div>
                     </div>
                     <div class="btn-group">
-                        <button class="btn btn--primary" type="submit">Se connecter</button>
+                        <button class="btn btn--primary" type="submit">{{ icon('log-in', 16) }}Se connecter</button>
+                        <a class="btn" href="{{ path('app_forgot_password') }}">{{ 'user.forgot_password'|trans }}</a>
                     </div>
                 </form>
             </div>

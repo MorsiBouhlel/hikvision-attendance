@@ -8,6 +8,9 @@ use App\Entity\WorkSchedule;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -47,6 +50,33 @@ class EmployeeType extends AbstractType
                 'label' => 'form.work_schedule',
                 'required' => false,
                 'placeholder' => 'form.no_schedule',
+            ])
+            ->add('annualLeaveDays', NumberType::class, [
+                'label' => 'form.annual_leave_days',
+                'html5' => true,
+                'scale' => 2,
+                'attr' => ['step' => '0.5', 'min' => 0],
+                'constraints' => [new Assert\NotBlank(), new Assert\PositiveOrZero()],
+            ])
+            ->add('remoteWorkQuotaOverride', IntegerType::class, [
+                'label' => 'form.remote_work_quota_override',
+                'required' => false,
+                'attr' => ['min' => 0],
+                'constraints' => [new Assert\PositiveOrZero()],
+            ])
+            ->add('permissionQuotaOverride', NumberType::class, [
+                'label' => 'form.permission_quota_override',
+                'required' => false,
+                'html5' => true,
+                'scale' => 2,
+                'attr' => ['step' => '0.5', 'min' => 0],
+                'constraints' => [new Assert\PositiveOrZero()],
+            ])
+            ->add('hireDate', DateType::class, [
+                'label' => 'form.hire_date',
+                'widget' => 'single_text',
+                'input' => 'datetime_immutable',
+                'required' => false,
             ]);
     }
 

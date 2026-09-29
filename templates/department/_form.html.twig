@@ -24,11 +24,11 @@
                             {{ form_label(row.durationMinutes) }}
                             {{ form_widget(row.durationMinutes, {attr: {class: 'form-control'}}) }}
                         </div>
-                        <button class="btn btn--sm btn--danger" type="button" data-collection-remove>{{ 'common.delete'|trans }}</button>
+                        <button class="btn btn--sm btn--danger" type="button" data-collection-remove>{{ icon('trash', 14) }}{{ 'common.delete'|trans }}</button>
                     </div>
                 {% endfor %}
             </div>
-            <button class="btn btn--sm" type="button" data-collection-add>+ {{ 'form.add_break'|trans }}</button>
+            <button class="btn btn--sm" type="button" data-collection-add>{{ icon('plus', 15) }}{{ 'form.add_break'|trans }}</button>
         </div>
     </div>
     <div class="form-row">

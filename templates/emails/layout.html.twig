@@ -1,0 +1,38 @@
+{# Gabarit commun des e-mails : styles inline uniquement (les clients mail ignorent <style> et les CSS externes). #}
+{% set accents = {info: '#2563eb', success: '#12805c', danger: '#c0392b', warning: '#b7791f'} %}
+{% set accent = accents[tone|default("info")] ?? accents.info %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Softy RH{% endblock %}</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f4f5f7; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f5f7; padding:32px 16px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px; background-color:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+                    <tr>
+                        <td style="background-color:#1f2937; padding:20px 32px;">
+                            <span style="color:#ffffff; font-size:18px; font-weight:600;">Softy RH</span>
+                            <span style="color:#9ca3af; font-size:13px; display:block;">Pointage & gestion RH</span>
+                        </td>
+                    </tr>
+                    <tr><td style="height:4px; line-height:4px; font-size:0; background-color:{{ accent }};">&nbsp;</td></tr>
+                    <tr>
+                        <td style="padding:32px;">
+                            {% block content %}{% endblock %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:16px 32px; background-color:#f9fafb; border-top:1px solid #e5e7eb; color:#9ca3af; font-size:12px; line-height:1.5;">
+                            Message automatique de l'application Softy RH — merci de ne pas y répondre.
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

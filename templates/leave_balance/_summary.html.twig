@@ -1,0 +1,24 @@
+<div class="table-wrap">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>{{ 'leave_balance.accrued'|trans }}</th>
+                <th>{{ 'leave_balance.carried_over'|trans }}</th>
+                <th>{{ 'leave_balance.adjustments'|trans }}</th>
+                <th>{{ 'leave_balance.taken'|trans }}</th>
+                <th>{{ 'leave_balance.pending'|trans }}</th>
+                <th>{{ 'leave_balance.remaining'|trans }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ balance.accrued|number_format(2, ',', ' ') }}</td>
+                <td>{{ balance.carried_over|number_format(2, ',', ' ') }}</td>
+                <td>{{ balance.adjustments|number_format(2, ',', ' ') }}</td>
+                <td>{{ balance.taken|number_format(2, ',', ' ') }}</td>
+                <td>{{ balance.pending|number_format(2, ',', ' ') }}</td>
+                <td><strong>{{ balance.remaining|number_format(2, ',', ' ') }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

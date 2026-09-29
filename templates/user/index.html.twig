@@ -8,7 +8,7 @@
             <h1>{{ 'nav.users'|trans }}</h1>
             <p class="page-header__meta">{{ 'user.count'|trans({'%count%': users|length}) }}</p>
         </div>
-        <a class="btn btn--primary" href="{{ path('user_new') }}">+ {{ 'user.new'|trans }}</a>
+        <a class="btn btn--primary" href="{{ path('user_new') }}">{{ icon('plus', 15) }}{{ 'user.new'|trans }}</a>
     </div>
 
     <div class="card">
@@ -56,7 +56,7 @@
                                             </form>
                                             <form method="post" action="{{ path('user_delete', {id: user.id}) }}">
                                                 <input type="hidden" name="_token" value="{{ csrf_token('user_delete_' ~ user.id) }}">
-                                                <button class="btn btn--sm btn--danger" type="submit">{{ 'common.delete'|trans }}</button>
+                                                <button class="btn btn--sm btn--danger" type="submit">{{ icon('trash', 14) }}{{ 'common.delete'|trans }}</button>
                                             </form>
                                         {% endif %}
                                     </div>

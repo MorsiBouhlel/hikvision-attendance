@@ -32,7 +32,10 @@ security:
     access_control:
         - { path: ^/api/hikvision/webhook, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
+        # Sans cette règle, un compte ROLE_EMPLOYEE (non ROLE_VIEWER) tomberait sur le catch-all `^/` et recevrait un 403 au logout.
+        - { path: ^/logout, roles: PUBLIC_ACCESS }
         - { path: ^/definir-mot-de-passe, roles: PUBLIC_ACCESS }
+        - { path: ^/mot-de-passe-oublie, roles: PUBLIC_ACCESS }
         - { path: ^/mon-espace, roles: ROLE_EMPLOYEE }
         - { path: ^/api, roles: ROLE_VIEWER }
         - { path: ^/users, roles: ROLE_ADMIN }
@@ -58,6 +61,11 @@ security:
         - { path: ^/jours-feries/\d+/delete, roles: ROLE_MANAGER }
         - { path: ^/conges/new, roles: ROLE_MANAGER }
         - { path: ^/conges/\d+/delete, roles: ROLE_MANAGER }
+        - { path: ^/demandes-conges, roles: ROLE_MANAGER }
+        - { path: ^/soldes-conges, roles: ROLE_MANAGER }
+        - { path: ^/demandes-teletravail, roles: ROLE_MANAGER }
+        - { path: ^/demandes-autorisations, roles: ROLE_MANAGER }
+        - { path: ^/reglages-rh, roles: ROLE_MANAGER }
         - { path: ^/telegram, roles: ROLE_ADMIN }
         # ROLE_EMPLOYEE n'inclut plus ROLE_VIEWER implicitement (voir User::getRoles()) : un
         # compte employé ne matche donc aucune règle ci-dessus après /mon-espace et tombe ici,

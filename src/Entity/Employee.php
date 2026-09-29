@@ -39,6 +39,20 @@ class Employee
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $photoPath = null;
 
+    #[ORM\Column(options: ['default' => 22])]
+    private float $annualLeaveDays = 22.0;
+
+    #[ORM\Column(type: 'date_immutable', nullable: true)]
+    private ?\DateTimeImmutable $hireDate = null;
+
+    /** Surcharge du quota mensuel de jours de télétravail (null = valeur globale de HrSettings). */
+    #[ORM\Column(nullable: true)]
+    private ?int $remoteWorkQuotaOverride = null;
+
+    /** Surcharge du quota mensuel d'heures d'autorisation (null = valeur globale de HrSettings). */
+    #[ORM\Column(nullable: true)]
+    private ?float $permissionQuotaOverride = null;
+
     /** @var Collection<int, DeviceEmployee> */
     #[ORM\OneToMany(mappedBy: 'employee', targetEntity: DeviceEmployee::class, orphanRemoval: true)]
     private Collection $deviceLinks;
@@ -70,6 +84,18 @@ class Employee
 
     public function getPhotoPath(): ?string { return $this->photoPath; }
     public function setPhotoPath(?string $p): static { $this->photoPath = $p; return $this; }
+
+    public function getAnnualLeaveDays(): float { return $this->annualLeaveDays; }
+    public function setAnnualLeaveDays(float $d): static { $this->annualLeaveDays = $d; return $this; }
+
+    public function getHireDate(): ?\DateTimeImmutable { return $this->hireDate; }
+    public function setHireDate(?\DateTimeImmutable $d): static { $this->hireDate = $d; return $this; }
+
+    public function getRemoteWorkQuotaOverride(): ?int { return $this->remoteWorkQuotaOverride; }
+    public function setRemoteWorkQuotaOverride(?int $q): static { $this->remoteWorkQuotaOverride = $q; return $this; }
+
+    public function getPermissionQuotaOverride(): ?float { return $this->permissionQuotaOverride; }
+    public function setPermissionQuotaOverride(?float $q): static { $this->permissionQuotaOverride = $q; return $this; }
 
     public function getFullName(): string
     {

@@ -10,20 +10,23 @@
     <div class="page-header">
         <div>
             <h1>{{ 'dashboard.today'|trans }}</h1>
-            <p class="page-header__meta">{{ date|date('d/m/Y') }}</p>
+            <p class="page-header__meta">{{ icon('calendar', 14) }}{{ date|date('d/m/Y') }}</p>
         </div>
     </div>
 
     <div class="stat-grid">
         <div class="stat-tile stat-tile--success">
+            <span class="stat-tile__icon">{{ icon('user-check', 22) }}</span>
             <div class="stat-tile__label">{{ 'dashboard.present'|trans }}</div>
             <div class="stat-tile__value">{{ presentCount }}</div>
         </div>
         <div class="stat-tile stat-tile--danger">
+            <span class="stat-tile__icon">{{ icon('user-x', 22) }}</span>
             <div class="stat-tile__label">{{ 'status.absent'|trans }}</div>
             <div class="stat-tile__value">{{ absentCount }}</div>
         </div>
-        <div class="stat-tile">
+        <div class="stat-tile stat-tile--primary">
+            <span class="stat-tile__icon">{{ icon('users', 22) }}</span>
             <div class="stat-tile__label">{{ 'dashboard.active_employees'|trans }}</div>
             <div class="stat-tile__value">{{ summary|length }}</div>
         </div>
@@ -41,14 +44,14 @@
                         {% endfor %}
                     </select>
                 </div>
-                <button class="btn btn--primary" type="submit">{{ 'common.filter'|trans }}</button>
+                <button class="btn btn--primary" type="submit">{{ icon('filter', 15) }}{{ 'common.filter'|trans }}</button>
             </form>
         </div>
     </div>
 
     <div class="card">
         <div class="card__header">
-            <h2>{{ 'dashboard.day_summary'|trans }}</h2>
+            <h2 class="card__title">{{ icon('clock', 18) }}{{ 'dashboard.day_summary'|trans }}</h2>
         </div>
         {% include 'attendance/_summary_table.html.twig' %}
     </div>

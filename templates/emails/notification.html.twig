@@ -1,0 +1,13 @@
+{% extends 'emails/layout.html.twig' %}
+
+{% block title %}{{ subject }}{% endblock %}
+
+{% block content %}
+    <h1 style="margin:0 0 20px; color:#111827; font-size:20px; line-height:1.3;">{{ subject }}</h1>
+    {% for paragraph in paragraphs %}
+        <p style="margin:0 0 16px; color:#374151; font-size:15px; line-height:1.6;">{{ paragraph|nl2br }}</p>
+    {% endfor %}
+    {% if actionLabel and actionUrl %}
+        {% include 'emails/_button.html.twig' with {label: actionLabel, url: actionUrl, accent: accent} only %}
+    {% endif %}
+{% endblock %}

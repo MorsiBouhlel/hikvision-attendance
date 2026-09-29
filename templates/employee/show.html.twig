@@ -161,7 +161,7 @@
                                 </td>
                                 {% if is_granted('ROLE_MANAGER') %}
                                     <td onclick="event.stopPropagation()">
-                                        <a class="btn btn--sm" href="{{ path('employee_punch_new', {id: employee.id, date: row.date|date('Y-m-d')}) }}">+ {{ 'punches.add'|trans }}</a>
+                                        <a class="btn btn--sm" href="{{ path('employee_punch_new', {id: employee.id, date: row.date|date('Y-m-d')}) }}">{{ icon('plus', 15) }}{{ 'punches.add'|trans }}</a>
                                     </td>
                                 {% endif %}
                             </tr>
