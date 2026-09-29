@@ -29,6 +29,7 @@ class UserType extends AbstractType
                 'data' => $options['preselected_role'] ?? 'ROLE_VIEWER',
                 'choices' => [
                     'role.admin' => 'ROLE_ADMIN',
+                    'role.manager' => 'ROLE_MANAGER',
                     'role.viewer' => 'ROLE_VIEWER',
                     'role.employee' => 'ROLE_EMPLOYEE',
                 ],

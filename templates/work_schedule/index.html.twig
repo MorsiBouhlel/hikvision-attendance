@@ -8,7 +8,7 @@
             <h1>{{ 'schedule.title'|trans }}</h1>
             <p class="page-header__meta">{{ 'schedule.count'|trans({'%count%': schedules|length}) }}</p>
         </div>
-        {% if is_granted('ROLE_ADMIN') %}
+        {% if is_granted('ROLE_MANAGER') %}
             <div class="btn-group">
                 {% for device in devices %}
                     <form method="post" action="{{ path('work_schedule_import_from_device', {deviceId: device.id}) }}">
@@ -59,7 +59,7 @@
                                 <td>{{ schedule.toleranceMinutes }} min</td>
                                 <td>{{ schedule.checkWindowMarginMinutes }} min</td>
                                 <td>
-                                    {% if is_granted('ROLE_ADMIN') %}
+                                    {% if is_granted('ROLE_MANAGER') %}
                                         <div class="btn-group">
                                             <a class="btn btn--sm" href="{{ path('work_schedule_edit', {id: schedule.id}) }}">{{ 'common.edit'|trans }}</a>
                                             <form method="post" action="{{ path('work_schedule_delete', {id: schedule.id}) }}">

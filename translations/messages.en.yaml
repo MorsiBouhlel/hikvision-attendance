@@ -89,6 +89,7 @@ leave_type:
 
 role:
     admin: Administrator
+    manager: HR manager
     viewer: Read-only
     employee: Employee (self-service)
 

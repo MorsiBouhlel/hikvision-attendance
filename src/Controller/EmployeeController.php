@@ -82,7 +82,7 @@ class EmployeeController extends AbstractController
             'history' => array_reverse($history),
             'start' => $start,
             'end' => $end,
-            'corrections' => $this->isGranted('ROLE_ADMIN') ? $corrections->findRecentForEmployee($employee) : [],
+            'corrections' => $this->isGranted('ROLE_MANAGER') ? $corrections->findRecentForEmployee($employee) : [],
             'pushableDevices' => $pushableDevices,
             'linkedAccount' => $users->findByEmployee($employee),
         ]);

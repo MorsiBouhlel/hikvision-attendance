@@ -22,8 +22,12 @@
             </div>
         </div>
         <div class="btn-group">
-            {% if is_granted('ROLE_ADMIN') %}
+            {% if is_granted('ROLE_MANAGER') %}
                 <a class="btn" href="{{ path('employee_edit', {id: employee.id}) }}">{{ 'common.edit'|trans }}</a>
+            {% endif %}
+            {% if is_granted('ROLE_ADMIN') %}
+                {# Création de compte = gestion des accès système (/users), reste admin-only
+                   même si l'édition de la fiche employé elle-même est ouverte au manager. #}
                 {% if linkedAccount %}
                     <span class="badge badge--present">{{ 'employee.has_account'|trans({'%email%': linkedAccount.email}) }}</span>
                 {% else %}
@@ -120,7 +124,7 @@
                             <th data-sort="number">{{ 'summary.hours'|trans }}</th>
                             <th data-sort="number">{{ 'summary.punches'|trans }}</th>
                             <th data-sort="text">{{ 'summary.overtime'|trans }}</th>
-                            {% if is_granted('ROLE_ADMIN') %}<th></th>{% endif %}
+                            {% if is_granted('ROLE_MANAGER') %}<th></th>{% endif %}
                         </tr>
                     </thead>
                     <tbody>
@@ -155,7 +159,7 @@
                                         —
                                     {% endif %}
                                 </td>
-                                {% if is_granted('ROLE_ADMIN') %}
+                                {% if is_granted('ROLE_MANAGER') %}
                                     <td onclick="event.stopPropagation()">
                                         <a class="btn btn--sm" href="{{ path('employee_punch_new', {id: employee.id, date: row.date|date('Y-m-d')}) }}">+ {{ 'punches.add'|trans }}</a>
                                     </td>
@@ -164,7 +168,7 @@
                             {% if row.punches is not empty %}
                                 <tr data-table-detail hidden>
                                     <td></td>
-                                    <td colspan="{{ is_granted('ROLE_ADMIN') ? 8 : 7 }}">
+                                    <td colspan="{{ is_granted('ROLE_MANAGER') ? 8 : 7 }}">
                                         {% include 'attendance/_punches_table.html.twig' with { punches: row.punches, employee: employee } %}
                                     </td>
                                 </tr>
@@ -176,7 +180,7 @@
         {% endif %}
     </div>
 
-    {% if is_granted('ROLE_ADMIN') and corrections is not empty %}
+    {% if is_granted('ROLE_MANAGER') and corrections is not empty %}
         <div class="card">
             <div class="card__header">
                 <h2>{{ 'punches.corrections_title'|trans }}</h2>

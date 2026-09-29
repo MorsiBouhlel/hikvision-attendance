@@ -8,7 +8,7 @@
             <h1>{{ 'nav.departments'|trans }}</h1>
             <p class="page-header__meta">{{ 'department.count'|trans({'%count%': departments|length}) }}</p>
         </div>
-        {% if is_granted('ROLE_ADMIN') %}
+        {% if is_granted('ROLE_MANAGER') %}
             <a class="btn btn--primary" href="{{ path('department_new') }}">+ {{ 'department.new'|trans }}</a>
         {% endif %}
     </div>
@@ -46,7 +46,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if is_granted('ROLE_ADMIN') %}
+                                    {% if is_granted('ROLE_MANAGER') %}
                                         <div class="btn-group">
                                             <a class="btn btn--sm" href="{{ path('department_edit', {id: department.id}) }}">{{ 'common.edit'|trans }}</a>
                                             <form method="post" action="{{ path('department_delete', {id: department.id}) }}">

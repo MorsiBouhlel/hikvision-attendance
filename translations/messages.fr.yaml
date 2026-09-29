@@ -89,6 +89,7 @@ leave_type:
 
 role:
     admin: Administrateur
+    manager: Manager RH
     viewer: Lecture seule
     employee: Employé (espace personnel)
 

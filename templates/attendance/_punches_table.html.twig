@@ -1,4 +1,4 @@
-{% set canEdit = employee is defined and employee and is_granted('ROLE_ADMIN') %}
+{% set canEdit = employee is defined and employee and is_granted('ROLE_MANAGER') %}
 {% if punches is empty %}
     <p class="text-muted">{{ 'punches.none_that_day'|trans }}</p>
 {% else %}
