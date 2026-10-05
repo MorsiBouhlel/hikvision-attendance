@@ -253,7 +253,12 @@ class HikvisionDigestClient
      */
     public function addUser(string $employeeNo, string $name): array
     {
-        return $this->post('/AccessControl/UserInfo/Record', $this->userInfoPayload($employeeNo, $name));
+        $payload = $this->userInfoPayload($employeeNo, $name);
+        // Sans droit d'accès, le terminal refuse le pointage ("non autorisé") : même plan que les autres employés.
+        $payload['UserInfo']['doorRight'] = '1';
+        $payload['UserInfo']['RightPlan'] = [['doorNo' => 1, 'planTemplateNo' => '4']];
+
+        return $this->post('/AccessControl/UserInfo/Record', $payload);
     }
 
     /**
